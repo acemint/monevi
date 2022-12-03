@@ -1,10 +1,10 @@
-package com.monevi.member;
+package com.monevi.finance;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MemberApplicationTests {
+class MoneviApplicationTests {
 
 	@Test
 	void contextLoads() {
