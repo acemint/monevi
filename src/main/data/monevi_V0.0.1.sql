@@ -5,9 +5,9 @@ CREATE TABLE IF NOT EXISTS monevi_student (
     created_by VARCHAR(255) NOT NULL,
     updated_date TIMESTAMP NOT NULL,
     updated_by VARCHAR(255) NOT NULL,
-    nim VARCHAR(255) NOT NULL,
+    nim VARCHAR(255) UNIQUE NOT NULL,
     full_name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 )
@@ -19,9 +19,8 @@ CREATE TABLE IF NOT EXISTS monevi_organization (
     created_by VARCHAR(255) NOT NULL,
     updated_date TIMESTAMP NOT NULL,
     updated_by VARCHAR(255) NOT NULL,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) UNIQUE NOT NULL,
     nickname VARCHAR(255),
-    region VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 )
 
@@ -42,6 +41,20 @@ CREATE TABLE IF NOT EXISTS monevi_terms (
     FOREIGN KEY (student_id) REFERENCES monevi_student (id)
 )
 
+
+CREATE TABLE IF NOT EXISTS monevi_organization_region (
+     id VARCHAR(255),
+     mark_for_delete BOOLEAN NOT NULL,
+     created_date TIMESTAMP NOT NULL,
+     created_by VARCHAR(255) NOT NULL,
+     updated_date TIMESTAMP NOT NULL,
+     updated_by VARCHAR(255) NOT NULL,
+     organization_id VARCHAR(255) NOT NULL,
+     name VARCHAR(255) NOT NULL,
+     PRIMARY KEY (id),
+     FOREIGN KEY (organization_id) REFERENCES monevi_organization (id)
+)
+
 CREATE TABLE IF NOT EXISTS monevi_report (
     id VARCHAR(255),
     mark_for_delete BOOLEAN NOT NULL,
@@ -49,12 +62,12 @@ CREATE TABLE IF NOT EXISTS monevi_report (
     created_by VARCHAR(255) NOT NULL,
     updated_date TIMESTAMP NOT NULL,
     updated_by VARCHAR(255) NOT NULL,
-    organization_id VARCHAR(255) NOT NULL,
+    organization_region_id VARCHAR(255) NOT NULL,
     period_month INT NOT NULL,
     period_year INT NOT NULL,
     status VARCHAR(255),
     PRIMARY KEY (id),
-    FOREIGN KEY (organization_id) REFERENCES monevi_organization (id)
+    FOREIGN KEY (organization_region_id) REFERENCES monevi_organization_region (id)
 )
 
 CREATE TABLE IF NOT EXISTS monevi_program (
@@ -102,7 +115,7 @@ CREATE TABLE IF NOT EXISTS monevi_supervisor (
     updated_date TIMESTAMP NOT NULL,
     updated_by VARCHAR(255) NOT NULL,
     full_name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 )
