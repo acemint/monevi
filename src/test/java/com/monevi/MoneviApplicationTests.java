@@ -1,4 +1,4 @@
-package com.monevi.finance;
+package com.monevi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
