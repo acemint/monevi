@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS monevi_organization (
     updated_date TIMESTAMP NOT NULL,
     updated_by VARCHAR(255) NOT NULL,
     name VARCHAR(255) UNIQUE NOT NULL,
-    nickname VARCHAR(255),
+    abbreviation VARCHAR(255),
     PRIMARY KEY (id)
 )
 
