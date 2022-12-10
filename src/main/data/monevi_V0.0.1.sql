@@ -5,9 +5,9 @@ CREATE TABLE IF NOT EXISTS monevi_student (
     created_by VARCHAR(255) NOT NULL,
     updated_date TIMESTAMP NOT NULL,
     updated_by VARCHAR(255) NOT NULL,
-    nim VARCHAR(255) UNIQUE NOT NULL,
+    nim VARCHAR(255) NOT NULL,
     full_name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 )
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS monevi_organization (
     created_by VARCHAR(255) NOT NULL,
     updated_date TIMESTAMP NOT NULL,
     updated_by VARCHAR(255) NOT NULL,
-    name VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
     abbreviation VARCHAR(255),
     PRIMARY KEY (id)
 )
@@ -41,6 +41,16 @@ CREATE TABLE IF NOT EXISTS monevi_terms (
     FOREIGN KEY (student_id) REFERENCES monevi_student (id)
 )
 
+CREATE TABLE IF NOT EXISTS monevi_region (
+     id VARCHAR(255),
+     mark_for_delete BOOLEAN NOT NULL,
+     created_date TIMESTAMP NOT NULL,
+     created_by VARCHAR(255) NOT NULL,
+     updated_date TIMESTAMP NOT NULL,
+     updated_by VARCHAR(255) NOT NULL,
+     name VARCHAR(255) NOT NULL,
+     PRIMARY KEY (id)
+)
 
 CREATE TABLE IF NOT EXISTS monevi_organization_region (
      id VARCHAR(255),
@@ -50,9 +60,10 @@ CREATE TABLE IF NOT EXISTS monevi_organization_region (
      updated_date TIMESTAMP NOT NULL,
      updated_by VARCHAR(255) NOT NULL,
      organization_id VARCHAR(255) NOT NULL,
-     name VARCHAR(255) NOT NULL,
+     region_id VARCHAR(255) NOT NULL,
      PRIMARY KEY (id),
-     FOREIGN KEY (organization_id) REFERENCES monevi_organization (id)
+     FOREIGN KEY (organization_id) REFERENCES monevi_organization (id),
+     FOREIGN KEY (region_id) REFERENCES monevi_region(id)
 )
 
 CREATE TABLE IF NOT EXISTS monevi_report (
@@ -115,7 +126,13 @@ CREATE TABLE IF NOT EXISTS monevi_supervisor (
     updated_date TIMESTAMP NOT NULL,
     updated_by VARCHAR(255) NOT NULL,
     full_name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 )
+
+CREATE UNIQUE INDEX monevi_student_nim_key ON monevi_student (nim) WHERE mark_for_delete IS FALSE;
+CREATE UNIQUE INDEX monevi_student_email ON monevi_student (email) WHERE mark_for_delete IS FALSE;
+CREATE UNIQUE INDEX monevi_organization_name_key ON monevi_organization ("name") WHERE mark_for_delete IS FALSE;
+CREATE UNIQUE INDEX monevi_supervisor_email_key ON monevi_supervisor (email) WHERE mark_for_delete IS FALSE;
+CREATE UNIQUE INDEX monevi_region_name_key ON monevi_region (name) WHERE mark_for_delete IS FALSE;
