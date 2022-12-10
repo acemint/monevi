@@ -12,6 +12,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.HashSet;
@@ -31,6 +33,7 @@ public class Report extends BaseEntity {
   public static final String PERIOD_MONTH_COLUMN_NAME = "PERIOD_MONTH";
   public static final String PERIOD_YEAR_COLUMN_NAME = "PERIOD_YEAR";
   public static final String STATUS_COLUMN_NAME = "STATUS";
+  public static final String ORGANIZATION_REGION_ID_COLUMN_NAME = "ORGANIZATION_REGION_ID";
 
   @Column(name = Report.NAME_COLUMN_NAME, nullable = false)
   private String name;
@@ -44,10 +47,14 @@ public class Report extends BaseEntity {
   @Builder.Default
   @Enumerated(value = EnumType.STRING)
   @Column(name = Report.STATUS_COLUMN_NAME, nullable = false)
-  private String status = ReportStatus.UNAPPROVED.name();
+  private ReportStatus status = ReportStatus.UNAPPROVED;
 
   @Builder.Default
   @OneToMany(cascade = CascadeType.ALL)
   private Set<Transaction> transactions = new HashSet<>();
+
+  @ManyToOne
+  @JoinColumn(name = Report.ORGANIZATION_REGION_ID_COLUMN_NAME, nullable = false)
+  private OrganizationRegion organizationRegion;
 
 }
