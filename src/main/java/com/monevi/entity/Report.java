@@ -47,7 +47,7 @@ public class Report extends BaseEntity {
   @Builder.Default
   @Enumerated(value = EnumType.STRING)
   @Column(name = Report.STATUS_COLUMN_NAME, nullable = false)
-  private String status = ReportStatus.UNAPPROVED.name();
+  private ReportStatus status = ReportStatus.UNAPPROVED;
 
   @Builder.Default
   @OneToMany(cascade = CascadeType.ALL)

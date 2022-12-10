@@ -1,5 +1,6 @@
 package com.monevi.entity;
 
+import com.monevi.enums.EntryPosition;
 import com.monevi.enums.GeneralLedgerAccount;
 import com.monevi.enums.TransactionType;
 import lombok.AllArgsConstructor;
@@ -49,23 +50,22 @@ public class Transaction extends BaseEntity {
   private DateTimeZone transactionDate;
 
   @Builder.Default
-  @Enumerated
   @Column(name = Transaction.AMOUNT_COLUMN_NAME, nullable = false)
   private double amount = 0;
 
   @Enumerated(value = EnumType.STRING)
   @Column(name = Transaction.ENTRY_POSITION_COLUMN_NAME, nullable = false)
-  private String entryPosition;
+  private EntryPosition entryPosition;
 
   @Builder.Default
   @Enumerated(value = EnumType.STRING)
   @Column(name = Transaction.TYPE_COLUMN_NAME, nullable = false)
-  private String type = TransactionType.NON_DAILY.name();
+  private TransactionType type = TransactionType.NON_DAILY;
 
   @Builder.Default
   @Enumerated(value = EnumType.STRING)
   @Column(name = Transaction.GENERAL_LEDGER_ACCOUNT_COLUMN_NAME, nullable = false)
-  private String generalLedgerAccount = GeneralLedgerAccount.BANK.name();
+  private GeneralLedgerAccount generalLedgerAccount = GeneralLedgerAccount.BANK;
 
   @Column(name = Transaction.DESCRIPTION_COLUMN_NAME)
   private String description;
