@@ -14,6 +14,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.HashSet;
@@ -37,6 +39,8 @@ public class Transaction extends BaseEntity {
   public static final String GENERAL_LEDGER_ACCOUNT_COLUMN_NAME = "GENERAL_LEDGER_ACCOUNT";
   public static final String DESCRIPTION_COLUMN_NAME = "DESCRIPTION";
   public static final String PROOF_COLUMN_NAME = "PROOF";
+  public static final String REPORT_ID_COLUMN_NAME = "REPORT_ID";
+  public static final String PROGRAM_ID_COLUMN_NAME = "PROGRAM_ID";
 
   @Column(name = Transaction.NAME_COLUMN_NAME, nullable = false)
   private String name;
@@ -72,5 +76,13 @@ public class Transaction extends BaseEntity {
   @Builder.Default
   @OneToMany(cascade = CascadeType.ALL)
   private Set<Transaction> transactions = new HashSet<>();
+
+  @ManyToOne
+  @JoinColumn(name = Transaction.REPORT_ID_COLUMN_NAME)
+  private Report report;
+
+  @ManyToOne
+  @JoinColumn(name = Transaction.PROGRAM_ID_COLUMN_NAME, nullable = false)
+  private Program program;
 
 }
