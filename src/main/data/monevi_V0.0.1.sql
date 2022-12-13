@@ -166,3 +166,9 @@ ALTER TABLE monevi_transaction ALTER transaction_date TYPE TIMESTAMPTZ USING upd
 
 ALTER TABLE monevi_supervisor ALTER created_date TYPE TIMESTAMPTZ USING created_date AT TIME ZONE 'UTC';
 ALTER TABLE monevi_supervisor ALTER updated_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
+
+ALTER TABLE monevi_terms ADD COLUMN locked_account BOOLEAN NOT NULL;
+
+ALTER TABLE monevi_terms DROP COLUMN IF EXISTS organization_id CASCADE;
+ALTER TABLE monevi_terms ADD COLUMN organization_region_id VARCHAR(255) NOT NULL;
+ALTER TABLE monevi_terms ADD CONSTRAINT monevi_terms_organization_region_id_fkey FOREIGN KEY (organization_region_id) REFERENCES monevi_organization_region(id);

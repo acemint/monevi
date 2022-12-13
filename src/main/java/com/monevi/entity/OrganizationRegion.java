@@ -28,10 +28,16 @@ public class OrganizationRegion extends BaseEntity {
   public static final String ORGANIZATION_ID_COLUMN_NAME = "ORGANIZATION_ID";
   public static final String REGION_ID_COLUMN_NAME = "REGION_ID";
   public static final String REPORT_MAPPED_BY_FIELD_NAME = "organizationRegion";
+  public static final String TERMS_MAPPED_BY_FIELD_NAME = "organizationRegion";
 
   @Builder.Default
   @OneToMany(cascade = CascadeType.ALL, mappedBy = OrganizationRegion.REPORT_MAPPED_BY_FIELD_NAME)
   private Set<Report> reports = new HashSet<>();
+
+
+  @Builder.Default
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = OrganizationRegion.TERMS_MAPPED_BY_FIELD_NAME)
+  private Set<Terms> terms = new HashSet<>();
 
   @ManyToOne
   @JoinColumn(name = OrganizationRegion.ORGANIZATION_ID_COLUMN_NAME, nullable = false)

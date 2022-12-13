@@ -35,10 +35,6 @@ public class Organization extends BaseEntity {
   private String abbreviation;
 
   @Builder.Default
-  @OneToMany(cascade = CascadeType.ALL)
-  private Set<Terms> terms = new HashSet<>();
-
-  @Builder.Default
   @OneToMany(cascade = CascadeType.ALL, mappedBy = Organization.ORGANIZATION_REGION_MAPPED_BY_FIELD_NAME)
   private Set<OrganizationRegion> organizationRegions = new HashSet<>();
 
