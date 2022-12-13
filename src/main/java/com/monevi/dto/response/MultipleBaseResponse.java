@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 @Builder
 @Data
@@ -16,6 +18,7 @@ public class MultipleBaseResponse<T> implements Serializable {
 
   private Page<T> values;
 
+  @Data
   public static class Metadata {
 
     private int totalItems;
