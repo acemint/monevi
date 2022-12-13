@@ -39,7 +39,7 @@ public class Terms extends BaseEntity {
 
   @ManyToOne
   @JoinColumn(name = Terms.ORGANIZATION_ID_COLUMN_NAME, nullable = false)
-  private Organization organization;
+  private OrganizationRegion organizationRegion;
 
   @ManyToOne
   @JoinColumn(name = Terms.STUDENT_ID_COLUMN_NAME, nullable = false)
