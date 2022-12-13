@@ -6,11 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
+import java.io.Serializable;
+
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MultipleBaseResponse<T> {
+public class MultipleBaseResponse<T> implements Serializable {
 
   private Page<T> values;
 

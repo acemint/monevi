@@ -26,6 +26,7 @@ public class Organization extends BaseEntity {
   public static final String ENTITY_NAME = "MONEVI_ORGANIZATION";
   public static final String NAME_COLUMN_NAME = "NAME";
   public static final String ABBREVIATION_COLUMN_NAME = "ABBREVIATION";
+  public static final String ORGANIZATION_REGION_MAPPED_BY_FIELD_NAME = "organization";
 
   @Column(name = Organization.NAME_COLUMN_NAME, nullable = false, unique = true)
   private String name;
@@ -38,7 +39,7 @@ public class Organization extends BaseEntity {
   private Set<Terms> terms = new HashSet<>();
 
   @Builder.Default
-  @OneToMany(cascade = CascadeType.ALL)
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = Organization.ORGANIZATION_REGION_MAPPED_BY_FIELD_NAME)
   private Set<OrganizationRegion> organizationRegions = new HashSet<>();
 
 }

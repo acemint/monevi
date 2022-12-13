@@ -10,17 +10,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.joda.time.DateTimeZone;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = Transaction.ENTITY_NAME)
@@ -72,10 +68,6 @@ public class Transaction extends BaseEntity {
 
   @Column(name = Transaction.PROOF_COLUMN_NAME)
   private byte[] proof;
-
-  @Builder.Default
-  @OneToMany(cascade = CascadeType.ALL)
-  private Set<Transaction> transactions = new HashSet<>();
 
   @ManyToOne
   @JoinColumn(name = Transaction.REPORT_ID_COLUMN_NAME)

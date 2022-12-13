@@ -28,6 +28,7 @@ public class Student extends BaseEntity {
   public static final String FULL_NAME_COLUMN_NAME = "FULL_NAME";
   public static final String EMAIL_COLUMN_NAME = "EMAIL";
   public static final String PASSWORD_COLUMN_NAME = "PASSWORD";
+  public static final String TERMS_MAPPED_BY_FIELD_NAME = "student";
 
   @Column(name = Student.NIM_COLUMN_NAME, nullable = false, unique = true)
   private String nim;
@@ -42,7 +43,7 @@ public class Student extends BaseEntity {
   private String password;
 
   @Builder.Default
-  @OneToMany(cascade = CascadeType.ALL)
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = Student.TERMS_MAPPED_BY_FIELD_NAME)
   private Set<Terms> terms = new HashSet<>();
 
 }

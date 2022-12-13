@@ -2,11 +2,12 @@ package com.monevi.entity;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.joda.time.DateTimeZone;
+import org.joda.time.DateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @Getter
@@ -29,15 +30,15 @@ public class BaseEntity {
   private Boolean markForDelete = false;
 
   @Column(name = BaseEntity.CREATED_BY_COLUMN_NAME, nullable = false)
-  private String createdBy;
+  private String createdBy = "MONEVI";
 
   @Column(name = BaseEntity.CREATED_DATE_COLUMN_NAME, nullable = false)
-  private DateTimeZone createdDate;
+  private Timestamp createdDate = new Timestamp(DateTime.now().getMillis());
 
   @Column(name = BaseEntity.UPDATED_BY_COLUMN_NAME, nullable = false)
-  private String updatedBy;
+  private String updatedBy = "MONEVI";
 
   @Column(name = BaseEntity.UPDATED_DATE_COLUMN_NAME, nullable = false)
-  private DateTimeZone updatedDate;
+  private Timestamp updatedDate = new Timestamp(DateTime.now().getMillis());
 
 }

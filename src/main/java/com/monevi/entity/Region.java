@@ -25,12 +25,13 @@ public class Region extends BaseEntity {
 
   public static final String ENTITY_NAME = "MONEVI_REGION";
   public static final String NAME_COLUMN_NAME = "NAME";
+  public static final String ORGANIZATION_REGIONS_MAPPED_BY_COLUMN_NAME = "region";
 
   @Column(name = Region.NAME_COLUMN_NAME, nullable = false)
   private String name;
 
   @Builder.Default
-  @OneToMany(cascade = CascadeType.ALL)
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = Region.ORGANIZATION_REGIONS_MAPPED_BY_COLUMN_NAME)
   private Set<OrganizationRegion> organizationRegions = new HashSet<>();
 
 }

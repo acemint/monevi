@@ -6,15 +6,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.Set;
 
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BaseResponse<T> implements Serializable {
+public class OrganizationResponse implements Serializable {
 
-  private T value;
-  private Map<String, String> errors;
+  private String name;
+  private String abbreviation;
+  private Set<String> regionNames;
 
 }
