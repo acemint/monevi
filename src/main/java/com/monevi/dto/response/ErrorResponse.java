@@ -13,8 +13,9 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BaseResponse<T> implements Serializable {
+public class ErrorResponse implements Serializable {
 
-  private T value;
+  @Builder.Default
+  private Map<String, String> errorFields = new HashMap<>();
 
 }
