@@ -136,3 +136,33 @@ CREATE UNIQUE INDEX monevi_student_email ON monevi_student (email) WHERE mark_fo
 CREATE UNIQUE INDEX monevi_organization_name_key ON monevi_organization ("name") WHERE mark_for_delete IS FALSE;
 CREATE UNIQUE INDEX monevi_supervisor_email_key ON monevi_supervisor (email) WHERE mark_for_delete IS FALSE;
 CREATE UNIQUE INDEX monevi_region_name_key ON monevi_region (name) WHERE mark_for_delete IS FALSE;
+
+ALTER TABLE monevi_student ALTER created_date TYPE TIMESTAMPTZ USING created_date AT TIME ZONE 'UTC';
+ALTER TABLE monevi_student ALTER updated_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
+
+ALTER TABLE monevi_organization ALTER created_date TYPE TIMESTAMPTZ USING created_date AT TIME ZONE 'UTC';
+ALTER TABLE monevi_organization ALTER updated_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
+
+ALTER TABLE monevi_terms ALTER created_date TYPE TIMESTAMPTZ USING created_date AT TIME ZONE 'UTC';
+ALTER TABLE monevi_terms ALTER updated_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
+
+ALTER TABLE monevi_region ALTER created_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
+ALTER TABLE monevi_region ALTER updated_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
+
+ALTER TABLE monevi_organization_region ALTER created_date TYPE TIMESTAMPTZ USING created_date AT TIME ZONE 'UTC';
+ALTER TABLE monevi_organization_region ALTER updated_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
+
+ALTER TABLE monevi_report ALTER created_date TYPE TIMESTAMPTZ USING created_date AT TIME ZONE 'UTC';
+ALTER TABLE monevi_report ALTER updated_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
+
+ALTER TABLE monevi_program ALTER created_date TYPE TIMESTAMPTZ USING created_date AT TIME ZONE 'UTC';
+ALTER TABLE monevi_program ALTER updated_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
+ALTER TABLE monevi_program ALTER start_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
+ALTER TABLE monevi_program ALTER end_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
+
+ALTER TABLE monevi_transaction ALTER created_date TYPE TIMESTAMPTZ USING created_date AT TIME ZONE 'UTC';
+ALTER TABLE monevi_transaction ALTER updated_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
+ALTER TABLE monevi_transaction ALTER transaction_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
+
+ALTER TABLE monevi_supervisor ALTER created_date TYPE TIMESTAMPTZ USING created_date AT TIME ZONE 'UTC';
+ALTER TABLE monevi_supervisor ALTER updated_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
