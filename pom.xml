@@ -17,6 +17,7 @@
 		<java.version>1.8</java.version>
 		<joda.time.version>2.12.1</joda.time.version>
 		<springdoc.openapi.ui.version>1.6.11</springdoc.openapi.ui.version>
+		<springframework.security.version>6.0.0</springframework.security.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -71,6 +72,12 @@
 			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>${springframework.security.version}</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
