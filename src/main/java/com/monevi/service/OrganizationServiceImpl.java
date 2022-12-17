@@ -72,24 +72,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
   @Override
   public List<Organization> getOrganizations(GetOrganizationFilter filter) {
-
     return this.organizationRepository.getOrganization(filter);
-    //    Optional<Region> region = this.regionRepository.findByNameAndMarkForDeleteIsFalse(filter.getRegionName());
-    //    if (!region.isPresent()) {
-    //      return Collections.emptyList();
-    //    }
-//    return this.organizationRegionRepository.findByRegionIdAndMarkForDeleteIsFalse(region.get().getId())
-//        .stream()
-//        .map(or -> or.getOrganization())
-//        .collect(Collectors.toList());
-//    Optional<Page<OrganizationRegion>> organizationRegions = this.organizationRegionRepository.findByRegionIdAndMarkForDeleteIsFalse(
-//        region.get().getId(), filter.getPageable());
-//    return organizationRegions
-//        .orElse(Page.empty())
-//        .getContent()
-//        .stream()
-//        .map(OrganizationRegion::getOrganization)
-//        .collect(Collectors.toList());
   }
 
   private Set<OrganizationRegion> buildOrganizationRegions(Organization organization, Set<Region> regions) {
