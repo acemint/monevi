@@ -15,6 +15,7 @@ public class OrganizationToOrganizationReponseConverter implements Converter<Org
   @Override
   public OrganizationResponse convert(Organization source) {
     return OrganizationResponse.builder()
+        .id(source.getId())
         .name(source.getName())
         .abbreviation(source.getAbbreviation())
         .regionNames(source.getOrganizationRegions().stream()
