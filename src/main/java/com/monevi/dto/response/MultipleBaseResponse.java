@@ -5,10 +5,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @Builder
 @Data
@@ -16,9 +16,11 @@ import java.util.Map;
 @AllArgsConstructor
 public class MultipleBaseResponse<T> implements Serializable {
 
-  private Page<T> values;
+  private List<T> values;
+  private Metadata metadata;
 
   @Data
+  @Builder
   public static class Metadata {
 
     private int totalItems;

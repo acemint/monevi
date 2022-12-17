@@ -1,7 +1,6 @@
 package com.monevi.controller;
 
 import com.monevi.converter.Converter;
-import com.monevi.converter.StudentToStudentResponseConverter;
 import com.monevi.dto.request.CreateStudentRequest;
 import com.monevi.dto.response.BaseResponse;
 import com.monevi.dto.response.StudentResponse;
@@ -9,17 +8,15 @@ import com.monevi.entity.Student;
 import com.monevi.exception.ApplicationException;
 import com.monevi.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 @RestController
-@RequestMapping(StudentControllerPath.BASE)
+@RequestMapping(ApiPath.BASE + ApiPath.STUDENT)
 public class StudentController {
 
   @Autowired
@@ -28,7 +25,7 @@ public class StudentController {
   @Autowired
   private Converter<Student, StudentResponse> converter;
 
-  @PostMapping(StudentControllerPath.ADD_NEW)
+  @PostMapping(ApiPath.REGISTER)
   public BaseResponse<StudentResponse> createNewMember(@Valid @RequestBody CreateStudentRequest request)
           throws ApplicationException {
      Student student = this.studentService.register(request);
