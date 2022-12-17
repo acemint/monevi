@@ -38,7 +38,7 @@ public class CreateStudentRequest {
     private Integer periodYear;
 
     @NotBlank
-    private String organization;
+    private String organizationName;
 
     @NotBlank
     private String region;

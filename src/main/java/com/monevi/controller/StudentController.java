@@ -23,14 +23,14 @@ public class StudentController {
   private StudentService studentService;
 
   @Autowired
-  private Converter<Student, StudentResponse> converter;
+  private Converter<Student, StudentResponse> studentToStudentResponseConverter;
 
   @PostMapping(ApiPath.REGISTER)
   public BaseResponse<StudentResponse> createNewMember(@Valid @RequestBody CreateStudentRequest request)
           throws ApplicationException {
      Student student = this.studentService.register(request);
      return BaseResponse.<StudentResponse>builder()
-             .value(this.converter.convert(student))
+             .value(this.studentToStudentResponseConverter.convert(student))
              .build();
   }
 }

@@ -41,17 +41,17 @@ public class StudentServiceImpl implements StudentService {
 
         Optional<Student> emailStudent =
                 this.studentRepository.findByEmailAndMarkForDeleteFalse(student.getEmail());
-        if(emailStudent.isPresent() && student.getEmail().equals(emailStudent.get().getEmail())) {
+        if(emailStudent.isPresent()) {
             throw new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.EMAIL_ALREADY_REGISTERED);
         }
 
         Organization organization =
-                this.organizationRepository.findByNameAndMarkForDeleteIsFalse(student.getOrganization())
+                this.organizationRepository.findByNameAndMarkForDeleteIsFalse(student.getOrganizationName())
                         .orElseThrow(() ->
                                 new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.ORGANIZATION_DOES_NOT_EXIST));
 
         OrganizationRegion organizationRegion = organization.getOrganizationRegions().stream()
-                .filter(organizationRegion1 -> organizationRegion1.getRegion().getName().equals(student.getRegion()))
+                .filter(or -> or.getRegion().getName().equals(student.getRegion()))
                 .findFirst().orElseThrow(() ->
                         new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
 

@@ -4,7 +4,7 @@ package com.monevi.controller;
 public class ApiPath {
 
   public static final String BASE = "/api/monevi";
-  
+
   public static final String ORGANIZATION = "/organization";
   public static final String REGION = "/region";
   public static final String STUDENT = "/student";
