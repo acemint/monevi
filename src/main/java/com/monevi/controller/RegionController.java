@@ -27,7 +27,7 @@ public class RegionController {
   @Autowired
   private Converter<Region, RegionResponse> regionToRegionResponseConverter;
 
-  @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(path = ApiPath.FIND_ALL, produces = MediaType.APPLICATION_JSON_VALUE)
   public MultipleBaseResponse<RegionResponse> getAvailableRegions() {
     GetRegionFilter getRegionFilter = this.buildDefaultGetRegionFilter();
     List<RegionResponse> regionResponses = this.regionService.getRegions(getRegionFilter)
