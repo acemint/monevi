@@ -1,7 +1,6 @@
 package com.monevi.entity;
 
 import com.monevi.enums.EntryPosition;
-import com.monevi.enums.GeneralLedgerAccount;
 import com.monevi.enums.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,9 +32,9 @@ public class Transaction extends BaseEntity {
   public static final String AMOUNT_COLUMN_NAME = "AMOUNT";
   public static final String ENTRY_POSITION_COLUMN_NAME = "ENTRY_POSITION";
   public static final String TYPE_COLUMN_NAME = "TYPE";
-  public static final String GENERAL_LEDGER_ACCOUNT_COLUMN_NAME = "GENERAL_LEDGER_ACCOUNT";
   public static final String DESCRIPTION_COLUMN_NAME = "DESCRIPTION";
   public static final String PROOF_COLUMN_NAME = "PROOF";
+  public static final String GENERAL_LEDGER_ACCOUNT_ID_COLUMN_NAME = "GENERAL_LEDGER_ACCOUNT_ID";
   public static final String REPORT_ID_COLUMN_NAME = "REPORT_ID";
   public static final String PROGRAM_ID_COLUMN_NAME = "PROGRAM_ID";
 
@@ -58,11 +57,6 @@ public class Transaction extends BaseEntity {
   @Column(name = Transaction.TYPE_COLUMN_NAME, nullable = false)
   private TransactionType type = TransactionType.NON_DAILY;
 
-  @Builder.Default
-  @Enumerated(value = EnumType.STRING)
-  @Column(name = Transaction.GENERAL_LEDGER_ACCOUNT_COLUMN_NAME, nullable = false)
-  private GeneralLedgerAccount generalLedgerAccount = GeneralLedgerAccount.BANK;
-
   @Column(name = Transaction.DESCRIPTION_COLUMN_NAME)
   private String description;
 
@@ -70,11 +64,15 @@ public class Transaction extends BaseEntity {
   private byte[] proof;
 
   @ManyToOne
-  @JoinColumn(name = Transaction.REPORT_ID_COLUMN_NAME)
+  @JoinColumn(name = Transaction.GENERAL_LEDGER_ACCOUNT_ID_COLUMN_NAME, nullable = false)
+  private GeneralLedgerAccount generalLedgerAccount;
+
+  @ManyToOne
+  @JoinColumn(name = Transaction.REPORT_ID_COLUMN_NAME, nullable = false)
   private Report report;
 
   @ManyToOne
-  @JoinColumn(name = Transaction.PROGRAM_ID_COLUMN_NAME, nullable = false)
+  @JoinColumn(name = Transaction.PROGRAM_ID_COLUMN_NAME)
   private Program program;
 
 }

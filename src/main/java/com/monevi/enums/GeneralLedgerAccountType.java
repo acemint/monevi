@@ -1,13 +1,13 @@
 package com.monevi.enums;
 
-public enum GeneralLedgerAccount {
+public enum GeneralLedgerAccountType {
 
   CASH ("KAS"),
   BANK ("BANK");
 
   private final String name;
 
-  GeneralLedgerAccount(String name) {
+  GeneralLedgerAccountType(String name) {
     this.name = name;
   }
 

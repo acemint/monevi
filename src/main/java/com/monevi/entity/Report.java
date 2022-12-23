@@ -33,6 +33,7 @@ public class Report extends BaseEntity {
   public static final String PERIOD_YEAR_COLUMN_NAME = "PERIOD_YEAR";
   public static final String STATUS_COLUMN_NAME = "STATUS";
   public static final String ORGANIZATION_REGION_ID_COLUMN_NAME = "ORGANIZATION_REGION_ID";
+  public static final String COMMENT_COLUMN_NAME = "COMMENT";
   public static final String TRANSACTION_MAPPED_BY_FIELD_NAME = "report";
 
   @Column(name = Report.PERIOD_MONTH_COLUMN_NAME, nullable = false)
@@ -45,6 +46,9 @@ public class Report extends BaseEntity {
   @Enumerated(value = EnumType.STRING)
   @Column(name = Report.STATUS_COLUMN_NAME, nullable = false)
   private ReportStatus status = ReportStatus.UNAPPROVED;
+
+  @Column(name = Report.COMMENT_COLUMN_NAME)
+  private String comment;
 
   @Builder.Default
   @OneToMany(cascade = CascadeType.ALL, mappedBy = Report.TRANSACTION_MAPPED_BY_FIELD_NAME)
