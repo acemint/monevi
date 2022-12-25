@@ -15,6 +15,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,8 +34,8 @@ public class Report extends BaseEntity {
   public static final String PERIOD_YEAR_COLUMN_NAME = "PERIOD_YEAR";
   public static final String STATUS_COLUMN_NAME = "STATUS";
   public static final String ORGANIZATION_REGION_ID_COLUMN_NAME = "ORGANIZATION_REGION_ID";
-  public static final String COMMENT_COLUMN_NAME = "COMMENT";
-  public static final String TRANSACTION_MAPPED_BY_FIELD_NAME = "report";
+  public static final String GENERAL_LEDGER_ACCOUNT_MAPPED_BY_FIELD_NAME = "report";
+  public static final String REPORT_COMMENT_MAPPED_BY_FIELD_NAME = "report";
 
   @Column(name = Report.PERIOD_MONTH_COLUMN_NAME, nullable = false)
   private int periodMonth;
@@ -47,12 +48,12 @@ public class Report extends BaseEntity {
   @Column(name = Report.STATUS_COLUMN_NAME, nullable = false)
   private ReportStatus status = ReportStatus.UNAPPROVED;
 
-  @Column(name = Report.COMMENT_COLUMN_NAME)
-  private String comment;
+  @OneToOne(cascade = CascadeType.ALL, mappedBy = Report.REPORT_COMMENT_MAPPED_BY_FIELD_NAME)
+  private ReportComment reportComment;
 
   @Builder.Default
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = Report.TRANSACTION_MAPPED_BY_FIELD_NAME)
-  private Set<Transaction> transactions = new HashSet<>();
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = Report.GENERAL_LEDGER_ACCOUNT_MAPPED_BY_FIELD_NAME)
+  private Set<GeneralLedgerAccount> generalLedgerAccounts = new HashSet<>();
 
   @ManyToOne
   @JoinColumn(name = Report.ORGANIZATION_REGION_ID_COLUMN_NAME, nullable = false)

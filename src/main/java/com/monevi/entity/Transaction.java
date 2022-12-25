@@ -16,6 +16,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = Transaction.ENTITY_NAME)
@@ -42,7 +43,7 @@ public class Transaction extends BaseEntity {
   private String name;
 
   @Column(name = Transaction.TRANSACTION_DATE_COLUMN_NAME, nullable = false)
-  private DateTimeZone transactionDate;
+  private Timestamp transactionDate;
 
   @Builder.Default
   @Column(name = Transaction.AMOUNT_COLUMN_NAME, nullable = false)

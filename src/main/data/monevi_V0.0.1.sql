@@ -190,3 +190,18 @@ CREATE TABLE IF NOT EXISTS monevi_general_ledger_account (
 ALTER TABLE monevi_transaction RENAME COLUMN general_ledger_account TO general_ledger_account_id;
 ALTER TABLE monevi_transaction ADD CONSTRAINT monevi_transaction_general_ledger_account_id_fkey FOREIGN KEY (general_ledger_account_id) REFERENCES monevi_general_ledger_account(id);
 ALTER TABLE monevi_report ADD COLUMN comment TEXT;
+ALTER TABLE monevi_report DROP COLUMN comment;
+
+CREATE TABLE IF NOT EXISTS monevi_report_comment (
+    id VARCHAR(255),
+    mark_for_delete BOOLEAN NOT NULL,
+    created_date TIMESTAMP NOT NULL,
+    created_by VARCHAR(255) NOT NULL,
+    updated_date TIMESTAMP NOT NULL,
+    updated_by VARCHAR(255) NOT NULL,
+    report_id VARCHAR(255) NOT NULL,
+    content TEXT,
+    commented_by VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (report_id) REFERENCES monevi_report (id)
+)
