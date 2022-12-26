@@ -5,13 +5,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.joda.time.DateTimeZone;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,10 +41,10 @@ public class Program extends BaseEntity {
   private double subsidy = 0;
 
   @Column(name = Program.START_DATE_COLUMN_NAME, nullable = false)
-  private DateTimeZone startDate;
+  private Timestamp startDate;
 
   @Column(name = Program.END_DATE_COLUMN_NAME, nullable = false)
-  private DateTimeZone endDate;
+  private Timestamp endDate;
 
   @Builder.Default
   @OneToMany(cascade = CascadeType.ALL)
