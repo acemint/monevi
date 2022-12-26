@@ -51,7 +51,7 @@ public class StudentServiceImpl implements StudentService {
                                 new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.ORGANIZATION_DOES_NOT_EXIST));
 
         OrganizationRegion organizationRegion = organization.getOrganizationRegions().stream()
-                .filter(or -> or.getRegion().getName().equals(student.getRegionName()))
+                .filter(or -> filterByRegionNameAndMarkForDeleteFalse(or, student.getRegionName()))
                 .findFirst().orElseThrow(() ->
                         new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
 
@@ -75,6 +75,11 @@ public class StudentServiceImpl implements StudentService {
 
         this.studentRepository.save(newStudent);
         return newStudent;
+    }
+
+    private boolean filterByRegionNameAndMarkForDeleteFalse(OrganizationRegion organizationRegion, String regionName) {
+        return organizationRegion.getMarkForDelete().equals(Boolean.FALSE)
+                && organizationRegion.getRegion().getName().equals(regionName);
     }
 
 }
