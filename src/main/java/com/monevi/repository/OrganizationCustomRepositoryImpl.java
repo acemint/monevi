@@ -18,6 +18,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
@@ -39,9 +40,10 @@ public class OrganizationCustomRepositoryImpl implements OrganizationCustomRepos
 
     organizationCriteriaQuery
         .select(organizationRoot)
-        .where(this.predicateBuilder(
-            criteriaBuilder, organizationCriteriaQuery, organizationRoot, getOrganizationFilter)
-            .toArray(new Predicate[0]));
+        .where(criteriaBuilder.and(
+            this.predicateBuilder(
+                criteriaBuilder, organizationCriteriaQuery, organizationRoot, getOrganizationFilter)
+                .toArray(new Predicate[0])));
 
     this.sort(criteriaBuilder, organizationCriteriaQuery, organizationRoot, getOrganizationFilter);
     TypedQuery<Organization> organizationTypedQuery = this.entityManager.createQuery(organizationCriteriaQuery);
@@ -55,10 +57,15 @@ public class OrganizationCustomRepositoryImpl implements OrganizationCustomRepos
       Root<Organization> root,
       GetOrganizationFilter filter) {
     List<Predicate> predicates = new ArrayList<>();
+    predicates.add(builder.isFalse(root.get(Organization_.MARK_FOR_DELETE)));
     if (Objects.nonNull(filter.getRegionName())) {
-      Join<Organization, OrganizationRegion> organizationToOrganizationRegionJoin =
-          root.join(Organization_.ORGANIZATION_REGIONS).join(OrganizationRegion_.REGION);
-      predicates.add(builder.equal(organizationToOrganizationRegionJoin.get(Region_.NAME), filter.getRegionName()));
+      Join<Organization, OrganizationRegion> organizationRegion =
+          root.join(Organization_.organizationRegions);
+      Join<OrganizationRegion, Region> region =
+          organizationRegion.join(OrganizationRegion_.region);
+      predicates.add(builder.isFalse(organizationRegion.get(OrganizationRegion_.markForDelete)));
+      predicates.add(builder.isFalse(region.get(Region_.markForDelete)));
+      predicates.add(builder.equal(region.get(Region_.NAME), filter.getRegionName()));
     }
     return predicates;
   }

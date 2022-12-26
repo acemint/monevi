@@ -18,9 +18,6 @@ public class OrganizationToOrganizationReponseConverter implements Converter<Org
         .id(source.getId())
         .name(source.getName())
         .abbreviation(source.getAbbreviation())
-        .regionNames(source.getOrganizationRegions().stream()
-            .map(or -> or.getRegion().getName())
-            .collect(Collectors.toSet()))
         .build();
   }
 

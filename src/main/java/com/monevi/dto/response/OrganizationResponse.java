@@ -17,6 +17,5 @@ public class OrganizationResponse implements Serializable {
   private String id;
   private String name;
   private String abbreviation;
-  private Set<String> regionNames;
 
 }
