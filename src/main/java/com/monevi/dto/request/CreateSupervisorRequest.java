@@ -9,18 +9,13 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CreateStudentRequest {
-
-    @NotBlank
-    @Length(min = 10, max = 10, message = "nim must consists of 10 characters")
-    private String nim;
+public class CreateSupervisorRequest {
 
     @NotBlank
     private String fullName;
@@ -31,19 +26,4 @@ public class CreateStudentRequest {
     @NotBlank
     @Length(min = 8, message = "minimum 8 characters")
     private String password;
-
-    @NotNull
-    private Integer periodMonth;
-
-    @NotNull
-    private Integer periodYear;
-
-    @NotBlank
-    private String organizationName;
-
-    @NotBlank
-    private String regionName;
-
-    @NotBlank
-    private String role;
 }
