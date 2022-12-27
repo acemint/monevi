@@ -4,9 +4,10 @@ import com.monevi.entity.Organization;
 import com.monevi.model.GetOrganizationFilter;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface OrganizationCustomRepository {
 
-  List<Organization> getOrganization(GetOrganizationFilter getOrganizationFilter);
+  Optional<List<Organization>> getOrganization(GetOrganizationFilter filter);
 
 }
