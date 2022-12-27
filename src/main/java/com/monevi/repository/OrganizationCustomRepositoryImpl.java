@@ -27,13 +27,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class OrganizationCustomRepositoryImpl implements OrganizationCustomRepository {
+public class OrganizationCustomRepositoryImpl
+    extends BaseCustomRepository
+    implements OrganizationCustomRepository {
 
   @PersistenceContext
   private EntityManager entityManager;
 
   @Override
-  public List<Organization> getOrganization(GetOrganizationFilter getOrganizationFilter) {
+  public Optional<List<Organization>> getOrganization(GetOrganizationFilter filter) {
     CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
     CriteriaQuery<Organization> organizationCriteriaQuery = criteriaBuilder.createQuery(Organization.class);
     Root<Organization> organizationRoot = organizationCriteriaQuery.from(Organization.class);
@@ -42,18 +44,17 @@ public class OrganizationCustomRepositoryImpl implements OrganizationCustomRepos
         .select(organizationRoot)
         .where(criteriaBuilder.and(
             this.predicateBuilder(
-                criteriaBuilder, organizationCriteriaQuery, organizationRoot, getOrganizationFilter)
+                criteriaBuilder, organizationRoot, filter)
                 .toArray(new Predicate[0])));
 
-    this.sort(criteriaBuilder, organizationCriteriaQuery, organizationRoot, getOrganizationFilter);
+    this.sort(criteriaBuilder, organizationCriteriaQuery, organizationRoot, filter.getPageable());
     TypedQuery<Organization> organizationTypedQuery = this.entityManager.createQuery(organizationCriteriaQuery);
-    this.page(organizationTypedQuery, getOrganizationFilter);
-    return organizationTypedQuery.getResultList();
+    this.page(organizationTypedQuery, filter.getPageable());
+    return Optional.ofNullable(organizationTypedQuery.getResultList());
   }
 
   private List<Predicate> predicateBuilder(
       CriteriaBuilder builder,
-      CriteriaQuery<Organization> query,
       Root<Organization> root,
       GetOrganizationFilter filter) {
     List<Predicate> predicates = new ArrayList<>();
@@ -70,41 +71,4 @@ public class OrganizationCustomRepositoryImpl implements OrganizationCustomRepos
     return predicates;
   }
 
-  private void sort(
-      CriteriaBuilder builder,
-      CriteriaQuery<Organization> query,
-      Root<Organization> root,
-      GetOrganizationFilter filter) {
-    Pageable pageable = filter.getPageable();
-    if (Objects.isNull(pageable)) {
-      return;
-    }
-    List<Order> sortOrders = pageable.getSort().get()
-        .map(o -> this.sortDirection(builder, root, o))
-        .collect(Collectors.toList());
-    query.orderBy(sortOrders);
-  }
-
-  private Order sortDirection(
-      CriteriaBuilder criteriaBuilder,
-      Root<Organization> organizationRoot,
-      Sort.Order sortOrder) {
-    if (sortOrder.isDescending()) {
-       return criteriaBuilder.desc(organizationRoot.get(sortOrder.getProperty()));
-    }
-    else {
-      return criteriaBuilder.asc(organizationRoot.get(sortOrder.getProperty()));
-    }
-  }
-
-  private void page(
-      TypedQuery<Organization> typedQuery,
-      GetOrganizationFilter filter) {
-    Pageable pageable = filter.getPageable();
-    if (Objects.isNull(pageable)) {
-      return;
-    }
-    typedQuery.setFirstResult((int) pageable.getOffset())
-        .setMaxResults(pageable.getPageSize());
-  }
 }
