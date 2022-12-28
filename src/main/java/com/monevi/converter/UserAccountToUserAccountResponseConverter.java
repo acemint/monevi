@@ -17,7 +17,7 @@ public class UserAccountToUserAccountResponseConverter implements Converter<User
             .nim(source.getNim())
             .fullName(source.getFullName())
             .email(source.getEmail())
-            .role(source.getRole().name())
+            .role(source.getType().name())
             .build();
     }
 }
