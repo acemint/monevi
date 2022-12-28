@@ -15,7 +15,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrganizationUpdateRegionRequest implements Serializable {
+public class OrganizationAddRegionRequest implements Serializable {
 
   @NotNull
   private String name;
