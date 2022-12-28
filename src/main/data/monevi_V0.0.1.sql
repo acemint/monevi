@@ -205,3 +205,12 @@ CREATE TABLE IF NOT EXISTS monevi_report_comment (
     PRIMARY KEY (id),
     FOREIGN KEY (report_id) REFERENCES monevi_report (id)
 )
+
+DROP TABLE monevi_supervisor;
+ALTER TABLE monevi_student ALTER COLUMN nim DROP NOT NULL;
+ALTER TABLE monevi_terms ALTER COLUMN student_id DROP NOT NULL;
+ALTER TABLE monevi_terms RENAME COLUMN student_id TO user_account_id;
+ALTER TABLE monevi_terms RENAME CONSTRAINT monevi_terms_student_id_fkey TO monevi_terms_user_account_id;
+ALTER TABLE monevi_student ADD COLUMN role VARCHAR(255) NOT NULL;
+ALTER TABLE monevi_student RENAME TO monevi_user_account;
+ALTER TABLE monevi_user_account RENAME CONSTRAINT monevi_student_pkey TO monevi_user_account_pkey;

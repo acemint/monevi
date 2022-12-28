@@ -26,7 +26,7 @@ public class Terms extends BaseEntity {
   public static final String PERIOD_YEAR_COLUMN_NAME = "PERIOD_YEAR";
   public static final String ROLE_COLUMN_NAME = "ROLE";
   public static final String ORGANIZATION_REGION_ID_COLUMN_NAME = "ORGANIZATION_REGION_ID";
-  public static final String STUDENT_ID_COLUMN_NAME = "STUDENT_ID";
+  public static final String USER_ACCOUNT_ID_COLUMN_NAME = "USER_ACCOUNT_ID";
   public static final String LOCKED_ACCOUNT_COLUMN_NAME = "LOCKED_ACCOUNT";
 
   @Column(name = Terms.PERIOD_MONTH_COLUMN_NAME, nullable = false)
@@ -46,7 +46,7 @@ public class Terms extends BaseEntity {
   private OrganizationRegion organizationRegion;
 
   @ManyToOne
-  @JoinColumn(name = Terms.STUDENT_ID_COLUMN_NAME, nullable = false)
-  private Student student;
+  @JoinColumn(name = Terms.USER_ACCOUNT_ID_COLUMN_NAME, nullable = false)
+  private UserAccount userAccount;
 
 }
