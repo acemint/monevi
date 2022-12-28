@@ -2,7 +2,7 @@ package com.monevi.controller;
 
 import com.monevi.converter.Converter;
 import com.monevi.dto.request.OrganizationCreateNewRequest;
-import com.monevi.dto.request.OrganizationUpdateRegionRequest;
+import com.monevi.dto.request.OrganizationAddRegionRequest;
 import com.monevi.dto.response.BaseResponse;
 import com.monevi.dto.response.MultipleBaseResponse;
 import com.monevi.dto.response.OrganizationResponse;
@@ -16,8 +16,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,9 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -58,7 +54,7 @@ public class OrganizationController {
 
   @PatchMapping(path = ApiPath.ADD_REGION, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<OrganizationResponse> updateNewOrganizationData(
-      @Valid @RequestBody OrganizationUpdateRegionRequest organizationRequest) throws ApplicationException {
+      @Valid @RequestBody OrganizationAddRegionRequest organizationRequest) throws ApplicationException {
     Organization organizationData = Organization.builder()
         .name(organizationRequest.getName())
         .build();
