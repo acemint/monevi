@@ -1,6 +1,6 @@
 package com.monevi.service;
 
-import com.monevi.dto.request.ReportAddCommentRequest;
+import com.monevi.dto.request.ReportRejectRequest;
 import com.monevi.entity.Report;
 import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetReportFilter;
@@ -11,6 +11,6 @@ public interface ReportService {
 
   List<Report> getReports(GetReportFilter filter) throws ApplicationException;
 
-  Report addComment(ReportAddCommentRequest request) throws ApplicationException;
+  Report reject(ReportRejectRequest request) throws ApplicationException;
 
 }

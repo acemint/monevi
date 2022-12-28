@@ -2,7 +2,7 @@ package com.monevi.controller;
 
 import com.monevi.converter.Converter;
 import com.monevi.converter.ReportToReportResponseConverter;
-import com.monevi.dto.request.ReportAddCommentRequest;
+import com.monevi.dto.request.ReportRejectRequest;
 import com.monevi.dto.response.BaseResponse;
 import com.monevi.dto.response.MultipleBaseResponse;
 import com.monevi.dto.response.ReportResponse;
@@ -67,10 +67,10 @@ public class ReportController {
         .build();
   }
 
-  @PostMapping(value = ApiPath.ADD_COMMENT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public BaseResponse<ReportResponse> addComment(
-      @Valid @RequestBody ReportAddCommentRequest request) throws ApplicationException {
-    Report report = this.reportService.addComment(request);
+  @PostMapping(value = ApiPath.REJECT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  public BaseResponse<ReportResponse> reject(
+      @Valid @RequestBody ReportRejectRequest request) throws ApplicationException {
+    Report report = this.reportService.reject(request);
     return BaseResponse.<ReportResponse>builder()
         .value(this.reportToReportResponseConverter.convert(report))
         .build();

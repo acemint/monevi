@@ -13,7 +13,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReportAddCommentRequest {
+public class ReportRejectRequest {
 
   @NotBlank
   private String reportId;
