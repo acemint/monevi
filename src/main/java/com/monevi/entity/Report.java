@@ -17,6 +17,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,18 +31,14 @@ import java.util.Set;
 public class Report extends BaseEntity {
 
   public static final String ENTITY_NAME = "MONEVI_REPORT";
-  public static final String PERIOD_MONTH_COLUMN_NAME = "PERIOD_MONTH";
-  public static final String PERIOD_YEAR_COLUMN_NAME = "PERIOD_YEAR";
+  public static final String PERIOD_DATE_COLUMN_NAME = "PERIOD_DATE";
   public static final String STATUS_COLUMN_NAME = "STATUS";
   public static final String ORGANIZATION_REGION_ID_COLUMN_NAME = "ORGANIZATION_REGION_ID";
   public static final String GENERAL_LEDGER_ACCOUNT_MAPPED_BY_FIELD_NAME = "report";
   public static final String REPORT_COMMENT_MAPPED_BY_FIELD_NAME = "report";
 
-  @Column(name = Report.PERIOD_MONTH_COLUMN_NAME, nullable = false)
-  private int periodMonth;
-
-  @Column(name = Report.PERIOD_YEAR_COLUMN_NAME, nullable = false)
-  private int periodYear;
+  @Column(name = Report.PERIOD_DATE_COLUMN_NAME, nullable = false)
+  private Timestamp periodDate;
 
   @Builder.Default
   @Enumerated(value = EnumType.STRING)
