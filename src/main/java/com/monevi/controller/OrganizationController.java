@@ -52,7 +52,7 @@ public class OrganizationController {
         .build();
   }
 
-  @PatchMapping(path = ApiPath.ADD_REGION, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(path = ApiPath.ADD_REGION, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<OrganizationResponse> addNewRegion(
       @Valid @RequestBody OrganizationAddRegionRequest organizationRequest) throws ApplicationException {
     Organization organizationData = Organization.builder()
