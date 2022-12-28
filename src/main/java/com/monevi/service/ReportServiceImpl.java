@@ -25,7 +25,7 @@ public class ReportServiceImpl implements ReportService {
   @Override
   public List<Report> getReports(GetReportFilter filter) throws ApplicationException {
     this.organizationRegionRepository.findByIdAndMarkForDeleteIsFalse(filter.getOrganizationRegionId())
-        .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
     return this.reportRepository.getReports(filter).orElse(Collections.emptyList());
   }
 }
