@@ -9,4 +9,6 @@ import java.util.Optional;
 
 public interface ReportRepository extends JpaRepository<Report, String>, ReportCustomRepository {
 
+  Optional<Report> findByIdAndMarkForDeleteIsFalse(String id);
+
 }

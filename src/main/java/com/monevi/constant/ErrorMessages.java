@@ -12,5 +12,6 @@ public interface ErrorMessages {
   String NIM_ALREADY_EXIST = "nim already exists";
   String EMAIL_ALREADY_REGISTERED = "email has already registered";
   String ORGANIZATION_REGION_DOES_NOT_EXISTS = "organization does not exist in this region";
+  String REPORT_DOES_NOT_EXIST = "report does not exist";
 
 }
