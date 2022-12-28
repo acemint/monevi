@@ -8,6 +8,8 @@ import com.monevi.entity.Organization;
 import com.monevi.entity.OrganizationRegion;
 import com.monevi.entity.UserAccount;
 import com.monevi.entity.Terms;
+import com.monevi.enums.StudentRole;
+import com.monevi.enums.UserAccountType;
 import com.monevi.exception.ApplicationException;
 import com.monevi.repository.OrganizationRepository;
 import com.monevi.repository.UserAccountRepository;
@@ -56,26 +58,27 @@ public class UserAccountServiceImpl implements UserAccountService {
             .findFirst().orElseThrow(() ->
                 new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
 
-        UserAccount newUserAccount = new UserAccount();
-        newUserAccount.setNim(request.getNim());
-        newUserAccount.setEmail(request.getEmail());
-        newUserAccount.setFullName(request.getFullName());
-        newUserAccount.setPassword(this.passwordEncoder.encoder().encode(request.getPassword()));
+        UserAccount newStudent = new UserAccount();
+        newStudent.setNim(request.getNim());
+        newStudent.setEmail(request.getEmail());
+        newStudent.setFullName(request.getFullName());
+        newStudent.setType(UserAccountType.STUDENT);
+        newStudent.setPassword(this.passwordEncoder.encoder().encode(request.getPassword()));
 
         Terms currentTerm = new Terms();
-        currentTerm.setUserAccount(newUserAccount);
+        currentTerm.setUserAccount(newStudent);
         currentTerm.setPeriodMonth(request.getPeriodMonth());
         currentTerm.setPeriodYear(request.getPeriodYear());
-        currentTerm.setRole(request.getRole());
+        currentTerm.setRole(StudentRole.valueOf(request.getStudentRole()));
         currentTerm.setOrganizationRegion(organizationRegion);
         currentTerm.setLockedAccount(true);
 
         Set<Terms> terms = new HashSet<>();
         terms.add(currentTerm);
-        newUserAccount.setTerms(terms);
+        newStudent.setTerms(terms);
 
-        this.userAccountRepository.save(newUserAccount);
-        return newUserAccount;
+        this.userAccountRepository.save(newStudent);
+        return newStudent;
     }
 
     private boolean filterByRegionNameAndMarkForDeleteFalse(OrganizationRegion organizationRegion, String regionName) {
@@ -93,6 +96,7 @@ public class UserAccountServiceImpl implements UserAccountService {
         UserAccount newSupervisor = new UserAccount();
         newSupervisor.setFullName(supervisor.getFullName());
         newSupervisor.setEmail(supervisor.getEmail());
+        newSupervisor.setType(UserAccountType.SUPERVISOR);
         newSupervisor.setPassword(this.passwordEncoder.encoder().encode(supervisor.getPassword()));
 
         this.userAccountRepository.save(newSupervisor);

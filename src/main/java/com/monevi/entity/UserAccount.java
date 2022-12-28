@@ -1,6 +1,6 @@
 package com.monevi.entity;
 
-import com.monevi.enums.UserAccountRole;
+import com.monevi.enums.UserAccountType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,7 +48,7 @@ public class UserAccount extends BaseEntity {
 
   @Enumerated(value = EnumType.STRING)
   @Column(name = UserAccount.ROLE_COLUMN_NAME, nullable = false)
-  private UserAccountRole role;
+  private UserAccountType type;
 
   @Builder.Default
   @OneToMany(cascade = CascadeType.ALL, mappedBy = UserAccount.TERMS_MAPPED_BY_FIELD_NAME)

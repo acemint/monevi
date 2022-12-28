@@ -18,6 +18,8 @@ import javax.validation.constraints.NotNull;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateStudentRequest {
 
+    // TODO: Create validation for student role (MINOR)
+
     @NotBlank
     @Length(min = 10, max = 10, message = "nim must consists of 10 characters")
     private String nim;
@@ -45,5 +47,6 @@ public class CreateStudentRequest {
     private String regionName;
 
     @NotBlank
-    private String role;
+    private String studentRole;
+
 }

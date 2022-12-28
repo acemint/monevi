@@ -1,5 +1,6 @@
 package com.monevi.entity;
 
+import com.monevi.enums.StudentRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,6 +9,8 @@ import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -35,8 +38,9 @@ public class Terms extends BaseEntity {
   @Column(name = Terms.PERIOD_YEAR_COLUMN_NAME, nullable = false)
   private int periodYear;
 
+  @Enumerated(value = EnumType.STRING)
   @Column(name = Terms.ROLE_COLUMN_NAME, nullable = false)
-  private String role;
+  private StudentRole role;
 
   @Column(name = Terms.LOCKED_ACCOUNT_COLUMN_NAME, nullable = false)
   private boolean lockedAccount;

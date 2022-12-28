@@ -214,3 +214,4 @@ ALTER TABLE monevi_terms RENAME CONSTRAINT monevi_terms_student_id_fkey TO monev
 ALTER TABLE monevi_student ADD COLUMN role VARCHAR(255) NOT NULL;
 ALTER TABLE monevi_student RENAME TO monevi_user_account;
 ALTER TABLE monevi_user_account RENAME CONSTRAINT monevi_student_pkey TO monevi_user_account_pkey;
+ALTER TABLE monevi_user_account RENAME COLUMN role TO type;

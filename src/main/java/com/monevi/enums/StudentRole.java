@@ -1,14 +1,13 @@
 package com.monevi.enums;
 
-public enum UserAccountRole {
+public enum StudentRole {
 
   TREASURER ("BENDAHARA"),
-  LEADER ("KETUA"),
-  SUPERVISOR ("SUPERVISOR");
+  LEADER ("KETUA");
 
   private final String name;
 
-  UserAccountRole(String name) {
+  StudentRole(String name) {
     this.name = name;
   }
 
