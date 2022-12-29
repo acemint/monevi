@@ -1,21 +1,19 @@
 package com.monevi.entity;
 
-import com.monevi.enums.UserAccountType;
+import com.monevi.enums.UserAccountRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = UserAccount.ENTITY_NAME)
@@ -32,6 +30,10 @@ public class UserAccount extends BaseEntity {
   public static final String EMAIL_COLUMN_NAME = "EMAIL";
   public static final String PASSWORD_COLUMN_NAME = "PASSWORD";
   public static final String ROLE_COLUMN_NAME = "ROLE";
+  public static final String PERIOD_MONTH_COLUMN_NAME = "PERIOD_MONTH";
+  public static final String PERIOD_YEAR_COLUMN_NAME = "PERIOD_YEAR";
+  public static final String LOCKED_ACCOUNT_COLUMN_NAME = "LOCKED_ACCOUNT";
+  public static final String ORGANIZATION_REGION_ID_COLUMN_NAME = "ORGANIZATION_REGION_ID";
   public static final String TERMS_MAPPED_BY_FIELD_NAME = "userAccount";
 
   @Column(name = UserAccount.NIM_COLUMN_NAME, nullable = false, unique = true)
@@ -48,10 +50,20 @@ public class UserAccount extends BaseEntity {
 
   @Enumerated(value = EnumType.STRING)
   @Column(name = UserAccount.ROLE_COLUMN_NAME, nullable = false)
-  private UserAccountType type;
+  private UserAccountRole role;
+
+  @Column(name = UserAccount.PERIOD_MONTH_COLUMN_NAME)
+  private Integer periodMonth;
+
+  @Column(name = UserAccount.PERIOD_YEAR_COLUMN_NAME)
+  private Integer periodYear;
 
   @Builder.Default
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = UserAccount.TERMS_MAPPED_BY_FIELD_NAME)
-  private Set<Terms> terms = new HashSet<>();
+  @Column(name = UserAccount.LOCKED_ACCOUNT_COLUMN_NAME, nullable = false)
+  private Boolean lockedAccount = true;
+
+  @ManyToOne
+  @JoinColumn(name = UserAccount.ORGANIZATION_REGION_ID_COLUMN_NAME, nullable = false)
+  private OrganizationRegion organizationRegion;
 
 }

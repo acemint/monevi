@@ -20,5 +20,8 @@ public class UserAccountResponse implements Serializable {
     private String fullName;
     private String email;
     private String role;
+    private Integer periodMonth;
+    private Integer periodYear;
+    private Boolean lockedAccount;
 
 }

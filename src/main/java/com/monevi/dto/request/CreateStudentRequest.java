@@ -47,6 +47,6 @@ public class CreateStudentRequest {
     private String regionName;
 
     @NotBlank
-    private String studentRole;
+    private String role;
 
 }

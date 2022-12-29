@@ -17,7 +17,10 @@ public class UserAccountToUserAccountResponseConverter implements Converter<User
             .nim(source.getNim())
             .fullName(source.getFullName())
             .email(source.getEmail())
-            .role(source.getType().name())
+            .role(source.getRole().name())
+            .periodMonth(source.getPeriodMonth())
+            .periodYear(source.getPeriodYear())
+            .lockedAccount(source.getLockedAccount())
             .build();
     }
 }
