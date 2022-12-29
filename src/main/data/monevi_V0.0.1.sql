@@ -205,3 +205,20 @@ CREATE TABLE IF NOT EXISTS monevi_report_comment (
     PRIMARY KEY (id),
     FOREIGN KEY (report_id) REFERENCES monevi_report (id)
 )
+
+DROP TABLE monevi_supervisor;
+ALTER TABLE monevi_student ALTER COLUMN nim DROP NOT NULL;
+ALTER TABLE monevi_terms ALTER COLUMN student_id DROP NOT NULL;
+ALTER TABLE monevi_terms RENAME COLUMN student_id TO user_account_id;
+ALTER TABLE monevi_terms RENAME CONSTRAINT monevi_terms_student_id_fkey TO monevi_terms_user_account_id;
+ALTER TABLE monevi_student ADD COLUMN role VARCHAR(255) NOT NULL;
+ALTER TABLE monevi_student RENAME TO monevi_user_account;
+ALTER TABLE monevi_user_account RENAME CONSTRAINT monevi_student_pkey TO monevi_user_account_pkey;
+ALTER TABLE monevi_user_account RENAME COLUMN role TO type;
+DROP TABLE monevi_terms;
+ALTER TABLE monevi_user_account ADD COLUMN period_month INTEGER;
+ALTER TABLE monevi_user_account ADD COLUMN period_year INTEGER;
+ALTER TABLE monevi_user_account ADD COLUMN organization_region_id VARCHAR(255);
+ALTER TABLE monevi_user_account ADD CONSTRAINT monevi_user_account_organization_region_id_fkey FOREIGN KEY (organization_region_id) REFERENCES monevi_organization_region (id);
+ALTER TABLE monevi_user_account ADD COLUMN locked_account BOOLEAN NOT NULL;
+ALTER TABLE monevi_user_account RENAME COLUMN type TO role;

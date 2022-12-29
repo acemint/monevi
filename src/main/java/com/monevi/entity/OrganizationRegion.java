@@ -28,7 +28,7 @@ public class OrganizationRegion extends BaseEntity {
   public static final String ORGANIZATION_ID_COLUMN_NAME = "ORGANIZATION_ID";
   public static final String REGION_ID_COLUMN_NAME = "REGION_ID";
   public static final String REPORT_MAPPED_BY_FIELD_NAME = "organizationRegion";
-  public static final String TERMS_MAPPED_BY_FIELD_NAME = "organizationRegion";
+  public static final String USER_ACCOUNT_MAPPED_BY_FIELD_NAME = "organizationRegion";
 
   @Builder.Default
   @OneToMany(cascade = CascadeType.ALL, mappedBy = OrganizationRegion.REPORT_MAPPED_BY_FIELD_NAME)
@@ -36,8 +36,8 @@ public class OrganizationRegion extends BaseEntity {
 
 
   @Builder.Default
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = OrganizationRegion.TERMS_MAPPED_BY_FIELD_NAME)
-  private Set<Terms> terms = new HashSet<>();
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = OrganizationRegion.USER_ACCOUNT_MAPPED_BY_FIELD_NAME)
+  private Set<UserAccount> userAccounts = new HashSet<>();
 
   @ManyToOne
   @JoinColumn(name = OrganizationRegion.ORGANIZATION_ID_COLUMN_NAME, nullable = false)
