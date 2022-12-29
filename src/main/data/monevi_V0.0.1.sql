@@ -206,6 +206,11 @@ CREATE TABLE IF NOT EXISTS monevi_report_comment (
     FOREIGN KEY (report_id) REFERENCES monevi_report (id)
 )
 
+
+ALTER TABLE monevi_report DROP COLUMN period_month;
+ALTER TABLE monevi_report DROP COLUMN period_year;
+ALTER TABLE monevi_report ADD COLUMN period_date TIMESTAMPTZ;
+
 DROP TABLE monevi_supervisor;
 ALTER TABLE monevi_student ALTER COLUMN nim DROP NOT NULL;
 ALTER TABLE monevi_terms ALTER COLUMN student_id DROP NOT NULL;
