@@ -14,5 +14,7 @@ public interface ErrorMessages {
   String EMAIL_ALREADY_REGISTERED = "email has already exists";
   String ORGANIZATION_REGION_DOES_NOT_EXISTS = "organization does not exist in this region";
   String REPORT_DOES_NOT_EXIST = "report does not exist";
+  String USER_ACCOUNT_DOES_NOT_EXIST = "user account does not exist";
+  String REPORT_HANDLING_IS_PROHIBITED = "report handling is prohibited";
 
 }
