@@ -227,3 +227,6 @@ ALTER TABLE monevi_user_account ADD COLUMN organization_region_id VARCHAR(255);
 ALTER TABLE monevi_user_account ADD CONSTRAINT monevi_user_account_organization_region_id_fkey FOREIGN KEY (organization_region_id) REFERENCES monevi_organization_region (id);
 ALTER TABLE monevi_user_account ADD COLUMN locked_account BOOLEAN NOT NULL;
 ALTER TABLE monevi_user_account RENAME COLUMN type TO role;
+
+ALTER TABLE monevi_program ADD COLUMN organization_region_id VARCHAR(255);
+ALTER TABLE monevi_program ADD CONSTRAINT monevi_program_organization_region_id_fkey FOREIGN KEY (organization_region_id) REFERENCES monevi_organization_region (id);
