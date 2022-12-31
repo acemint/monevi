@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
 
 @Builder
 @Data
@@ -15,7 +14,7 @@ import java.util.Date;
 public class ReportResponse {
 
   private String id;
-  private Date periodDate;
+  private long periodDate;
   private ReportStatus status;
   private String commentedBy;
   private String comment;
