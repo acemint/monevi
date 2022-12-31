@@ -5,6 +5,7 @@ import com.monevi.dto.request.CreateProgramRequest;
 import com.monevi.entity.OrganizationRegion;
 import com.monevi.entity.Program;
 import com.monevi.exception.ApplicationException;
+import com.monevi.model.GetProgramFilter;
 import com.monevi.repository.OrganizationRegionRepository;
 import com.monevi.repository.ProgramRepository;
 import com.monevi.service.ProgramService;
@@ -12,6 +13,10 @@ import com.monevi.util.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProgramServiceImpl implements ProgramService {
@@ -36,6 +41,12 @@ public class ProgramServiceImpl implements ProgramService {
         .build();
     program.setOrganizationRegion(organizationRegion);
     return this.programRepository.save(program);
+  }
+
+  @Override
+  public List<Program> getPrograms(GetProgramFilter filter) throws ApplicationException {
+    return this.programRepository.getPrograms(filter)
+        .orElse(Collections.emptyList());
   }
 
 }
