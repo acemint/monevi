@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.joda.time.DateTime;
 
 import java.io.Serializable;
 
@@ -19,7 +18,7 @@ public class TransactionResponse implements Serializable {
 
   private String id;
   private String name;
-  private DateTime transactionDate;
+  private long transactionDate;
   private double amount;
   private EntryPosition entryPosition;
   private TransactionType type;

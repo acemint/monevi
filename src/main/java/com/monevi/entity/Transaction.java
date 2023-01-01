@@ -36,8 +36,9 @@ public class Transaction extends BaseEntity {
   public static final String DESCRIPTION_COLUMN_NAME = "DESCRIPTION";
   public static final String PROOF_COLUMN_NAME = "PROOF";
   public static final String GENERAL_LEDGER_ACCOUNT_TYPE = "GENERAL_LEDGER_ACCOUNT_TYPE";
-      public static final String REPORT_ID_COLUMN_NAME = "REPORT_ID";
+  public static final String REPORT_ID_COLUMN_NAME = "REPORT_ID";
   public static final String PROGRAM_ID_COLUMN_NAME = "PROGRAM_ID";
+  public static final String ORGANIZATION_REGION_ID_COLUMN_NAME = "ORGANIZATION_REGION_ID";
 
   @Column(name = Transaction.NAME_COLUMN_NAME, nullable = false)
   private String name;
@@ -67,6 +68,10 @@ public class Transaction extends BaseEntity {
   @Enumerated(value = EnumType.STRING)
   @Column(name = Transaction.GENERAL_LEDGER_ACCOUNT_TYPE)
   private GeneralLedgerAccountType generalLedgerAccountType;
+
+  @ManyToOne
+  @JoinColumn(name = Transaction.ORGANIZATION_REGION_ID_COLUMN_NAME, nullable = false)
+  private OrganizationRegion organizationRegion;
 
   @ManyToOne
   @JoinColumn(name = Transaction.REPORT_ID_COLUMN_NAME, nullable = false)

@@ -2,11 +2,14 @@ package com.monevi.service;
 
 import com.monevi.constant.ErrorMessages;
 import com.monevi.dto.request.CreateTransactionRequest;
+import com.monevi.entity.OrganizationRegion;
 import com.monevi.entity.Report;
 import com.monevi.entity.Transaction;
 import com.monevi.enums.ReportStatus;
 import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetReportFilter;
+import com.monevi.model.GetTransactionFilter;
+import com.monevi.repository.OrganizationRegionRepository;
 import com.monevi.repository.ReportRepository;
 import com.monevi.repository.TransactionRepository;
 import com.monevi.util.DateUtils;
@@ -23,6 +26,9 @@ import java.util.List;
 public class TransactionServiceImpl implements TransactionService {
 
   @Autowired
+  private OrganizationRegionRepository organizationRegionRepository;
+
+  @Autowired
   private TransactionRepository transactionRepository;
 
   @Autowired
@@ -31,8 +37,21 @@ public class TransactionServiceImpl implements TransactionService {
   public Transaction createNewTransaction(CreateTransactionRequest request)
       throws ApplicationException {
     this.throwErrorOnExistingReportWithStatusApprovedBySupervisor(request.getOrganizationRegionId(), request.getTransactionDate());
+    OrganizationRegion organizationRegion = this.organizationRegionRepository.findByIdAndMarkForDeleteIsFalse(
+        request.getOrganizationRegionId())
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
     Transaction transaction = this.buildTransaction(request);
+    transaction.setOrganizationRegion(organizationRegion);
     return this.transactionRepository.save(transaction);
+  }
+
+  @Override
+  public List<Transaction> getTransactions(GetTransactionFilter filter)
+      throws ApplicationException {
+    this.organizationRegionRepository.findByIdAndMarkForDeleteIsFalse(
+            filter.getOrganizationRegionId())
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
+    return this.transactionRepository.getTransactions(filter).orElse(Collections.emptyList());
   }
 
   private void throwErrorOnExistingReportWithStatusApprovedBySupervisor(String organizationRegionId, String transactionDate)
