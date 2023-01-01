@@ -9,6 +9,7 @@ public class ApiPath {
   public static final String REGION = "/region";
   public static final String STUDENT = "/student";
   public static final String SUPERVISOR = "/supervisor";
+  public static final String TRANSACTION = "/transaction";
   public static final String REPORT = "/report";
   public static final String PROGRAM = "/program";
 

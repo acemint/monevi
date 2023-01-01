@@ -230,3 +230,6 @@ ALTER TABLE monevi_user_account RENAME COLUMN type TO role;
 
 ALTER TABLE monevi_program ADD COLUMN organization_region_id VARCHAR(255);
 ALTER TABLE monevi_program ADD CONSTRAINT monevi_program_organization_region_id_fkey FOREIGN KEY (organization_region_id) REFERENCES monevi_organization_region (id);
+
+ALTER TABLE monevi_transaction ALTER COLUMN report_id DROP NOT NULL;
+ALTER TABLE monevi_transaction ALTER COLUMN general_ledger_account_id DROP NOT NULL;
