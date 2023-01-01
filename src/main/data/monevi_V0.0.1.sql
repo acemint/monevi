@@ -233,3 +233,9 @@ ALTER TABLE monevi_program ADD CONSTRAINT monevi_program_organization_region_id_
 
 ALTER TABLE monevi_transaction ALTER COLUMN report_id DROP NOT NULL;
 ALTER TABLE monevi_transaction ALTER COLUMN general_ledger_account_id DROP NOT NULL;
+ALTER TABLE monevi_general_ledger_account RENAME TO monevi_report_general_ledger_account;
+ALTER TABLE monevi_transaction DROP COLUMN report_id;
+ALTER TABLE monevi_transaction DROP COLUMN general_ledger_account_id;
+ALTER TABLE monevi_transaction ADD COLUMN general_ledger_account_type VARCHAR(255) NOT NULL;
+ALTER TABLE monevi_transaction ADD COLUMN report_id VARCHAR(255);
+ALTER TABLE monevi_transaction ADD CONSTRAINT monevi_transaction_report_id_fkey FOREIGN KEY (report_id) REFERENCES monevi_report (id);

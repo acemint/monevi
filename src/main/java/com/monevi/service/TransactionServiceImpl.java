@@ -1,7 +1,7 @@
 package com.monevi.service;
 
 import com.monevi.constant.ErrorMessages;
-import com.monevi.dto.request.CreateNewTransactionRequest;
+import com.monevi.dto.request.CreateTransactionRequest;
 import com.monevi.entity.Report;
 import com.monevi.entity.Transaction;
 import com.monevi.enums.ReportStatus;
@@ -11,14 +11,11 @@ import com.monevi.repository.ReportRepository;
 import com.monevi.repository.TransactionRepository;
 import com.monevi.util.DateUtils;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,7 +28,7 @@ public class TransactionServiceImpl implements TransactionService {
   @Autowired
   private ReportRepository reportRepository;
 
-  public Transaction createNewTransaction(CreateNewTransactionRequest request)
+  public Transaction createNewTransaction(CreateTransactionRequest request)
       throws ApplicationException {
     this.throwErrorOnExistingReportWithStatusApprovedBySupervisor(request.getOrganizationRegionId(), request.getTransactionDate());
     Transaction transaction = this.buildTransaction(request);
@@ -62,18 +59,16 @@ public class TransactionServiceImpl implements TransactionService {
     }
   }
 
-  private Transaction buildTransaction(CreateNewTransactionRequest createNewTransactionRequest) {
-    DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd/MM/yyyy");
-    DateTime date = dateTimeFormatter.parseDateTime(createNewTransactionRequest.getTransactionDate());
-
+  private Transaction buildTransaction(CreateTransactionRequest createTransactionRequest) throws ApplicationException {
     return Transaction.builder()
-        .name(createNewTransactionRequest.getName())
-        .transactionDate(new Timestamp(date.getMillis()))
-        .amount(createNewTransactionRequest.getAmount())
-        .entryPosition(createNewTransactionRequest.getEntryPosition())
-        .type(createNewTransactionRequest.getType())
-        .description(createNewTransactionRequest.getDescription())
-        .proof(createNewTransactionRequest.getProof().getBytes(StandardCharsets.UTF_8))
+        .name(createTransactionRequest.getName())
+        .transactionDate(DateUtils.dateInputToTimestamp(createTransactionRequest.getTransactionDate()))
+        .amount(createTransactionRequest.getAmount())
+        .entryPosition(createTransactionRequest.getEntryPosition())
+        .type(createTransactionRequest.getType())
+        .generalLedgerAccountType(createTransactionRequest.getGeneralLedgerAccountType())
+        .description(createTransactionRequest.getDescription())
+        .proof(createTransactionRequest.getProof().getBytes(StandardCharsets.UTF_8))
         .build();
   }
 

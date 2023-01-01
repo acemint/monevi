@@ -2,7 +2,7 @@ package com.monevi.controller;
 
 import com.monevi.converter.Converter;
 import com.monevi.converter.TransactionToTransactionResponseConverter;
-import com.monevi.dto.request.CreateNewTransactionRequest;
+import com.monevi.dto.request.CreateTransactionRequest;
 import com.monevi.dto.response.BaseResponse;
 import com.monevi.dto.response.TransactionResponse;
 import com.monevi.entity.Transaction;
@@ -31,12 +31,12 @@ public class TransactionController {
 
   @PostMapping(value = ApiPath.CREATE_NEW, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<TransactionResponse> createNewTransaction(
-      @Valid @RequestBody CreateNewTransactionRequest createNewTransactionRequest) throws ApplicationException {
-    Transaction newTransaction = this.transactionService.createNewTransaction(createNewTransactionRequest);
+      @Valid @RequestBody CreateTransactionRequest createTransactionRequest) throws ApplicationException {
+    Transaction newTransaction = this.transactionService.createNewTransaction(
+        createTransactionRequest);
     return BaseResponse.<TransactionResponse>builder()
         .value(this.transactionToTransactionResponseConverter.convert(newTransaction))
         .build();
   }
-
 
 }

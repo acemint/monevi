@@ -12,14 +12,13 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
-import java.util.Date;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CreateNewTransactionRequest {
+public class CreateTransactionRequest {
 
   @NotBlank
   private String organizationRegionId;

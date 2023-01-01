@@ -50,7 +50,7 @@ public class Report extends BaseEntity {
 
   @Builder.Default
   @OneToMany(cascade = CascadeType.ALL, mappedBy = Report.GENERAL_LEDGER_ACCOUNT_MAPPED_BY_FIELD_NAME)
-  private Set<GeneralLedgerAccount> generalLedgerAccounts = new HashSet<>();
+  private Set<ReportGeneralLedgerAccount> reportGeneralLedgerAccounts = new HashSet<>();
 
   @ManyToOne
   @JoinColumn(name = Report.ORGANIZATION_REGION_ID_COLUMN_NAME, nullable = false)

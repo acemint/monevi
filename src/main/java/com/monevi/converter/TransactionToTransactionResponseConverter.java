@@ -17,6 +17,7 @@ public class TransactionToTransactionResponseConverter implements Converter<Tran
         .name(source.getName())
         .amount(source.getAmount())
         .entryPosition(source.getEntryPosition())
+        .generalLedgerAccountType(source.getGeneralLedgerAccountType())
         .type(source.getType())
         .description(source.getDescription())
         .proof(source.getProof())

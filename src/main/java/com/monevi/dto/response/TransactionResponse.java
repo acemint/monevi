@@ -1,6 +1,7 @@
 package com.monevi.dto.response;
 
 import com.monevi.enums.EntryPosition;
+import com.monevi.enums.GeneralLedgerAccountType;
 import com.monevi.enums.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,7 @@ public class TransactionResponse implements Serializable {
   private double amount;
   private EntryPosition entryPosition;
   private TransactionType type;
+  private GeneralLedgerAccountType generalLedgerAccountType;
   private String description;
   private byte[] proof;
 
