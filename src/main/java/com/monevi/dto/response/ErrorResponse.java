@@ -15,6 +15,10 @@ import java.util.Map;
 @AllArgsConstructor
 public class ErrorResponse implements Serializable {
 
+  private String errorCode;
+
+  private String errorMessage;
+
   @Builder.Default
   private Map<String, String> errorFields = new HashMap<>();
 

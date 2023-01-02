@@ -19,6 +19,7 @@
 		<springdoc.openapi.ui.version>1.6.11</springdoc.openapi.ui.version>
 		<hibernate.jpamodelgen.version>5.3.7.Final</hibernate.jpamodelgen.version>
 		<springframework.security.version>6.0.0</springframework.security.version>
+		<jsonwebtoken.version>0.9.1</jsonwebtoken.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -78,12 +79,20 @@
 			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.security</groupId>-->
+<!--			<artifactId>spring-security-core</artifactId>-->
+<!--			<version>${springframework.security.version}</version>-->
+<!--		</dependency>-->
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-core</artifactId>
-			<version>${springframework.security.version}</version>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt</artifactId>
+			<version>${jsonwebtoken.version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

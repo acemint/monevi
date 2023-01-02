@@ -1,11 +1,12 @@
 package com.monevi.converter;
 
+import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+
 import com.monevi.dto.response.ReportResponse;
 import com.monevi.entity.Report;
 import com.monevi.entity.ReportComment;
-import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component(value = ReportToReportResponseConverter.REPORT_TO_REPORT_RESPONSE_BEAN_NAME
     + Converter.SUFFIX_BEAN_NAME)
