@@ -1,4 +1,4 @@
-package com.monevi.repository;
+package com.monevi.repository.impl;
 
 import com.monevi.entity.Organization;
 import com.monevi.entity.OrganizationRegion;
@@ -7,8 +7,7 @@ import com.monevi.entity.Organization_;
 import com.monevi.entity.Region;
 import com.monevi.entity.Region_;
 import com.monevi.model.GetOrganizationFilter;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import com.monevi.repository.OrganizationCustomRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -16,16 +15,12 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class OrganizationCustomRepositoryImpl
     extends BaseCustomRepository

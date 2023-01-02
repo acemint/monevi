@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping(ApiPath.BASE + ApiPath.STUDENT)
+@RequestMapping(ApiPath.BASE + ApiPath.USER)
 public class UserAccountController {
 
   @Autowired

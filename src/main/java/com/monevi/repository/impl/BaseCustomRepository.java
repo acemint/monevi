@@ -1,4 +1,4 @@
-package com.monevi.repository;
+package com.monevi.repository.impl;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

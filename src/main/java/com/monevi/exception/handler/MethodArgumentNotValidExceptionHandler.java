@@ -1,4 +1,4 @@
-package com.monevi.controller;
+package com.monevi.exception.handler;
 
 import com.monevi.dto.response.ErrorResponse;
 import org.springframework.beans.factory.annotation.Autowired;

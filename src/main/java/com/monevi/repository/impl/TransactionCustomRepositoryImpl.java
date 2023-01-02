@@ -1,4 +1,4 @@
-package com.monevi.repository;
+package com.monevi.repository.impl;
 
 
 import com.monevi.entity.OrganizationRegion;
@@ -7,6 +7,7 @@ import com.monevi.entity.Transaction;
 import com.monevi.entity.Transaction_;
 import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetTransactionFilter;
+import com.monevi.repository.TransactionCustomRepository;
 import com.monevi.util.DateUtils;
 
 import javax.persistence.EntityManager;
