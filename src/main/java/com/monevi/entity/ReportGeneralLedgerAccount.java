@@ -1,5 +1,6 @@
 package com.monevi.entity;
 
+import com.monevi.enums.GeneralLedgerAccountType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,6 +10,8 @@ import lombok.Setter;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -30,8 +33,9 @@ public class ReportGeneralLedgerAccount extends BaseEntity {
   public static final String TOTAL_COLUMN_NAME = "TOTAL";
   public static final String NAME_COLUMN_NAME = "NAME";
 
+  @Enumerated(value = EnumType.STRING)
   @Column(name = ReportGeneralLedgerAccount.NAME_COLUMN_NAME, nullable = false)
-  private String name;
+  private GeneralLedgerAccountType name;
 
   @Column(name = ReportGeneralLedgerAccount.TOTAL_COLUMN_NAME)
   private double total;

@@ -18,5 +18,6 @@ public interface ErrorMessages {
   String REPORT_HANDLING_IS_PROHIBITED = "report handling is prohibited";
   String FAIL_TO_PROCESS_DATE_FORMAT = "fail to process date format";
   String TRANSACTION_CANNOT_BE_CREATED_BECAUSE_REPORT_HAS_BEEN_APPROVED = "report cannot be changed because report has been approved";
+  String ENTRY_POSITION_UNDEFINED = "entry position of transaction is unsupported";
 
 }

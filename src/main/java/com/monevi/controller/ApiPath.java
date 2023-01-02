@@ -19,5 +19,6 @@ public class ApiPath {
   public static final String REJECT = "/reject";
   public static final String APPROVE = "/approve";
   public static final String REGISTER = "/register";
+  public static final String SUBMIT = "/submit";
 
 }
