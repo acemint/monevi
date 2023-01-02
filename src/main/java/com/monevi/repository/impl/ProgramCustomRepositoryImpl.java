@@ -1,10 +1,11 @@
-package com.monevi.repository;
+package com.monevi.repository.impl;
 
 import com.monevi.entity.OrganizationRegion;
 import com.monevi.entity.OrganizationRegion_;
 import com.monevi.entity.Program;
 import com.monevi.entity.Program_;
 import com.monevi.model.GetProgramFilter;
+import com.monevi.repository.ProgramCustomRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;

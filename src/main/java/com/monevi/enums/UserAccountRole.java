@@ -2,14 +2,16 @@ package com.monevi.enums;
 
 public enum UserAccountRole {
 
-  TREASURER ("BENDAHARA"),
-  CHAIRMAN("KETUA"),
-  SUPERVISOR ("SUPERVISOR");
+  TREASURER ("BENDAHARA", "ROLE_TREASURER"),
+  CHAIRMAN("KETUA", "ROLE_CHAIRMAN"),
+  SUPERVISOR ("SUPERVISOR", "ROLE_SUPERVISOR");
 
   private final String name;
+  private final String authority;
 
-  UserAccountRole(String name) {
+  UserAccountRole(String name, String authority) {
     this.name = name;
+    this.authority = authority;
   }
 
 }

@@ -12,6 +12,7 @@ public class ApiPath {
   public static final String TRANSACTION = "/transaction";
   public static final String REPORT = "/report";
   public static final String PROGRAM = "/program";
+  public static final String USER = "/user";
 
   public static final String FIND_ALL = "/all";
   public static final String CREATE_NEW = "/create-new";

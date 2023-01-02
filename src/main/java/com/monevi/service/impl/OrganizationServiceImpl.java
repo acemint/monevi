@@ -1,4 +1,4 @@
-package com.monevi.service;
+package com.monevi.service.impl;
 
 import com.monevi.constant.ErrorMessages;
 import com.monevi.entity.Organization;
@@ -8,6 +8,7 @@ import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetOrganizationFilter;
 import com.monevi.repository.OrganizationRepository;
 import com.monevi.repository.RegionRepository;
+import com.monevi.service.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
