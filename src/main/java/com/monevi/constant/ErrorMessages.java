@@ -16,5 +16,7 @@ public interface ErrorMessages {
   String REPORT_DOES_NOT_EXIST = "report does not exist";
   String USER_ACCOUNT_DOES_NOT_EXIST = "user account does not exist";
   String REPORT_HANDLING_IS_PROHIBITED = "report handling is prohibited";
+  String FAIL_TO_PROCESS_DATE_FORMAT = "fail to process date format";
+  String TRANSACTION_CANNOT_BE_CREATED_BECAUSE_REPORT_HAS_BEEN_APPROVED = "report cannot be changed because report has been approved";
 
 }

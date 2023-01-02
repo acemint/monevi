@@ -227,3 +227,17 @@ ALTER TABLE monevi_user_account ADD COLUMN organization_region_id VARCHAR(255);
 ALTER TABLE monevi_user_account ADD CONSTRAINT monevi_user_account_organization_region_id_fkey FOREIGN KEY (organization_region_id) REFERENCES monevi_organization_region (id);
 ALTER TABLE monevi_user_account ADD COLUMN locked_account BOOLEAN NOT NULL;
 ALTER TABLE monevi_user_account RENAME COLUMN type TO role;
+
+ALTER TABLE monevi_program ADD COLUMN organization_region_id VARCHAR(255);
+ALTER TABLE monevi_program ADD CONSTRAINT monevi_program_organization_region_id_fkey FOREIGN KEY (organization_region_id) REFERENCES monevi_organization_region (id);
+
+ALTER TABLE monevi_transaction ALTER COLUMN report_id DROP NOT NULL;
+ALTER TABLE monevi_transaction ALTER COLUMN general_ledger_account_id DROP NOT NULL;
+ALTER TABLE monevi_general_ledger_account RENAME TO monevi_report_general_ledger_account;
+ALTER TABLE monevi_transaction DROP COLUMN report_id;
+ALTER TABLE monevi_transaction DROP COLUMN general_ledger_account_id;
+ALTER TABLE monevi_transaction ADD COLUMN general_ledger_account_type VARCHAR(255) NOT NULL;
+ALTER TABLE monevi_transaction ADD COLUMN report_id VARCHAR(255);
+ALTER TABLE monevi_transaction ADD CONSTRAINT monevi_transaction_report_id_fkey FOREIGN KEY (report_id) REFERENCES monevi_report (id);
+ALTER TABLE monevi_transaction ADD COLUMN organization_region_id VARCHAR(255) NOT NULL;
+ALTER TABLE monevi_transaction ADD CONSTRAINT monevi_transaction_organization_region_id_fkey FOREIGN KEY (organization_region_id) REFERENCES monevi_organization_region (id);

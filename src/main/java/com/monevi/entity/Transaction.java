@@ -1,13 +1,13 @@
 package com.monevi.entity;
 
 import com.monevi.enums.EntryPosition;
+import com.monevi.enums.GeneralLedgerAccountType;
 import com.monevi.enums.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.joda.time.DateTimeZone;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -35,9 +35,10 @@ public class Transaction extends BaseEntity {
   public static final String TYPE_COLUMN_NAME = "TYPE";
   public static final String DESCRIPTION_COLUMN_NAME = "DESCRIPTION";
   public static final String PROOF_COLUMN_NAME = "PROOF";
-  public static final String GENERAL_LEDGER_ACCOUNT_ID_COLUMN_NAME = "GENERAL_LEDGER_ACCOUNT_ID";
+  public static final String GENERAL_LEDGER_ACCOUNT_TYPE = "GENERAL_LEDGER_ACCOUNT_TYPE";
   public static final String REPORT_ID_COLUMN_NAME = "REPORT_ID";
   public static final String PROGRAM_ID_COLUMN_NAME = "PROGRAM_ID";
+  public static final String ORGANIZATION_REGION_ID_COLUMN_NAME = "ORGANIZATION_REGION_ID";
 
   @Column(name = Transaction.NAME_COLUMN_NAME, nullable = false)
   private String name;
@@ -64,9 +65,13 @@ public class Transaction extends BaseEntity {
   @Column(name = Transaction.PROOF_COLUMN_NAME)
   private byte[] proof;
 
+  @Enumerated(value = EnumType.STRING)
+  @Column(name = Transaction.GENERAL_LEDGER_ACCOUNT_TYPE)
+  private GeneralLedgerAccountType generalLedgerAccountType;
+
   @ManyToOne
-  @JoinColumn(name = Transaction.GENERAL_LEDGER_ACCOUNT_ID_COLUMN_NAME, nullable = false)
-  private GeneralLedgerAccount generalLedgerAccount;
+  @JoinColumn(name = Transaction.ORGANIZATION_REGION_ID_COLUMN_NAME, nullable = false)
+  private OrganizationRegion organizationRegion;
 
   @ManyToOne
   @JoinColumn(name = Transaction.REPORT_ID_COLUMN_NAME, nullable = false)
