@@ -1,11 +1,8 @@
 package com.monevi.converter;
 
 import com.monevi.dto.response.ReportResponse;
-import com.monevi.dto.response.TransactionResponse;
 import com.monevi.entity.Report;
 import com.monevi.entity.ReportComment;
-import com.monevi.entity.Transaction;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -22,7 +19,7 @@ public class ReportToReportResponseConverter implements Converter<Report, Report
         .orElse(ReportComment.builder().build());
     ReportResponse response = ReportResponse.builder()
         .id(source.getId())
-        .periodDate(source.getPeriodDate())
+        .periodDate(source.getPeriodDate().getTime())
         .status(source.getStatus())
         .comment(reportComment.getContent())
         .commentedBy(reportComment.getCommentedBy())
