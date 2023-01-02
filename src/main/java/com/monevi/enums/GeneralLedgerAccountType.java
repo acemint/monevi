@@ -2,7 +2,7 @@ package com.monevi.enums;
 
 public enum GeneralLedgerAccountType {
 
-  CASH ("KAS"),
+  CASH ("CASH"),
   BANK ("BANK");
 
   private final String name;

@@ -2,6 +2,7 @@ package com.monevi.controller;
 
 import com.monevi.converter.Converter;
 import com.monevi.converter.ReportToReportResponseConverter;
+import com.monevi.dto.request.SubmitReportRequest;
 import com.monevi.dto.request.ReportApproveRequest;
 import com.monevi.dto.request.ReportRejectRequest;
 import com.monevi.dto.response.BaseResponse;
@@ -49,7 +50,7 @@ public class ReportController {
       @RequestParam @ValidDate String endDate,
       @RequestParam(defaultValue = "0", required = false) int page,
       @RequestParam(defaultValue = "1000", required = false) int size,
-      @RequestParam(defaultValue = "name", required = false) String[] sortBy,
+      @RequestParam(defaultValue = "periodDate", required = false) String[] sortBy,
       @RequestParam(defaultValue = "true", required = false) String[] isAscending) throws ApplicationException {
     GetReportFilter filter = this.buildDefaultGetReportsFilter(
         organizationRegionId, startDate,endDate, sortBy, isAscending, page, size);
@@ -65,6 +66,15 @@ public class ReportController {
             .totalPage(0)
             .totalItems(reportResponses.size())
             .build())
+        .build();
+  }
+
+  @PostMapping(value = ApiPath.SUBMIT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  public BaseResponse<ReportResponse> submitReport(
+      @Valid @RequestBody SubmitReportRequest request) throws ApplicationException {
+    Report report = this.reportService.submitReport(request);
+    return BaseResponse.<ReportResponse>builder()
+        .value(this.reportToReportResponseConverter.convert(report))
         .build();
   }
 
