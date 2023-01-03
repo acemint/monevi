@@ -1,5 +1,8 @@
 package com.monevi.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum UserAccountRole {
 
   TREASURER ("BENDAHARA", "ROLE_TREASURER"),

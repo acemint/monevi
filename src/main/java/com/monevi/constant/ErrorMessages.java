@@ -20,4 +20,6 @@ public interface ErrorMessages {
   String TRANSACTION_CANNOT_BE_CREATED_BECAUSE_REPORT_HAS_BEEN_APPROVED = "report cannot be changed because report has been approved";
   String ENTRY_POSITION_UNDEFINED = "entry position of transaction is unsupported";
 
+  String USER_ACCOUNT_NOT_FOUND = "user not found";
+
 }

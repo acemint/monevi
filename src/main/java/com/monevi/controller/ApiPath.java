@@ -13,6 +13,7 @@ public class ApiPath {
   public static final String REPORT = "/report";
   public static final String PROGRAM = "/program";
   public static final String USER = "/user";
+  public static final String AUTH = USER + "auth";
 
   public static final String FIND_ALL = "/all";
   public static final String CREATE_NEW = "/create-new";
@@ -20,6 +21,7 @@ public class ApiPath {
   public static final String REJECT = "/reject";
   public static final String APPROVE = "/approve";
   public static final String REGISTER = "/register";
+  public static final String LOGIN = "/login";
   public static final String SUBMIT = "/submit";
 
 }
