@@ -11,7 +11,6 @@ public interface ErrorMessages {
 
   String NIM_ALREADY_EXISTS = "nim already exists";
   String ROLE_ALREADY_TAKEN = "this role already taken";
-  String EMAIL_AND_PERIOD_ALREADY_REGISTERED = "email and period has already exists";
   String EMAIL_ALREADY_REGISTERED = "email has already exists";
   String ORGANIZATION_REGION_DOES_NOT_EXISTS = "organization does not exist in this region";
   String REPORT_DOES_NOT_EXIST = "report does not exist";
