@@ -56,15 +56,14 @@ public class UserAccountServiceImpl implements UserAccountService {
         .findFirst().orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
             ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
 
-    UserAccount studentWithRole = this.userAccountRepository
-        .findByPeriodMonthAndPeriodYearAndRoleAndLockedAccountFalseAndMarkForDeleteFalse(
-            request.getPeriodMonth(), request.getPeriodYear(),
-            UserAccountRole.valueOf(request.getRole()))
-        .filter(student -> !isStudentWithRoleExistsInRegion(request.getRegionName(),
-            student.getOrganizationRegion()))
-        .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
-            ErrorMessages.ROLE_ALREADY_TAKEN));
-    
+    Optional<UserAccount> studentWithRole = this.userAccountRepository
+        .findAssignedUserByOrganizationRegionIdAndRoleAndMarkForDeleteFalse(
+            request.getPeriodMonth(), request.getPeriodYear(), organizationRegion.getId(),
+            UserAccountRole.valueOf(request.getRole()));
+    if (studentWithRole.isPresent()) {
+      throw new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.ROLE_ALREADY_TAKEN);
+    }
+
     UserAccount newStudent = new UserAccount();
     newStudent.setNim(request.getNim());
     newStudent.setEmail(request.getEmail());
@@ -84,10 +83,6 @@ public class UserAccountServiceImpl implements UserAccountService {
       String regionName) {
     return organizationRegion.getMarkForDelete().equals(Boolean.FALSE)
         && organizationRegion.getRegion().getName().equals(regionName);
-  }
-  
-  private boolean isStudentWithRoleExistsInRegion (String regionRequest, OrganizationRegion regionInDb) {
-    return regionRequest.equals(regionInDb.getRegion().getName());
   }
 
   @Override
