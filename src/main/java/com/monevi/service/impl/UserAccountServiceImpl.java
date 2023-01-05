@@ -147,4 +147,13 @@ public class UserAccountServiceImpl implements UserAccountService {
     userAccount.setMarkForDelete(Boolean.TRUE);
     return userAccount;
   }
+
+  @Override
+  public UserAccount declineStudent(String studentId) throws ApplicationException {
+    UserAccount user = this.userAccountRepository.findByIdAndMarkForDeleteIsFalse(studentId)
+        .orElseThrow(() -> new RuntimeException(ErrorMessages.USER_ACCOUNT_NOT_FOUND));
+    user.setMarkForDelete(Boolean.TRUE);
+    this.userAccountRepository.save(user);
+    return user;
+  }
 }

@@ -24,5 +24,6 @@ public class ApiPath {
   public static final String LOGIN = "/login";
   public static final String SUBMIT = "/submit";
   public static final String APPROVE_ACCOUNT = "/approve-account";
+  public static final String DECLINE_ACCOUNT = "/decline-account";
 
 }

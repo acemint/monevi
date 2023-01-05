@@ -11,4 +11,6 @@ public interface UserAccountService {
     UserAccount register(CreateSupervisorRequest request) throws ApplicationException;
 
     UserAccount approveStudent(String studentId) throws ApplicationException;
+
+    UserAccount declineStudent(String studentId) throws ApplicationException;
 }
