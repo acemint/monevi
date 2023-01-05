@@ -38,7 +38,7 @@ public class UserAccountCustomRepositoryImpl extends BaseCustomRepository
 
     userAccountCriteriaQuery.select(userAccountRoot)
         .where(this.predicateBuilder(criteriaBuilder, userAccountRoot, periodMonth, periodYear,
-            organizationRegionId, role).toArray(new Predicate[0]));
+            organizationRegionId, role, Boolean.FALSE).toArray(new Predicate[0]));
 
     TypedQuery<UserAccount> userAccountTypedQuery =
         this.entityManager.createQuery(userAccountCriteriaQuery);
@@ -51,11 +51,11 @@ public class UserAccountCustomRepositoryImpl extends BaseCustomRepository
   }
 
   private List<Predicate> predicateBuilder(CriteriaBuilder builder, Root<UserAccount> root,
-      Integer periodMonth, Integer periodYear, String organizationRegionId, UserAccountRole role)
-      throws ApplicationException {
+      Integer periodMonth, Integer periodYear, String organizationRegionId, UserAccountRole role,
+      Boolean isLockedAccount) throws ApplicationException {
     List<Predicate> predicates = new ArrayList<>();
     predicates.add(builder.isFalse(root.get(UserAccount_.MARK_FOR_DELETE)));
-    predicates.add(builder.isFalse(root.get(UserAccount_.LOCKED_ACCOUNT)));
+    predicates.add(builder.equal(root.get(UserAccount_.LOCKED_ACCOUNT), isLockedAccount));
     predicates.add(builder.equal(root.get(UserAccount_.ROLE), role));
     predicates.add(builder.equal(root.get(UserAccount_.PERIOD_MONTH), periodMonth));
     predicates.add(builder.equal(root.get(UserAccount_.PERIOD_YEAR), periodYear));
@@ -67,5 +67,28 @@ public class UserAccountCustomRepositoryImpl extends BaseCustomRepository
         builder.equal(organizationRegionJoin.get(OrganizationRegion_.id), organizationRegionId));
 
     return predicates;
+  }
+
+  @Override
+  public Optional<List<UserAccount>> findAllByOrganizationRegionIdAndRoleAndMarkForDeleteFalse(
+      Integer periodMonth, Integer periodYear, String organizationRegionId, UserAccountRole role)
+      throws ApplicationException {
+    CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
+    CriteriaQuery<UserAccount> userAccountCriteriaQuery =
+        criteriaBuilder.createQuery(UserAccount.class);
+    Root<UserAccount> userAccountRoot = userAccountCriteriaQuery.from(UserAccount.class);
+
+    userAccountCriteriaQuery.select(userAccountRoot)
+        .where(this.predicateBuilder(criteriaBuilder, userAccountRoot, periodMonth, periodYear,
+            organizationRegionId, role, Boolean.TRUE).toArray(new Predicate[0]));
+
+    TypedQuery<UserAccount> userAccountTypedQuery =
+        this.entityManager.createQuery(userAccountCriteriaQuery);
+
+    try {
+      return Optional.ofNullable(userAccountTypedQuery.getResultList());
+    } catch (Exception e) {
+      return Optional.empty();
+    }
   }
 }

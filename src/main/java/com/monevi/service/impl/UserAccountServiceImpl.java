@@ -1,6 +1,8 @@
 package com.monevi.service.impl;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -63,6 +65,9 @@ public class UserAccountServiceImpl implements UserAccountService {
     if (studentWithRole.isPresent()) {
       throw new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.ROLE_ALREADY_TAKEN);
     }
+    
+    this.checkIsAssignedUserExists(request.getPeriodMonth(), request.getPeriodYear(),
+        organizationRegion.getId(), UserAccountRole.valueOf(request.getRole()));
 
     UserAccount newStudent = new UserAccount();
     newStudent.setNim(request.getNim());
@@ -85,6 +90,16 @@ public class UserAccountServiceImpl implements UserAccountService {
         && organizationRegion.getRegion().getName().equals(regionName);
   }
 
+  private void checkIsAssignedUserExists(Integer periodMonth, Integer periodYear,
+      String organizationRegionId, UserAccountRole role) throws ApplicationException {
+    Optional<UserAccount> studentWithRole = this.userAccountRepository
+        .findAssignedUserByOrganizationRegionIdAndRoleAndMarkForDeleteFalse(periodMonth, periodYear,
+            organizationRegionId, role);
+    if (studentWithRole.isPresent()) {
+      throw new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.ROLE_ALREADY_TAKEN);
+    }
+  }
+
   @Override
   public UserAccount register(CreateSupervisorRequest supervisor) throws ApplicationException {
     Optional<UserAccount> emailSupervisor =
@@ -103,5 +118,33 @@ public class UserAccountServiceImpl implements UserAccountService {
 
     this.userAccountRepository.save(newSupervisor);
     return newSupervisor;
+  }
+
+  @Override
+  public UserAccount approveStudent(String studentId) throws ApplicationException {
+    UserAccount user = this.userAccountRepository.findByIdAndMarkForDeleteIsFalse(studentId)
+        .orElseThrow(() -> new RuntimeException(ErrorMessages.USER_ACCOUNT_NOT_FOUND));
+    this.checkIsAssignedUserExists(user.getPeriodMonth(), user.getPeriodYear(),
+        user.getOrganizationRegion().getId(), user.getRole());
+
+    if (user.getLockedAccount()) {
+      user.setLockedAccount(Boolean.FALSE);
+      this.userAccountRepository.save(user);
+
+      Optional<List<UserAccount>> listOfDeclinedUser = this.userAccountRepository
+          .findAllByOrganizationRegionIdAndRoleAndMarkForDeleteFalse(user.getPeriodMonth(),
+              user.getPeriodYear(), user.getOrganizationRegion().getId(), user.getRole());
+      if (listOfDeclinedUser.isPresent()) {
+        List<UserAccount> deletedList = listOfDeclinedUser.get().stream()
+            .map(this::setUserMarkForDeleteTrue).collect(Collectors.toList());
+        this.userAccountRepository.saveAll(deletedList);
+      }
+    }
+    return user;
+  }
+
+  private UserAccount setUserMarkForDeleteTrue(UserAccount userAccount) {
+    userAccount.setMarkForDelete(Boolean.TRUE);
+    return userAccount;
   }
 }
