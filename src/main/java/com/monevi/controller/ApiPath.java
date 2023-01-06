@@ -23,5 +23,6 @@ public class ApiPath {
   public static final String REGISTER = "/register";
   public static final String LOGIN = "/login";
   public static final String SUBMIT = "/submit";
+  public static final String APPROVE_ACCOUNT = "/approve-account";
 
 }

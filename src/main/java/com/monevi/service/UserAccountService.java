@@ -9,4 +9,6 @@ public interface UserAccountService {
     UserAccount register(CreateStudentRequest request) throws ApplicationException;
 
     UserAccount register(CreateSupervisorRequest request) throws ApplicationException;
+
+    UserAccount approveStudent(String studentId) throws ApplicationException;
 }
