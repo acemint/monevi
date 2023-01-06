@@ -2,6 +2,7 @@ package com.monevi.security.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.monevi.entity.UserAccount;
+import com.monevi.enums.UserAccountRole;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Data
@@ -36,17 +38,26 @@ public class UserDetailsImpl implements UserDetails {
 
   private Collection<? extends GrantedAuthority> authorities;
 
+  private String organizationRegionId;
+
   private boolean lockedAccount;
 
   public static UserDetailsImpl build(UserAccount user) {
     List<GrantedAuthority> authority =
         Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getAuthority()));
 
+   String organizationRegionId = "";
+   if (UserAccountRole.TREASURER.equals(user.getRole())
+       || UserAccountRole.CHAIRMAN.equals(user.getRole())) {
+     organizationRegionId = user.getOrganizationRegion().getId();
+   }
+
    return UserDetailsImpl.builder()
         .id(user.getId())
         .username(user.getEmail())
         .email(user.getEmail())
         .password(user.getPassword())
+        .organizationRegionId(organizationRegionId)
         .authorities(authority)
         .lockedAccount(user.getLockedAccount()).build();
   }

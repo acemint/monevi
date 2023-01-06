@@ -15,6 +15,7 @@ public class UserLoginResponse {
   private String username;
   private String email;
   private String role;
+  private String organizationRegionId;
   private String accessToken;
   private String type;
 }
