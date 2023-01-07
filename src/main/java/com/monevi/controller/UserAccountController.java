@@ -63,4 +63,13 @@ public class UserAccountController {
     return BaseResponse.<UserAccountResponse>builder()
         .value(this.userAccountToUserAccountResponse.convert(userAccount)).build();
   }
+
+  @PreAuthorize("hasRole('SUPERVISOR')")
+  @PutMapping(value = ApiPath.SUPERVISOR + ApiPath.DECLINE_ACCOUNT)
+  public BaseResponse<UserAccountResponse> declineAccount(@RequestParam @NotBlank String studentId)
+          throws ApplicationException {
+    UserAccount userAccount = this.userAccountService.declineStudent(studentId);
+    return BaseResponse.<UserAccountResponse>builder()
+            .value(this.userAccountToUserAccountResponse.convert(userAccount)).build();
+  }
 }
