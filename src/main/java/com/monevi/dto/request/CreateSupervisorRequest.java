@@ -26,4 +26,7 @@ public class CreateSupervisorRequest {
     @NotBlank
     @Length(min = 8, message = "minimum 8 characters")
     private String password;
+
+    @NotBlank
+    private String regionName;
 }

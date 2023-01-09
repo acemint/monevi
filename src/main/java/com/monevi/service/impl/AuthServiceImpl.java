@@ -40,6 +40,7 @@ public class AuthServiceImpl implements AuthService {
         .email(user.getEmail())
         .role(user.getAuthorities().stream().findFirst().get().getAuthority())
         .organizationRegionId(user.getOrganizationRegionId())
+        .regionId(user.getRegionId())
         .type("Bearer")
         .accessToken(accessToken).build();
   }

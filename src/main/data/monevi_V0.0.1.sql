@@ -241,3 +241,6 @@ ALTER TABLE monevi_transaction ADD COLUMN report_id VARCHAR(255);
 ALTER TABLE monevi_transaction ADD CONSTRAINT monevi_transaction_report_id_fkey FOREIGN KEY (report_id) REFERENCES monevi_report (id);
 ALTER TABLE monevi_transaction ADD COLUMN organization_region_id VARCHAR(255) NOT NULL;
 ALTER TABLE monevi_transaction ADD CONSTRAINT monevi_transaction_organization_region_id_fkey FOREIGN KEY (organization_region_id) REFERENCES monevi_organization_region (id);
+
+ALTER TABLE monevi_user_account  ADD COLUMN region_id VARCHAR(255);
+ALTER TABLE monevi_user_account ADD CONSTRAINT monevi_region_id_fkey FOREIGN KEY (region_id) REFERENCES monevi_region(id);

@@ -21,5 +21,6 @@ public interface ErrorMessages {
   String ENTRY_POSITION_UNDEFINED = "entry position of transaction is unsupported";
 
   String USER_ACCOUNT_NOT_FOUND = "user not found";
-
+  String INVALID_STUDENT_ROLE = "this role is not student's role";
+  String INVALID_MONTH = "invalid month";
 }
