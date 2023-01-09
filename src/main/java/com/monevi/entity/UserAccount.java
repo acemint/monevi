@@ -34,6 +34,7 @@ public class UserAccount extends BaseEntity {
   public static final String PERIOD_YEAR_COLUMN_NAME = "PERIOD_YEAR";
   public static final String LOCKED_ACCOUNT_COLUMN_NAME = "LOCKED_ACCOUNT";
   public static final String ORGANIZATION_REGION_ID_COLUMN_NAME = "ORGANIZATION_REGION_ID";
+  public static final String REGION_ID_COLUMN_NAME = "REGION_ID";
   public static final String TERMS_MAPPED_BY_FIELD_NAME = "userAccount";
 
   @Column(name = UserAccount.NIM_COLUMN_NAME, nullable = false, unique = true)
@@ -63,7 +64,10 @@ public class UserAccount extends BaseEntity {
   private Boolean lockedAccount = true;
 
   @ManyToOne
-  @JoinColumn(name = UserAccount.ORGANIZATION_REGION_ID_COLUMN_NAME, nullable = false)
+  @JoinColumn(name = UserAccount.ORGANIZATION_REGION_ID_COLUMN_NAME)
   private OrganizationRegion organizationRegion;
 
+  @ManyToOne
+  @JoinColumn(name = UserAccount.REGION_ID_COLUMN_NAME)
+  private Region region;
 }

@@ -1,6 +1,8 @@
 package com.monevi.service.impl;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -14,10 +16,13 @@ import com.monevi.dto.request.CreateStudentRequest;
 import com.monevi.dto.request.CreateSupervisorRequest;
 import com.monevi.entity.Organization;
 import com.monevi.entity.OrganizationRegion;
+import com.monevi.entity.Region;
 import com.monevi.entity.UserAccount;
 import com.monevi.enums.UserAccountRole;
 import com.monevi.exception.ApplicationException;
+import com.monevi.model.GetStudentFilter;
 import com.monevi.repository.OrganizationRepository;
+import com.monevi.repository.RegionRepository;
 import com.monevi.repository.UserAccountRepository;
 import com.monevi.service.UserAccountService;
 
@@ -32,6 +37,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 
   @Autowired
   private OrganizationRepository organizationRepository;
+
+  @Autowired
+  private RegionRepository regionRepository;
 
   @Override
   public UserAccount register(CreateStudentRequest request) throws ApplicationException {
@@ -109,10 +117,16 @@ public class UserAccountServiceImpl implements UserAccountService {
           ErrorMessages.EMAIL_ALREADY_REGISTERED);
     }
 
+    Region region =
+        this.regionRepository.findByNameAndMarkForDeleteIsFalse(supervisor.getRegionName())
+            .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
+                ErrorMessages.REGION_DOES_NOT_EXIST));
+
     UserAccount newSupervisor = new UserAccount();
     newSupervisor.setFullName(supervisor.getFullName());
     newSupervisor.setEmail(supervisor.getEmail());
     newSupervisor.setRole(UserAccountRole.SUPERVISOR);
+    newSupervisor.setRegion(region);
     newSupervisor.setLockedAccount(false);
     newSupervisor.setPassword(this.passwordEncoder.encoder().encode(supervisor.getPassword()));
 
@@ -123,7 +137,8 @@ public class UserAccountServiceImpl implements UserAccountService {
   @Override
   public UserAccount approveStudent(String studentId) throws ApplicationException {
     UserAccount user = this.userAccountRepository.findByIdAndMarkForDeleteIsFalse(studentId)
-        .orElseThrow(() -> new RuntimeException(ErrorMessages.USER_ACCOUNT_NOT_FOUND));
+        .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
+            ErrorMessages.USER_ACCOUNT_NOT_FOUND));
     this.checkIsAssignedUserExists(user.getPeriodMonth(), user.getPeriodYear(),
         user.getOrganizationRegion().getId(), user.getRole());
 
@@ -151,9 +166,25 @@ public class UserAccountServiceImpl implements UserAccountService {
   @Override
   public UserAccount declineStudent(String studentId) throws ApplicationException {
     UserAccount user = this.userAccountRepository.findByIdAndMarkForDeleteIsFalse(studentId)
-        .orElseThrow(() -> new RuntimeException(ErrorMessages.USER_ACCOUNT_NOT_FOUND));
+        .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
+            ErrorMessages.USER_ACCOUNT_NOT_FOUND));
     user.setMarkForDelete(Boolean.TRUE);
     this.userAccountRepository.save(user);
     return user;
+  }
+
+  @Override
+  public List<UserAccount> findAllStudentByFilter(GetStudentFilter filter)
+      throws ApplicationException {
+    if (Objects.nonNull(filter.getPeriodMonth())
+        && (filter.getPeriodMonth() < 1 || filter.getPeriodMonth() > 12)) {
+      throw new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_MONTH);
+    }
+    if (Objects.nonNull(filter.getStudentRole())
+        && UserAccountRole.SUPERVISOR.equals(filter.getStudentRole())) {
+      throw new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_STUDENT_ROLE);
+    }
+    return this.userAccountRepository.findAllStudentByFilter(filter)
+        .orElse(Collections.emptyList());
   }
 }

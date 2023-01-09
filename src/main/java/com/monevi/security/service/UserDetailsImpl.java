@@ -29,6 +29,8 @@ public class UserDetailsImpl implements UserDetails {
 
   private String id;
 
+  private String fullname;
+
   private String username;
 
   private String email;
@@ -40,6 +42,8 @@ public class UserDetailsImpl implements UserDetails {
 
   private String organizationRegionId;
 
+  private String regionId;
+
   private boolean lockedAccount;
 
   public static UserDetailsImpl build(UserAccount user) {
@@ -47,17 +51,22 @@ public class UserDetailsImpl implements UserDetails {
         Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getAuthority()));
 
    String organizationRegionId = "";
+   String regionId = "";
    if (UserAccountRole.TREASURER.equals(user.getRole())
        || UserAccountRole.CHAIRMAN.equals(user.getRole())) {
      organizationRegionId = user.getOrganizationRegion().getId();
+   } else if(UserAccountRole.SUPERVISOR.equals(user.getRole())) {
+     regionId = user.getRegion().getId();
    }
 
    return UserDetailsImpl.builder()
         .id(user.getId())
+        .fullname(user.getFullName())
         .username(user.getEmail())
         .email(user.getEmail())
         .password(user.getPassword())
         .organizationRegionId(organizationRegionId)
+        .regionId(regionId)
         .authorities(authority)
         .lockedAccount(user.getLockedAccount()).build();
   }
