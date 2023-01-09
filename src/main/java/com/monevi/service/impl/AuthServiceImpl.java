@@ -36,6 +36,7 @@ public class AuthServiceImpl implements AuthService {
   private UserLoginResponse toUserLoginResponse(UserDetailsImpl user, String accessToken) {
     return UserLoginResponse.builder()
         .id(user.getId())
+        .fullname(user.getFullname())
         .username(user.getEmail())
         .email(user.getEmail())
         .role(user.getAuthorities().stream().findFirst().get().getAuthority())
