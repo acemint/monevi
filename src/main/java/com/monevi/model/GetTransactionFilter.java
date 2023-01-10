@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 public class GetTransactionFilter {
 
   private String organizationRegionId;
+  private String regionId;
   private String startDate;
   private String endDate;
   private Pageable pageable;

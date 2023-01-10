@@ -17,6 +17,7 @@ public class UserAccountToStudentFindAllResponseConverter
     return StudentFindAllResponse.builder()
         .nim(source.getNim())
         .fullname(source.getFullName())
+        .email(source.getEmail())
         .orgName(source.getOrganizationRegion().getOrganization().getName())
         .orgAbbreviation(source.getOrganizationRegion().getOrganization().getAbbreviation())
         .regionName(source.getOrganizationRegion().getRegion().getName())

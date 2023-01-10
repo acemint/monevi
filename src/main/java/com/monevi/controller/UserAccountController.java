@@ -8,7 +8,6 @@ import com.monevi.dto.response.MultipleBaseResponse;
 import com.monevi.dto.response.StudentFindAllResponse;
 import com.monevi.enums.UserAccountRole;
 import com.monevi.model.GetStudentFilter;
-import com.monevi.util.OrganizationUrlUtils;
 import com.monevi.util.UserAccountUrlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,8 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -38,7 +35,6 @@ import com.monevi.service.UserAccountService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -98,7 +94,7 @@ public class UserAccountController {
   public MultipleBaseResponse<StudentFindAllResponse> findAllStudentByFilter(
       @RequestParam(required = false) String studentName,
       @RequestParam(required = false) String organizationName,
-      @RequestParam(required = false) String regionName,
+      @RequestParam(required = false) String regionId,
       @RequestParam(required = false) Integer periodMonth,
       @RequestParam(required = false) Integer periodYear,
       @RequestParam(required = false) UserAccountRole studentRole,
@@ -108,7 +104,7 @@ public class UserAccountController {
       @RequestParam(defaultValue = "createdDate", required = false) String[] sortBy,
       @RequestParam(defaultValue = "false", required = false) String[] isAscending)
       throws ApplicationException {
-    GetStudentFilter filter = this.buildGetStudentFilter(studentName, organizationName, regionName,
+    GetStudentFilter filter = this.buildGetStudentFilter(studentName, organizationName, regionId,
         periodMonth, periodYear, studentRole, lockedAccount, page, size, sortBy, isAscending);
     List<StudentFindAllResponse> studentFindAllResponses =
         this.userAccountService.findAllStudentByFilter(filter).stream()
@@ -125,7 +121,7 @@ public class UserAccountController {
   }
 
   private GetStudentFilter buildGetStudentFilter(String studentName, String organizationName,
-      String regionName, Integer periodMonth, Integer periodYear, UserAccountRole studentRole,
+      String regionId, Integer periodMonth, Integer periodYear, UserAccountRole studentRole,
       Boolean lockedAccount, int page, int size, String[] sortBy, String[] isAscending)
       throws ApplicationException {
     List<Sort.Order> sortOrders = new ArrayList<>();
@@ -139,7 +135,7 @@ public class UserAccountController {
     return GetStudentFilter.builder()
         .studentName(studentName)
         .organizationName(organizationName)
-        .regionName(regionName)
+        .regionId(regionId)
         .periodMonth(periodMonth)
         .periodYear(periodYear)
         .studentRole(studentRole)
