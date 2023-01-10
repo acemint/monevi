@@ -19,7 +19,7 @@ public class GetStudentFilter {
   private Integer periodMonth;
   private Integer periodYear;
   private String organizationName;
-  private String regionName;
+  private String regionId;
   private UserAccountRole studentRole;
   private Boolean lockedAccount;
   private Pageable pageable;

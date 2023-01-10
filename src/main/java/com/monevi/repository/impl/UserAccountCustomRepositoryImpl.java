@@ -157,7 +157,7 @@ public class UserAccountCustomRepositoryImpl extends BaseCustomRepository
       predicates.add(builder.like(organizationRegionOrganizationJoin.get(Organization_.NAME),
           generateLikePattern(filter.getOrganizationName())));
     }
-    if (Objects.nonNull(filter.getRegionName())) {
+    if (Objects.nonNull(filter.getRegionId())) {
       Join<UserAccount, OrganizationRegion> organizationRegionJoin =
           root.join(UserAccount_.ORGANIZATION_REGION);
       Join<OrganizationRegion, Region> organizationRegionRegionJoin =
@@ -166,7 +166,7 @@ public class UserAccountCustomRepositoryImpl extends BaseCustomRepository
           .add(builder.isFalse(organizationRegionJoin.get(OrganizationRegion_.MARK_FOR_DELETE)));
       predicates.add(builder.isFalse(organizationRegionRegionJoin.get(Region_.MARK_FOR_DELETE)));
       predicates.add(
-          builder.equal(organizationRegionRegionJoin.get(Region_.NAME), filter.getRegionName()));
+          builder.equal(organizationRegionRegionJoin.get(Region_.ID), filter.getRegionId()));
     }
     return predicates;
   }

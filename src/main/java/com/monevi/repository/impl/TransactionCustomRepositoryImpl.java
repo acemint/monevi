@@ -3,6 +3,8 @@ package com.monevi.repository.impl;
 
 import com.monevi.entity.OrganizationRegion;
 import com.monevi.entity.OrganizationRegion_;
+import com.monevi.entity.Region;
+import com.monevi.entity.Region_;
 import com.monevi.entity.Transaction;
 import com.monevi.entity.Transaction_;
 import com.monevi.exception.ApplicationException;
@@ -66,6 +68,15 @@ public class TransactionCustomRepositoryImpl
       predicates.add(builder.between(root.get(Transaction_.transactionDate),
           DateUtils.dateInputToTimestamp(filter.getStartDate()),
           DateUtils.dateInputToTimestamp(filter.getEndDate())));
+    }
+    if (Objects.nonNull(filter.getRegionId())) {
+      Join<Transaction, OrganizationRegion> transactionJoin =
+          root.join(Transaction_.organizationRegion);
+      Join<OrganizationRegion, Region> regionJoin =
+          transactionJoin.join(OrganizationRegion_.REGION);
+      predicates.add(builder.isFalse(transactionJoin.get(OrganizationRegion_.markForDelete)));
+      predicates
+          .add(builder.equal(regionJoin.get(Region_.ID), filter.getRegionId()));
     }
     return predicates;
   }

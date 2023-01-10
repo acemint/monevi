@@ -13,6 +13,7 @@ public class StudentFindAllResponse {
 
   private String nim;
   private String fullname;
+  private String email;
   private String orgName;
   private String orgAbbreviation;
   private String regionName;

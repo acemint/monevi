@@ -52,15 +52,16 @@ public class TransactionController {
 
   @GetMapping(value = ApiPath.FIND_ALL, produces = MediaType.APPLICATION_JSON_VALUE)
   public MultipleBaseResponse<TransactionResponse> getTransactions(
-      @RequestParam String organizationRegionId,
+      @RequestParam(required = false) String organizationRegionId,
       @RequestParam String startDate,
       @RequestParam String endDate,
+      @RequestParam(required = false) String regionId,
       @RequestParam(defaultValue = "0", required = false) int page,
       @RequestParam(defaultValue = "1000", required = false) int size,
       @RequestParam(defaultValue = "transactionDate", required = false) String[] sortBy,
       @RequestParam(defaultValue = "true", required = false) String[] isAscending) throws ApplicationException {
     GetTransactionFilter filter = this.buildDefaultGetTransactionFilter(
-        organizationRegionId, startDate, endDate, sortBy, isAscending, page, size);
+        organizationRegionId, regionId, startDate, endDate, sortBy, isAscending, page, size);
     List<TransactionResponse> transactionResponses = this.transactionService.getTransactions(filter)
         .stream()
         .map(t -> this.transactionToTransactionResponseConverter.convert(t))
@@ -77,7 +78,7 @@ public class TransactionController {
   }
 
   private GetTransactionFilter buildDefaultGetTransactionFilter(
-      String organizationRegionId, String startDate, String endDate,
+      String organizationRegionId, String regionId, String startDate, String endDate,
       String[] sortBy, String[] isAscending, int page, int size) throws ApplicationException {
     List<Sort.Order> sortOrders = new ArrayList<>();
     int validSize = Math.min(sortBy.length, isAscending.length);
@@ -88,6 +89,7 @@ public class TransactionController {
     Pageable pageable = PageRequest.of(page, size, Sort.by(sortOrders));
     return GetTransactionFilter.builder()
         .organizationRegionId(organizationRegionId)
+        .regionId(regionId)
         .startDate(startDate)
         .endDate(endDate)
         .pageable(pageable)
