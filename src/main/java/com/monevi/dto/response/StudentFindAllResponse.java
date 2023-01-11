@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class StudentFindAllResponse {
 
+  private String id;
   private String nim;
   private String fullname;
   private String email;
