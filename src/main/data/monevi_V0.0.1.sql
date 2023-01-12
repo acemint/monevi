@@ -244,3 +244,6 @@ ALTER TABLE monevi_transaction ADD CONSTRAINT monevi_transaction_organization_re
 
 ALTER TABLE monevi_user_account  ADD COLUMN region_id VARCHAR(255);
 ALTER TABLE monevi_user_account ADD CONSTRAINT monevi_region_id_fkey FOREIGN KEY (region_id) REFERENCES monevi_region(id);
+
+ALTER TABLE monevi_user_account  ADD COLUMN reset_password_token VARCHAR(255);
+ALTER TABLE monevi_user_account  ADD COLUMN reset_password_token_expired_date TIMESTAMP;
