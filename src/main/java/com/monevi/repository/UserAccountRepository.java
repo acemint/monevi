@@ -13,4 +13,6 @@ public interface UserAccountRepository
   Optional<UserAccount> findByEmailAndMarkForDeleteFalse(String email);
 
   Optional<UserAccount> findByIdAndMarkForDeleteIsFalse(String id);
+  
+  Optional<UserAccount> findByResetPasswordTokenAndMarkForDeleteFalse(String resetPasswordToken);
 }

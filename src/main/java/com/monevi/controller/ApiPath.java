@@ -22,9 +22,12 @@ public class ApiPath {
   public static final String APPROVE = "/approve";
   public static final String REGISTER = "/register";
   public static final String LOGIN = "/login";
+  public static final String RESET_PASSWORD = "/reset-password";
+  public static final String RESET_PASSWORD_REQUEST = "/request" + RESET_PASSWORD;
   public static final String SUBMIT = "/submit";
   public static final String APPROVE_ACCOUNT = "/approve-account";
   public static final String DECLINE_ACCOUNT = "/decline-account";
   public static final String FIND_ALL_STUDENT = "/find-all-student";
+  public static final String SEND_EMAIL = "/send-email";
 
 }

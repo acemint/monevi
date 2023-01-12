@@ -3,6 +3,15 @@ spring:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: test123
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: monevi.test@gmail.com
+    password: test123 # ask first before using this value
+    smtpAuth: true
+    smtpStartTlsEnable: true
+    mailDebug: true
+    templatePath: templates/email/
 
 monevi:
   jwt:
@@ -10,3 +19,6 @@ monevi:
     access:
       token:
         expiration-time: 18000000 # in milliseconds, current: 5 hrs
+  redirect:
+    reset-password:
+      url: https://www.google.com/

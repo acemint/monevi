@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.monevi.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 
   @Autowired
   private RegionRepository regionRepository;
+
+  @Autowired
+  private AuthService authService;
 
   @Override
   public UserAccount register(CreateStudentRequest request) throws ApplicationException {
@@ -131,6 +135,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     newSupervisor.setPassword(this.passwordEncoder.encoder().encode(supervisor.getPassword()));
 
     this.userAccountRepository.save(newSupervisor);
+    this.authService.generateResetPasswordToken(supervisor.getEmail());
     return newSupervisor;
   }
 
