@@ -78,6 +78,17 @@ public class TransactionCustomRepositoryImpl
       predicates
           .add(builder.equal(regionJoin.get(Region_.ID), filter.getRegionId()));
     }
+    if (Objects.nonNull(filter.getEntryPosition())) {
+      predicates
+          .add(builder.equal(root.get(Transaction_.ENTRY_POSITION), filter.getEntryPosition()));
+    }
+    if (Objects.nonNull(filter.getGeneralLedgerAccountType())) {
+      predicates.add(builder.equal(root.get(Transaction_.GENERAL_LEDGER_ACCOUNT_TYPE),
+          filter.getGeneralLedgerAccountType()));
+    }
+    if (Objects.nonNull(filter.getTransactionType())) {
+      predicates.add(builder.equal(root.get(Transaction_.TYPE), filter.getTransactionType()));
+    }
     return predicates;
   }
 

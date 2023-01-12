@@ -49,9 +49,6 @@ public class TransactionServiceImpl implements TransactionService {
   @Override
   public List<Transaction> getTransactions(GetTransactionFilter filter)
       throws ApplicationException {
-//    this.organizationRegionRepository.findByIdAndMarkForDeleteIsFalse(
-//            filter.getOrganizationRegionId())
-//        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
     return this.transactionRepository.getTransactions(filter).orElse(Collections.emptyList());
   }
 
