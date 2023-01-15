@@ -18,4 +18,6 @@ public interface TransactionService {
 
   Transaction updateTransaction(String transactionId, UpdateTransactionRequest request)
       throws ApplicationException;
+
+  Boolean deleteTransaction(String transactionId) throws ApplicationException;
 }
