@@ -72,7 +72,8 @@ public class ReportServiceImpl implements ReportService {
         organizationRegion.getId(), request.getDate());
     Report previousMonthReport = this.getLastMonthReport(
         organizationRegion.getId(), request.getDate());
-    Report newReport = this.buildNewReport(organizationRegion, transactions, previousMonthReport, request.getDate());
+    Report newReport = this.buildNewReport(organizationRegion, transactions,
+        previousMonthReport, request.getDate(), request.getOpnameData());
 
     transactions.forEach(t -> t.setReport(newReport));
     this.transactionRepository.saveAll(transactions);

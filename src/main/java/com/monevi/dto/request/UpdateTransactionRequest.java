@@ -1,30 +1,45 @@
-package com.monevi.dto.response;
+package com.monevi.dto.request;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.monevi.enums.EntryPosition;
 import com.monevi.enums.GeneralLedgerAccountType;
 import com.monevi.enums.TransactionType;
+import com.monevi.validation.annotation.ValidDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
-@Builder
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransactionResponse implements Serializable {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class UpdateTransactionRequest {
 
-  private String id;
+  @NotBlank
   private String name;
-  private long transactionDate;
-  private double amount;
-  private EntryPosition entryPosition;
-  private TransactionType type;
-  private GeneralLedgerAccountType generalLedgerAccountType;
-  private String description;
-  private byte[] proof;
-  private String program;
 
+  @ValidDate
+  private String transactionDate;
+
+  @Positive
+  private double amount;
+
+  private EntryPosition entryPosition;
+
+  private TransactionType type;
+
+  private GeneralLedgerAccountType generalLedgerAccountType;
+
+  @NotBlank
+  private String description;
+
+  private String proof;
+
+  private String programId;
 }

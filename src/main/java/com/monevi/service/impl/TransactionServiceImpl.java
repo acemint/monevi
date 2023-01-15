@@ -2,7 +2,9 @@ package com.monevi.service.impl;
 
 import com.monevi.constant.ErrorMessages;
 import com.monevi.dto.request.CreateTransactionRequest;
+import com.monevi.dto.request.UpdateTransactionRequest;
 import com.monevi.entity.OrganizationRegion;
+import com.monevi.entity.Program;
 import com.monevi.entity.Report;
 import com.monevi.entity.Transaction;
 import com.monevi.enums.ReportStatus;
@@ -10,10 +12,12 @@ import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetReportFilter;
 import com.monevi.model.GetTransactionFilter;
 import com.monevi.repository.OrganizationRegionRepository;
+import com.monevi.repository.ProgramRepository;
 import com.monevi.repository.ReportRepository;
 import com.monevi.repository.TransactionRepository;
 import com.monevi.service.TransactionService;
 import com.monevi.util.DateUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -34,6 +39,9 @@ public class TransactionServiceImpl implements TransactionService {
 
   @Autowired
   private ReportRepository reportRepository;
+  
+  @Autowired
+  private ProgramRepository programRepository;
 
   public Transaction createNewTransaction(CreateTransactionRequest request)
       throws ApplicationException {
@@ -43,7 +51,26 @@ public class TransactionServiceImpl implements TransactionService {
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
     Transaction transaction = this.buildTransaction(request);
     transaction.setOrganizationRegion(organizationRegion);
+    if (StringUtils.isNotBlank(request.getProgramId())) {
+      Program program = this.validateProgram(request.getProgramId(), organizationRegion,
+          request.getTransactionDate());
+      transaction.setProgram(program);
+    }
     return this.transactionRepository.save(transaction);
+  }
+  
+  private Program validateProgram(String programId, OrganizationRegion organizationRegion,
+      String transactionDate) throws ApplicationException {
+    Long date = DateUtils.convertDateToLong(transactionDate);
+    Program program = this.programRepository
+        .findByIdAndOrganizationRegionAndMarkForDeleteFalse(programId, organizationRegion)
+        .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
+            ErrorMessages.PROGRAM_NOT_FOUND));
+    if (date < program.getStartDate().getTime() || date > program.getEndDate().getTime()) {
+      throw new ApplicationException(HttpStatus.BAD_REQUEST,
+          ErrorMessages.PROGRAM_NOT_STARTED_OR_ALREADY_ENDED);
+    }
+    return program;
   }
 
   @Override
@@ -89,4 +116,42 @@ public class TransactionServiceImpl implements TransactionService {
         .build();
   }
 
+  @Override
+  public Transaction updateTransaction(String transactionId, UpdateTransactionRequest request)
+      throws ApplicationException {
+    Transaction existingTransaction =
+        this.transactionRepository.findByIdAndMarkForDeleteFalse(transactionId)
+            .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
+                ErrorMessages.TRANSACTION_NOT_FOUND));
+    this.throwErrorOnExistingReportWithStatusApprovedBySupervisor(
+        existingTransaction.getOrganizationRegion().getId(),
+        DateUtils.convertTimestampToString(existingTransaction.getTransactionDate()));
+
+    Transaction updatedTransaction = this.buildTransaction(request, existingTransaction);
+    this.throwErrorOnExistingReportWithStatusApprovedBySupervisor(
+        existingTransaction.getOrganizationRegion().getId(),
+        DateUtils.convertTimestampToString(updatedTransaction.getTransactionDate()));
+    if (StringUtils.isNotBlank(request.getProgramId())) {
+      Program program = this.validateProgram(request.getProgramId(),
+          existingTransaction.getOrganizationRegion(), request.getTransactionDate());
+      updatedTransaction.setProgram(program);
+    } else {
+      updatedTransaction.setProgram(null);
+    }
+    return this.transactionRepository.save(updatedTransaction);
+  }
+  
+  private Transaction buildTransaction(UpdateTransactionRequest request,
+      Transaction existingTransaction) throws ApplicationException {
+    existingTransaction.setName(request.getName());
+    existingTransaction
+        .setTransactionDate(DateUtils.dateInputToTimestamp(request.getTransactionDate()));
+    existingTransaction.setAmount(request.getAmount());
+    existingTransaction.setDescription(request.getDescription());
+    existingTransaction.setEntryPosition(request.getEntryPosition());
+    existingTransaction.setGeneralLedgerAccountType(request.getGeneralLedgerAccountType());
+    existingTransaction.setType(request.getType());
+    existingTransaction.setProof(request.getProof().getBytes(StandardCharsets.UTF_8));
+    return existingTransaction;
+  }
 }

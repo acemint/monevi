@@ -18,7 +18,10 @@ public interface ErrorMessages {
   String REPORT_HANDLING_IS_PROHIBITED = "report handling is prohibited";
   String FAIL_TO_PROCESS_DATE_FORMAT = "fail to process date format";
   String TRANSACTION_CANNOT_BE_CREATED_BECAUSE_REPORT_HAS_BEEN_APPROVED = "report cannot be changed because report has been approved";
+  String TRANSACTION_NOT_FOUND = "transaction not found";
   String ENTRY_POSITION_UNDEFINED = "entry position of transaction is unsupported";
+  String PROGRAM_NOT_FOUND = "program not found";
+  String PROGRAM_NOT_STARTED_OR_ALREADY_ENDED = "program has not started / has already ended";
 
   String USER_ACCOUNT_NOT_FOUND = "user not found";
   String INVALID_STUDENT_ROLE = "this role is not student's role";
