@@ -73,7 +73,7 @@ public class UserAccountController {
   }
 
   // @PreAuthorize("hasRole('SUPERVISOR')")
-  @PutMapping(value = ApiPath.SUPERVISOR + ApiPath.APPROVE_ACCOUNT)
+  @PostMapping(value = ApiPath.SUPERVISOR + ApiPath.APPROVE_ACCOUNT)
   public BaseResponse<UserAccountResponse> approveStudent(@RequestParam @NotBlank String studentId)
       throws ApplicationException {
     UserAccount userAccount = this.userAccountService.approveStudent(studentId);
@@ -82,7 +82,7 @@ public class UserAccountController {
   }
 
   // @PreAuthorize("hasRole('SUPERVISOR')")
-  @PutMapping(value = ApiPath.SUPERVISOR + ApiPath.DECLINE_ACCOUNT)
+  @PostMapping(value = ApiPath.SUPERVISOR + ApiPath.DECLINE_ACCOUNT)
   public BaseResponse<UserAccountResponse> declineAccount(@RequestParam @NotBlank String studentId)
           throws ApplicationException {
     UserAccount userAccount = this.userAccountService.declineStudent(studentId);

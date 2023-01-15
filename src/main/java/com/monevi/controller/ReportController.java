@@ -8,6 +8,7 @@ import com.monevi.dto.request.ReportRejectRequest;
 import com.monevi.dto.response.BaseResponse;
 import com.monevi.dto.response.MultipleBaseResponse;
 import com.monevi.dto.response.ReportResponse;
+import com.monevi.dto.response.ReportSummary;
 import com.monevi.entity.Report;
 import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetReportFilter;
@@ -94,6 +95,16 @@ public class ReportController {
     return BaseResponse.<ReportResponse>builder()
         .value(this.reportToReportResponseConverter.convert(report))
         .build();
+  }
+
+  @GetMapping(value = ApiPath.SUMMARIZE, produces = MediaType.APPLICATION_JSON_VALUE)
+  public BaseResponse<ReportSummary> summarizeReport(
+      @RequestParam String id) throws ApplicationException {
+    ReportSummary reportSummary = this.reportService.summarize(id);
+    return BaseResponse.<ReportSummary>builder()
+        .value(reportSummary)
+        .build();
+
   }
 
   private GetReportFilter buildDefaultGetReportsFilter(
