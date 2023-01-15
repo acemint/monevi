@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
@@ -22,5 +24,7 @@ public class SubmitReportRequest {
 
   @ValidDate
   private String date;
+
+  private Map<GeneralLedgerAccountType, Double> opnameData;
 
 }

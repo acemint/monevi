@@ -4,6 +4,7 @@ import com.monevi.constant.ErrorMessages;
 import com.monevi.dto.request.SubmitReportRequest;
 import com.monevi.dto.request.ReportApproveRequest;
 import com.monevi.dto.request.ReportRejectRequest;
+import com.monevi.entity.BaseEntity;
 import com.monevi.entity.OrganizationRegion;
 import com.monevi.entity.Report;
 import com.monevi.entity.ReportComment;
@@ -37,6 +38,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -101,6 +103,24 @@ public class ReportServiceImpl implements ReportService {
   }
 
   private void throwErrorOnInvalidReportHandlingByUser(Report report, UserAccount userAccount) throws ApplicationException {
+    if (userAccount.getRole().equals(UserAccountRole.SUPERVISOR)) {
+      List<String> userOrganizationRegionIds = userAccount.getRegion().getOrganizationRegions()
+          .stream().map(BaseEntity::getId).collect(Collectors.toList());
+      if (!userOrganizationRegionIds.contains(report.getOrganizationRegion().getId())) {
+        throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+      }
+    }
+    if (userAccount.getRole().equals(UserAccountRole.CHAIRMAN)) {
+      if (!userAccount.getOrganizationRegion().getId().equals(
+          report.getOrganizationRegion().getId())) {
+        throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+      }
+    }
+
+    if (report.getStatus().equals(ReportStatus.NOT_SENT)
+        && !userAccount.getRole().equals(UserAccountRole.TREASURER)) {
+      throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+    }
     if (report.getStatus().equals(ReportStatus.UNAPPROVED)
         && !userAccount.getRole().equals(UserAccountRole.CHAIRMAN)) {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
@@ -109,6 +129,7 @@ public class ReportServiceImpl implements ReportService {
         && !userAccount.getRole().equals(UserAccountRole.SUPERVISOR)) {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
     }
+    
     if (report.getStatus().equals(ReportStatus.APPROVED_BY_SUPERVISOR)) {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
     }
@@ -129,7 +150,10 @@ public class ReportServiceImpl implements ReportService {
   }
 
   private void approveReport(Report report) {
-    if (report.getStatus().equals(ReportStatus.UNAPPROVED)) {
+    if (report.getStatus().equals(ReportStatus.NOT_SENT)) {
+      report.setStatus(ReportStatus.UNAPPROVED);
+    }
+    else if (report.getStatus().equals(ReportStatus.UNAPPROVED)) {
       report.setStatus(ReportStatus.APPROVED_BY_CHAIRMAN);
     }
     else if (report.getStatus().equals(ReportStatus.APPROVED_BY_CHAIRMAN)) {
@@ -146,6 +170,9 @@ public class ReportServiceImpl implements ReportService {
         .build();
     List<Report> reports = this.reportRepository.getReports(filter).orElse(Collections.emptyList());
     if (reports.size() != 0) {
+      if (!reports.get(0).getStatus().equals(ReportStatus.UNAPPROVED)) {
+        throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+      }
       reports.get(0).setMarkForDelete(true);
       this.reportRepository.save(reports.get(0));
     }
@@ -155,62 +182,66 @@ public class ReportServiceImpl implements ReportService {
       OrganizationRegion organizationRegion,
       List<Transaction> currentMonthTransactions,
       Report previousMonthReport,
-      String date) throws ApplicationException {
+      String date,
+      Map<GeneralLedgerAccountType, Double> opnameData) throws ApplicationException {
 
     Report newReport = Report.builder()
         .periodDate(DateUtils.dateInputToTimestamp(DateUtils.dateToFirstDayOfMonth(date)))
-        .status(ReportStatus.UNAPPROVED)
+        .status(ReportStatus.NOT_SENT)
         .organizationRegion(organizationRegion)
         .reportGeneralLedgerAccounts(Collections.emptySet())
         .build();
 
-    Map<String, Double> generalLedgerAccountAmounts = new HashMap<>();
+    Map<GeneralLedgerAccountType, Double> generalLedgerAccountAmounts = new HashMap<>();
     this.sumTransactionAmountsByGeneralLedgerAccount(generalLedgerAccountAmounts, currentMonthTransactions);
     this.sumWithPreviousMonthGeneralLedgerAccount(generalLedgerAccountAmounts, previousMonthReport);
-    this.buildGeneralLedgerAccounts(newReport, generalLedgerAccountAmounts);
+
+    this.buildGeneralLedgerAccounts(newReport, generalLedgerAccountAmounts, opnameData);
     return this.reportRepository.save(newReport);
   }
 
-  private void sumTransactionAmountsByGeneralLedgerAccount(Map<String, Double> generalLedgerAccountAmounts, List<Transaction> transactions)
+  private void sumTransactionAmountsByGeneralLedgerAccount(Map<GeneralLedgerAccountType, Double> generalLedgerAccountAmounts, List<Transaction> transactions)
       throws ApplicationException {
     for (Transaction transaction : transactions) {
-      String generalLedgerName = transaction.getGeneralLedgerAccountType().name();
-      if (generalLedgerAccountAmounts.containsKey(generalLedgerName)) {
-        Double amount = generalLedgerAccountAmounts.get(generalLedgerName);
+      if (generalLedgerAccountAmounts.containsKey(transaction.getGeneralLedgerAccountType())) {
+        Double amount = generalLedgerAccountAmounts.get(transaction.getGeneralLedgerAccountType());
         generalLedgerAccountAmounts.replace(
-            generalLedgerName,
+            transaction.getGeneralLedgerAccountType(),
             amount + FinanceUtils.getActualAmount(transaction.getEntryPosition(), transaction.getAmount()));
       }
       else {
         generalLedgerAccountAmounts.put(
-            generalLedgerName,
+            transaction.getGeneralLedgerAccountType(),
             FinanceUtils.getActualAmount(transaction.getEntryPosition(), transaction.getAmount()));
       }
     }
   }
 
-  private void sumWithPreviousMonthGeneralLedgerAccount(Map<String, Double> generalLedgerAccountAmounts, Report previousMonthReport) {
+  private void sumWithPreviousMonthGeneralLedgerAccount(Map<GeneralLedgerAccountType, Double> generalLedgerAccountAmounts, Report previousMonthReport) {
     for (ReportGeneralLedgerAccount reportGeneralLedgerAccount : previousMonthReport.getReportGeneralLedgerAccounts()) {
-      String generalLedgerName = reportGeneralLedgerAccount.getName().name();
-      if (generalLedgerAccountAmounts.containsKey(generalLedgerName)) {
-        Double amount = generalLedgerAccountAmounts.get(generalLedgerName);
-        generalLedgerAccountAmounts.replace(generalLedgerName, amount + reportGeneralLedgerAccount.getTotal());
+      if (generalLedgerAccountAmounts.containsKey(reportGeneralLedgerAccount.getName())) {
+        Double amount = generalLedgerAccountAmounts.get(reportGeneralLedgerAccount.getName());
+        generalLedgerAccountAmounts.replace(reportGeneralLedgerAccount.getName(), amount + reportGeneralLedgerAccount.getTotal());
       }
       else {
-        generalLedgerAccountAmounts.put(generalLedgerName, reportGeneralLedgerAccount.getTotal());
+        generalLedgerAccountAmounts.put(reportGeneralLedgerAccount.getName(), reportGeneralLedgerAccount.getTotal());
       }
     }
   }
 
-  private void buildGeneralLedgerAccounts(Report report, Map<String, Double> generalLedgerAccountAmounts) {
+  private void buildGeneralLedgerAccounts(Report report, Map<GeneralLedgerAccountType, Double> generalLedgerData, Map<GeneralLedgerAccountType, Double> opnameData) {
     Set<ReportGeneralLedgerAccount> reportGeneralLedgerAccounts = new HashSet<>();
-    for (Map.Entry<String, Double> generalLedgerAmountName : generalLedgerAccountAmounts.entrySet()) {
+    for (Map.Entry<GeneralLedgerAccountType, Double> generalLedgerDatum : generalLedgerData.entrySet()) {
       ReportGeneralLedgerAccount reportGeneralLedgerAccount = ReportGeneralLedgerAccount
           .builder()
           .report(report)
-          .total(generalLedgerAmountName.getValue())
-          .name(GeneralLedgerAccountType.valueOf(generalLedgerAmountName.getKey()))
+          .total(generalLedgerDatum.getValue())
+          .name(generalLedgerDatum.getKey())
           .build();
+      Double opnameAmount = opnameData.get(generalLedgerDatum.getKey());
+      if (opnameAmount != null) {
+        reportGeneralLedgerAccount.setOpname(opnameAmount);
+      }
       reportGeneralLedgerAccounts.add(reportGeneralLedgerAccount);
     }
     report.setReportGeneralLedgerAccounts(reportGeneralLedgerAccounts);
