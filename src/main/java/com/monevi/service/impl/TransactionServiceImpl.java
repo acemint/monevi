@@ -154,4 +154,15 @@ public class TransactionServiceImpl implements TransactionService {
     existingTransaction.setProof(request.getProof().getBytes(StandardCharsets.UTF_8));
     return existingTransaction;
   }
+
+  @Override
+  public Boolean deleteTransaction(String transactionId) throws ApplicationException {
+    Transaction transaction =
+        this.transactionRepository.findByIdAndMarkForDeleteFalse(transactionId)
+            .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
+                ErrorMessages.TRANSACTION_NOT_FOUND));
+    transaction.setMarkForDelete(true);
+    this.transactionRepository.save(transaction);
+    return Boolean.TRUE;
+  }
 }
