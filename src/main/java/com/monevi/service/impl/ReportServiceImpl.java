@@ -117,6 +117,10 @@ public class ReportServiceImpl implements ReportService {
       }
     }
 
+    if (report.getStatus().equals(ReportStatus.NOT_SENT)
+        && !userAccount.getRole().equals(UserAccountRole.TREASURER)) {
+      throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+    }
     if (report.getStatus().equals(ReportStatus.UNAPPROVED)
         && !userAccount.getRole().equals(UserAccountRole.CHAIRMAN)) {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
@@ -146,7 +150,10 @@ public class ReportServiceImpl implements ReportService {
   }
 
   private void approveReport(Report report) {
-    if (report.getStatus().equals(ReportStatus.UNAPPROVED)) {
+    if (report.getStatus().equals(ReportStatus.NOT_SENT)) {
+      report.setStatus(ReportStatus.UNAPPROVED);
+    }
+    else if (report.getStatus().equals(ReportStatus.UNAPPROVED)) {
       report.setStatus(ReportStatus.APPROVED_BY_CHAIRMAN);
     }
     else if (report.getStatus().equals(ReportStatus.APPROVED_BY_CHAIRMAN)) {
@@ -179,7 +186,7 @@ public class ReportServiceImpl implements ReportService {
 
     Report newReport = Report.builder()
         .periodDate(DateUtils.dateInputToTimestamp(DateUtils.dateToFirstDayOfMonth(date)))
-        .status(ReportStatus.UNAPPROVED)
+        .status(ReportStatus.NOT_SENT)
         .organizationRegion(organizationRegion)
         .reportGeneralLedgerAccounts(Collections.emptySet())
         .build();
