@@ -17,10 +17,10 @@ import java.util.Map;
 @AllArgsConstructor
 public class ReportSummary {
 
+  private String reportId;
+
   @Builder.Default
   private Map<GeneralLedgerAccountType, GeneralLedgerReport> generalLedgerAccountMap = new HashMap<>();
-
-
 
   @Data
   @Builder

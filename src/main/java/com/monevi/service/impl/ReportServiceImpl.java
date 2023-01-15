@@ -306,7 +306,9 @@ public class ReportServiceImpl implements ReportService {
   }
 
   private ReportSummary buildReportSummary(List<Tuple> transactionSummaryData, Report currentMonthReport, Report lastMonthReport) {
-    ReportSummary reportSummary = ReportSummary.builder().build();
+    ReportSummary reportSummary = ReportSummary.builder()
+        .reportId(currentMonthReport.getId())
+        .build();
 
     for (Tuple transactionSummaryDatum : transactionSummaryData) {
       BigDecimal amount = transactionSummaryDatum.get("amount", BigDecimal.class);
