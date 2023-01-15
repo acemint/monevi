@@ -247,3 +247,5 @@ ALTER TABLE monevi_user_account ADD CONSTRAINT monevi_region_id_fkey FOREIGN KEY
 
 ALTER TABLE monevi_user_account  ADD COLUMN reset_password_token VARCHAR(255);
 ALTER TABLE monevi_user_account  ADD COLUMN reset_password_token_expired_date TIMESTAMP;
+
+ALTER TABLE monevi_report_general_ledger_account ADD COLUMN opname DECIMAL;

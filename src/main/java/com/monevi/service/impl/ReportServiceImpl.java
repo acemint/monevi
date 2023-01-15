@@ -182,7 +182,8 @@ public class ReportServiceImpl implements ReportService {
       OrganizationRegion organizationRegion,
       List<Transaction> currentMonthTransactions,
       Report previousMonthReport,
-      String date) throws ApplicationException {
+      String date,
+      Map<GeneralLedgerAccountType, Double> opnameData) throws ApplicationException {
 
     Report newReport = Report.builder()
         .periodDate(DateUtils.dateInputToTimestamp(DateUtils.dateToFirstDayOfMonth(date)))
@@ -191,53 +192,56 @@ public class ReportServiceImpl implements ReportService {
         .reportGeneralLedgerAccounts(Collections.emptySet())
         .build();
 
-    Map<String, Double> generalLedgerAccountAmounts = new HashMap<>();
+    Map<GeneralLedgerAccountType, Double> generalLedgerAccountAmounts = new HashMap<>();
     this.sumTransactionAmountsByGeneralLedgerAccount(generalLedgerAccountAmounts, currentMonthTransactions);
     this.sumWithPreviousMonthGeneralLedgerAccount(generalLedgerAccountAmounts, previousMonthReport);
-    this.buildGeneralLedgerAccounts(newReport, generalLedgerAccountAmounts);
+
+    this.buildGeneralLedgerAccounts(newReport, generalLedgerAccountAmounts, opnameData);
     return this.reportRepository.save(newReport);
   }
 
-  private void sumTransactionAmountsByGeneralLedgerAccount(Map<String, Double> generalLedgerAccountAmounts, List<Transaction> transactions)
+  private void sumTransactionAmountsByGeneralLedgerAccount(Map<GeneralLedgerAccountType, Double> generalLedgerAccountAmounts, List<Transaction> transactions)
       throws ApplicationException {
     for (Transaction transaction : transactions) {
-      String generalLedgerName = transaction.getGeneralLedgerAccountType().name();
-      if (generalLedgerAccountAmounts.containsKey(generalLedgerName)) {
-        Double amount = generalLedgerAccountAmounts.get(generalLedgerName);
+      if (generalLedgerAccountAmounts.containsKey(transaction.getGeneralLedgerAccountType())) {
+        Double amount = generalLedgerAccountAmounts.get(transaction.getGeneralLedgerAccountType());
         generalLedgerAccountAmounts.replace(
-            generalLedgerName,
+            transaction.getGeneralLedgerAccountType(),
             amount + FinanceUtils.getActualAmount(transaction.getEntryPosition(), transaction.getAmount()));
       }
       else {
         generalLedgerAccountAmounts.put(
-            generalLedgerName,
+            transaction.getGeneralLedgerAccountType(),
             FinanceUtils.getActualAmount(transaction.getEntryPosition(), transaction.getAmount()));
       }
     }
   }
 
-  private void sumWithPreviousMonthGeneralLedgerAccount(Map<String, Double> generalLedgerAccountAmounts, Report previousMonthReport) {
+  private void sumWithPreviousMonthGeneralLedgerAccount(Map<GeneralLedgerAccountType, Double> generalLedgerAccountAmounts, Report previousMonthReport) {
     for (ReportGeneralLedgerAccount reportGeneralLedgerAccount : previousMonthReport.getReportGeneralLedgerAccounts()) {
-      String generalLedgerName = reportGeneralLedgerAccount.getName().name();
-      if (generalLedgerAccountAmounts.containsKey(generalLedgerName)) {
-        Double amount = generalLedgerAccountAmounts.get(generalLedgerName);
-        generalLedgerAccountAmounts.replace(generalLedgerName, amount + reportGeneralLedgerAccount.getTotal());
+      if (generalLedgerAccountAmounts.containsKey(reportGeneralLedgerAccount.getName())) {
+        Double amount = generalLedgerAccountAmounts.get(reportGeneralLedgerAccount.getName());
+        generalLedgerAccountAmounts.replace(reportGeneralLedgerAccount.getName(), amount + reportGeneralLedgerAccount.getTotal());
       }
       else {
-        generalLedgerAccountAmounts.put(generalLedgerName, reportGeneralLedgerAccount.getTotal());
+        generalLedgerAccountAmounts.put(reportGeneralLedgerAccount.getName(), reportGeneralLedgerAccount.getTotal());
       }
     }
   }
 
-  private void buildGeneralLedgerAccounts(Report report, Map<String, Double> generalLedgerAccountAmounts) {
+  private void buildGeneralLedgerAccounts(Report report, Map<GeneralLedgerAccountType, Double> generalLedgerData, Map<GeneralLedgerAccountType, Double> opnameData) {
     Set<ReportGeneralLedgerAccount> reportGeneralLedgerAccounts = new HashSet<>();
-    for (Map.Entry<String, Double> generalLedgerAmountName : generalLedgerAccountAmounts.entrySet()) {
+    for (Map.Entry<GeneralLedgerAccountType, Double> generalLedgerDatum : generalLedgerData.entrySet()) {
       ReportGeneralLedgerAccount reportGeneralLedgerAccount = ReportGeneralLedgerAccount
           .builder()
           .report(report)
-          .total(generalLedgerAmountName.getValue())
-          .name(GeneralLedgerAccountType.valueOf(generalLedgerAmountName.getKey()))
+          .total(generalLedgerDatum.getValue())
+          .name(generalLedgerDatum.getKey())
           .build();
+      Double opnameAmount = opnameData.get(generalLedgerDatum.getKey());
+      if (opnameAmount != null) {
+        reportGeneralLedgerAccount.setOpname(opnameAmount);
+      }
       reportGeneralLedgerAccounts.add(reportGeneralLedgerAccount);
     }
     report.setReportGeneralLedgerAccounts(reportGeneralLedgerAccounts);
