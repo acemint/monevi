@@ -76,7 +76,7 @@ public class ReportServiceImpl implements ReportService {
     List<Transaction> transactions = this.getCurrentMonthTransactions(
         organizationRegion.getId(), request.getDate());
     Report previousMonthReport = this.getLastMonthReport(
-        organizationRegion.getId(), request.getDate());
+        organizationRegion.getId(), request.getDate()).orElse(Report.builder().build());
     if (!previousMonthReport.getStatus().equals(ReportStatus.APPROVED_BY_SUPERVISOR)) {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
     }
@@ -112,12 +112,11 @@ public class ReportServiceImpl implements ReportService {
   }
 
   @Override
-  public ReportSummary summarize(String id) throws ApplicationException {
-    List<Tuple> transactionSummaryData = this.transactionRepository.groupingTransactionForReportDisplay(id);
-    Report currentMonthReport = this.reportRepository.findByIdAndMarkForDeleteIsFalse(id)
+  public ReportSummary summarize(String organizationRegionId, String date) throws ApplicationException {
+    Report currentMonthReport = this.getCurrentMonthReport(organizationRegionId, date)
         .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.REPORT_DOES_NOT_EXIST));
-    Report lastMonthReport = this.getLastMonthReport(currentMonthReport.getOrganizationRegion().getId(),
-        DateUtils.convertTimestampToString(currentMonthReport.getPeriodDate()));
+    List<Tuple> transactionSummaryData = this.transactionRepository.groupingTransactionForReportDisplay(currentMonthReport.getId());
+    Report lastMonthReport = this.getLastMonthReport(organizationRegionId, date).orElse(Report.builder().build());
     return this.buildReportSummary(transactionSummaryData, currentMonthReport, lastMonthReport);
   }
 
@@ -279,7 +278,20 @@ public class ReportServiceImpl implements ReportService {
 
   }
 
-  private Report getLastMonthReport(String organizationRegionId, String date) throws ApplicationException {
+  private Optional<Report> getCurrentMonthReport(String organizationRegionId, String date) throws ApplicationException {
+    GetReportFilter filter = GetReportFilter.builder()
+        .organizationRegionId(organizationRegionId)
+        .startDate(DateUtils.dateToFirstDayOfMonth(date))
+        .endDate(DateUtils.dateToLastDayOfMonth(date))
+        .build();
+    List<Report> reports = this.reportRepository.getReports(filter).orElse(Collections.emptyList());
+    if (reports.size() != 0) {
+      return Optional.ofNullable(reports.get(0));
+    }
+    return Optional.empty();
+  }
+
+  private Optional<Report> getLastMonthReport(String organizationRegionId, String date) throws ApplicationException {
     String previousMonthDate = DateUtils.deductMonthFromDate(date, 1);
     GetReportFilter filter = GetReportFilter.builder()
         .organizationRegionId(organizationRegionId)
@@ -288,10 +300,9 @@ public class ReportServiceImpl implements ReportService {
         .build();
     List<Report> reports = this.reportRepository.getReports(filter).orElse(Collections.emptyList());
     if (reports.size() != 0) {
-      Report report = reports.get(0);
-      return report;
+      return Optional.ofNullable(reports.get(0));
     }
-    return Report.builder().build();
+    return Optional.empty();
   }
 
   private ReportSummary buildReportSummary(List<Tuple> transactionSummaryData, Report currentMonthReport, Report lastMonthReport) {

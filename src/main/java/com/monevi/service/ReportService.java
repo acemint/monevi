@@ -20,6 +20,6 @@ public interface ReportService {
 
   Report approve(ReportApproveRequest request) throws ApplicationException;
 
-  ReportSummary summarize(String id) throws ApplicationException;
+  ReportSummary summarize(String organizationRegionId, String date) throws ApplicationException;
 
 }

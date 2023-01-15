@@ -99,8 +99,9 @@ public class ReportController {
 
   @GetMapping(value = ApiPath.SUMMARIZE, produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<ReportSummary> summarizeReport(
-      @RequestParam String id) throws ApplicationException {
-    ReportSummary reportSummary = this.reportService.summarize(id);
+      @RequestParam String organizationRegionId,
+      @RequestParam @ValidDate String date) throws ApplicationException {
+    ReportSummary reportSummary = this.reportService.summarize(organizationRegionId, date);
     return BaseResponse.<ReportSummary>builder()
         .value(reportSummary)
         .build();
