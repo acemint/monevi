@@ -43,6 +43,9 @@ public class CreateTransactionRequest {
 
   @NotBlank
   private String description;
+
   private String proof;
+
+  private String programId;
   
 }

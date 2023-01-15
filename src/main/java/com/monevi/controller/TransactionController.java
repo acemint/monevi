@@ -3,6 +3,7 @@ package com.monevi.controller;
 import com.monevi.converter.Converter;
 import com.monevi.converter.TransactionToTransactionResponseConverter;
 import com.monevi.dto.request.CreateTransactionRequest;
+import com.monevi.dto.request.UpdateTransactionRequest;
 import com.monevi.dto.response.BaseResponse;
 import com.monevi.dto.response.MultipleBaseResponse;
 import com.monevi.dto.response.TransactionResponse;
@@ -22,12 +23,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,6 +54,17 @@ public class TransactionController {
     return BaseResponse.<TransactionResponse>builder()
         .value(this.transactionToTransactionResponseConverter.convert(newTransaction))
         .build();
+  }
+
+  @PutMapping(value = ApiPath.EDIT)
+  public BaseResponse<TransactionResponse> updateTransaction(
+      @RequestParam @NotBlank String transactionId,
+      @Valid @RequestBody UpdateTransactionRequest updateTransactionRequest)
+      throws ApplicationException {
+    Transaction newTransaction =
+        this.transactionService.updateTransaction(transactionId, updateTransactionRequest);
+    return BaseResponse.<TransactionResponse>builder()
+        .value(this.transactionToTransactionResponseConverter.convert(newTransaction)).build();
   }
 
   @GetMapping(value = ApiPath.FIND_ALL, produces = MediaType.APPLICATION_JSON_VALUE)

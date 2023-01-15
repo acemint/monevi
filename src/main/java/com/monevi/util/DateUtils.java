@@ -8,6 +8,9 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.http.HttpStatus;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class DateUtils {
 
@@ -60,4 +63,15 @@ public class DateUtils {
     return dateTimeFormatter.print(dateTime);
   }
 
+  public static String convertTimestampToString(Timestamp timestamp) throws ApplicationException {
+    Date date = new Date(timestamp.getTime());
+    DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    return dateFormat.format(date);
+  }
+  
+  public static Long convertDateToLong(String date) throws ApplicationException {
+    DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd/MM/yyyy");
+    DateTime dateTime = dateTimeFormatter.parseDateTime(date);
+    return dateTime.getMillis();
+  }
 }
