@@ -32,6 +32,7 @@ public class ReportGeneralLedgerAccount extends BaseEntity {
   public static final String REPORT_ID_COLUMN_NAME = "REPORT_ID";
   public static final String TOTAL_COLUMN_NAME = "TOTAL";
   public static final String NAME_COLUMN_NAME = "NAME";
+  public static final String OPNAME_COLUMN_NAME = "OPNAME";
 
   @Enumerated(value = EnumType.STRING)
   @Column(name = ReportGeneralLedgerAccount.NAME_COLUMN_NAME, nullable = false)
@@ -39,6 +40,9 @@ public class ReportGeneralLedgerAccount extends BaseEntity {
 
   @Column(name = ReportGeneralLedgerAccount.TOTAL_COLUMN_NAME)
   private double total;
+
+  @Column(name = ReportGeneralLedgerAccount.OPNAME_COLUMN_NAME)
+  private double opname;
 
   @ManyToOne
   @JoinColumn(name = ReportGeneralLedgerAccount.REPORT_ID_COLUMN_NAME)
