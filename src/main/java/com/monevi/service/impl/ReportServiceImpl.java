@@ -4,6 +4,7 @@ import com.monevi.constant.ErrorMessages;
 import com.monevi.dto.request.SubmitReportRequest;
 import com.monevi.dto.request.ReportApproveRequest;
 import com.monevi.dto.request.ReportRejectRequest;
+import com.monevi.entity.BaseEntity;
 import com.monevi.entity.OrganizationRegion;
 import com.monevi.entity.Report;
 import com.monevi.entity.ReportComment;
@@ -37,6 +38,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -101,6 +103,20 @@ public class ReportServiceImpl implements ReportService {
   }
 
   private void throwErrorOnInvalidReportHandlingByUser(Report report, UserAccount userAccount) throws ApplicationException {
+    if (userAccount.getRole().equals(UserAccountRole.SUPERVISOR)) {
+      List<String> userOrganizationRegionIds = userAccount.getRegion().getOrganizationRegions()
+          .stream().map(BaseEntity::getId).collect(Collectors.toList());
+      if (!userOrganizationRegionIds.contains(report.getOrganizationRegion().getId())) {
+        throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+      }
+    }
+    if (userAccount.getRole().equals(UserAccountRole.CHAIRMAN)) {
+      if (!userAccount.getOrganizationRegion().getId().equals(
+          report.getOrganizationRegion().getId())) {
+        throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+      }
+    }
+
     if (report.getStatus().equals(ReportStatus.UNAPPROVED)
         && !userAccount.getRole().equals(UserAccountRole.CHAIRMAN)) {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
@@ -109,6 +125,7 @@ public class ReportServiceImpl implements ReportService {
         && !userAccount.getRole().equals(UserAccountRole.SUPERVISOR)) {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
     }
+    
     if (report.getStatus().equals(ReportStatus.APPROVED_BY_SUPERVISOR)) {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
     }
@@ -146,6 +163,9 @@ public class ReportServiceImpl implements ReportService {
         .build();
     List<Report> reports = this.reportRepository.getReports(filter).orElse(Collections.emptyList());
     if (reports.size() != 0) {
+      if (!reports.get(0).getStatus().equals(ReportStatus.UNAPPROVED)) {
+        throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+      }
       reports.get(0).setMarkForDelete(true);
       this.reportRepository.save(reports.get(0));
     }
