@@ -127,7 +127,7 @@ public class UserAccountCustomRepositoryImpl extends BaseCustomRepository
     predicates.add(builder.isFalse(root.get(UserAccount_.MARK_FOR_DELETE)));
 
     if (Objects.nonNull(filter.getStudentName())) {
-      predicates.add(builder.like(root.get(UserAccount_.FULL_NAME),
+      predicates.add(builder.like(builder.lower(root.get(UserAccount_.FULL_NAME)),
           generateLikePattern(filter.getStudentName())));
     }
     if (Objects.nonNull(filter.getLockedAccount())) {
@@ -154,8 +154,9 @@ public class UserAccountCustomRepositoryImpl extends BaseCustomRepository
           .add(builder.isFalse(organizationRegionJoin.get(OrganizationRegion_.MARK_FOR_DELETE)));
       predicates.add(
           builder.isFalse(organizationRegionOrganizationJoin.get(Organization_.MARK_FOR_DELETE)));
-      predicates.add(builder.like(organizationRegionOrganizationJoin.get(Organization_.NAME),
-          generateLikePattern(filter.getOrganizationName())));
+      predicates.add(
+          builder.like(builder.lower(organizationRegionOrganizationJoin.get(Organization_.NAME)),
+              generateLikePattern(filter.getOrganizationName())));
     }
     if (Objects.nonNull(filter.getRegionId())) {
       Join<UserAccount, OrganizationRegion> organizationRegionJoin =
@@ -172,6 +173,6 @@ public class UserAccountCustomRepositoryImpl extends BaseCustomRepository
   }
 
   private String generateLikePattern(String input) {
-    return "%" + input + "%";
+    return "%" + input.toLowerCase() + "%";
   }
 }
