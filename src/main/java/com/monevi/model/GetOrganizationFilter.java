@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 @AllArgsConstructor
 public class GetOrganizationFilter {
 
+  private String searchTerm;
   private String regionName;
   private Pageable pageable;
 

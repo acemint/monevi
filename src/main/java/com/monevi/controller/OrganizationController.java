@@ -12,6 +12,7 @@ import com.monevi.model.GetOrganizationFilter;
 import com.monevi.service.OrganizationService;
 import com.monevi.util.OrganizationUrlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -66,12 +67,13 @@ public class OrganizationController {
 
   @GetMapping(path = ApiPath.FIND_ALL, produces = MediaType.APPLICATION_JSON_VALUE)
   public MultipleBaseResponse<OrganizationResponse> getOrganizations(
+      @RequestParam(required = false) String searchTerm,
       @RequestParam(required = false) String regionName,
       @RequestParam(defaultValue = "0", required = false) int page,
       @RequestParam(defaultValue = "1000", required = false) int size,
       @RequestParam(defaultValue = "name", required = false) String[] sortBy,
       @RequestParam(defaultValue = "true", required = false) String[] isAscending) throws ApplicationException {
-    GetOrganizationFilter filter = this.buildDefaultGetOrganizationFilter(regionName, sortBy, isAscending, page, size);
+    GetOrganizationFilter filter = this.buildDefaultGetOrganizationFilter(searchTerm, regionName, sortBy, isAscending, page, size);
     List<OrganizationResponse> organizationResponses = this.organizationService.getOrganizations(filter)
         .stream()
         .map(o -> this.organizationToOrganizationResponseConverter.convert(o))
@@ -88,7 +90,7 @@ public class OrganizationController {
   }
 
   private GetOrganizationFilter buildDefaultGetOrganizationFilter(
-      String regionName, String[] sortBy, String[] isAscending, int page, int size)
+      String searchTerm, String regionName, String[] sortBy, String[] isAscending, int page, int size)
       throws ApplicationException {
     List<Sort.Order> sortOrders = new ArrayList<>();
     int validSize = Math.min(sortBy.length, isAscending.length);
@@ -98,6 +100,7 @@ public class OrganizationController {
     }
     Pageable pageable = PageRequest.of(page, size, Sort.by(sortOrders));
     return GetOrganizationFilter.builder()
+        .searchTerm(searchTerm)
         .regionName(regionName)
         .pageable(pageable)
         .build();
