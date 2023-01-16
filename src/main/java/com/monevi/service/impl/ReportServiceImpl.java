@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -72,13 +73,15 @@ public class ReportServiceImpl implements ReportService {
 
     List<Transaction> transactions = this.getCurrentMonthTransactions(
         organizationRegion.getId(), request.getDate());
-    Report previousMonthReport = this.getLastMonthReport(
-        organizationRegion.getId(), request.getDate()).orElse(Report.builder().build());
-    if (!previousMonthReport.getStatus().equals(ReportStatus.APPROVED_BY_SUPERVISOR)) {
-      throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+    Optional<Report> previousMonthReport = this.getLastMonthReport(
+        organizationRegion.getId(), request.getDate());
+    if (previousMonthReport.isPresent()) {
+      if (!previousMonthReport.get().getStatus().equals(ReportStatus.APPROVED_BY_SUPERVISOR)) {
+        throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+      }
     }
     Report newReport = this.buildNewReport(organizationRegion, transactions,
-        previousMonthReport, request.getDate(), request.getOpnameData());
+        previousMonthReport.orElse(Report.builder().build()), request.getDate(), request.getOpnameData());
 
     transactions.forEach(t -> t.setReport(newReport));
     this.transactionRepository.saveAll(transactions);
@@ -185,7 +188,8 @@ public class ReportServiceImpl implements ReportService {
         .build();
     List<Report> reports = this.reportRepository.getReports(filter).orElse(Collections.emptyList());
     if (reports.size() != 0) {
-      if (!reports.get(0).getStatus().equals(ReportStatus.UNAPPROVED)) {
+      if (reports.get(0).getStatus().equals(ReportStatus.APPROVED_BY_SUPERVISOR) ||
+          reports.get(0).getStatus().equals(ReportStatus.APPROVED_BY_CHAIRMAN)) {
         throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
       }
       reports.get(0).setMarkForDelete(true);
