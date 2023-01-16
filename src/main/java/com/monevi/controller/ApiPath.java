@@ -31,4 +31,5 @@ public class ApiPath {
   public static final String SEND_EMAIL = "/send-email";
   public static final String EDIT = "/edit";
   public static final String DELETE = "/delete";
+  public static final String SUMMARIZE = "/summarize";
 }

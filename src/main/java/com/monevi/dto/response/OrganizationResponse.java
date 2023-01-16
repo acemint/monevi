@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 @Builder
@@ -17,5 +18,6 @@ public class OrganizationResponse implements Serializable {
   private String id;
   private String name;
   private String abbreviation;
+  private List<String> regionNames;
 
 }
