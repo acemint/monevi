@@ -63,7 +63,19 @@ public class OrganizationCustomRepositoryImpl
       predicates.add(builder.isFalse(region.get(Region_.markForDelete)));
       predicates.add(builder.equal(region.get(Region_.NAME), filter.getRegionName()));
     }
+    if (Objects.nonNull(filter.getSearchTerm())) {
+      List<Predicate> searchTermPredicate = new ArrayList<>();
+      searchTermPredicate.add(builder.like(builder.lower(root.get(Organization_.name)),
+          this.generateLikePattern(filter.getSearchTerm())));
+      searchTermPredicate.add(builder.like(builder.lower(root.get(Organization_.abbreviation)),
+          this.generateLikePattern(filter.getSearchTerm())));
+      predicates.add(builder.or(searchTermPredicate.toArray(new Predicate[0])));
+    }
     return predicates;
+  }
+
+  private String generateLikePattern(String input) {
+    return "%" + input.toLowerCase() + "%";
   }
 
 }
