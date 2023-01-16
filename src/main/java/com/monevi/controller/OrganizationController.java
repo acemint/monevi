@@ -66,7 +66,7 @@ public class OrganizationController {
 
   @GetMapping(path = ApiPath.FIND_ALL, produces = MediaType.APPLICATION_JSON_VALUE)
   public MultipleBaseResponse<OrganizationResponse> getOrganizations(
-      @RequestParam String regionName,
+      @RequestParam(required = false) String regionName,
       @RequestParam(defaultValue = "0", required = false) int page,
       @RequestParam(defaultValue = "1000", required = false) int size,
       @RequestParam(defaultValue = "name", required = false) String[] sortBy,
