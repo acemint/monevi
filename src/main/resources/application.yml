@@ -1,4 +1,6 @@
 spring:
+  datasource:
+    url: ${JDBC_DATABASE_URL}
   mail:
     host: smtp.gmail.com
     port: 587
