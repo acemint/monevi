@@ -8,7 +8,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: ${MONEVI_GMAIL_USERNAME}
-    password: ${MONEVI_GMAIL_PASSWORD} # ask first before using this value
+    password: ${MONEVI_GMAIL_PASSWORD}
     smtpAuth: true
     smtpStartTlsEnable: true
     mailDebug: true
@@ -33,7 +33,7 @@ monevi:
     secretKey: ${MONEVI_SECRET_KEY}
     access:
       token:
-        expiration-time: 18000000 # in milliseconds, current: 5 hrs
+        expiration-time: 18000000
   redirect:
     reset-password:
       url: ${MONEVI_FRONT_END_URL}
