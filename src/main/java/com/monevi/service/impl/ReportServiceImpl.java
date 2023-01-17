@@ -11,7 +11,6 @@ import com.monevi.entity.Report;
 import com.monevi.entity.ReportComment;
 import com.monevi.entity.ReportGeneralLedgerAccount;
 import com.monevi.entity.Transaction;
-import com.monevi.entity.Transaction_;
 import com.monevi.entity.UserAccount;
 import com.monevi.enums.EntryPosition;
 import com.monevi.enums.GeneralLedgerAccountType;
@@ -34,7 +33,6 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.Tuple;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -75,13 +73,15 @@ public class ReportServiceImpl implements ReportService {
 
     List<Transaction> transactions = this.getCurrentMonthTransactions(
         organizationRegion.getId(), request.getDate());
-    Report previousMonthReport = this.getLastMonthReport(
-        organizationRegion.getId(), request.getDate()).orElse(Report.builder().build());
-    if (!previousMonthReport.getStatus().equals(ReportStatus.APPROVED_BY_SUPERVISOR)) {
-      throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+    Optional<Report> previousMonthReport = this.getLastMonthReport(
+        organizationRegion.getId(), request.getDate());
+    if (previousMonthReport.isPresent()) {
+      if (!previousMonthReport.get().getStatus().equals(ReportStatus.APPROVED_BY_SUPERVISOR)) {
+        throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+      }
     }
     Report newReport = this.buildNewReport(organizationRegion, transactions,
-        previousMonthReport, request.getDate(), request.getOpnameData());
+        previousMonthReport.orElse(Report.builder().build()), request.getDate(), request.getOpnameData());
 
     transactions.forEach(t -> t.setReport(newReport));
     this.transactionRepository.saveAll(transactions);
@@ -188,7 +188,8 @@ public class ReportServiceImpl implements ReportService {
         .build();
     List<Report> reports = this.reportRepository.getReports(filter).orElse(Collections.emptyList());
     if (reports.size() != 0) {
-      if (!reports.get(0).getStatus().equals(ReportStatus.UNAPPROVED)) {
+      if (reports.get(0).getStatus().equals(ReportStatus.APPROVED_BY_SUPERVISOR) ||
+          reports.get(0).getStatus().equals(ReportStatus.APPROVED_BY_CHAIRMAN)) {
         throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
       }
       reports.get(0).setMarkForDelete(true);
@@ -310,38 +311,51 @@ public class ReportServiceImpl implements ReportService {
         .reportId(currentMonthReport.getId())
         .build();
 
+    for (GeneralLedgerAccountType generalLedgerAccountType : GeneralLedgerAccountType.values()) {
+      reportSummary.getGeneralLedgerAccountTypeData().put(generalLedgerAccountType, ReportSummary.GeneralLedgerData
+          .builder()
+          .build());
+      ReportSummary.GeneralLedgerData
+          generalLedgerData = reportSummary.getGeneralLedgerAccountTypeData().get(generalLedgerAccountType);
+
+      for (TransactionType transactionType : TransactionType.values()) {
+        generalLedgerData.getTransactionTypeData().put(transactionType, ReportSummary.TransactionTypeData
+            .builder()
+            .build());
+        ReportSummary.TransactionTypeData
+            transactionTypeData = generalLedgerData.getTransactionTypeData().get(transactionType);
+
+        for (EntryPosition entryPosition : EntryPosition.values()) {
+          transactionTypeData.getEntryPositionData().put(entryPosition, ReportSummary.EntryPositionData
+              .builder()
+              .build());
+        }
+      }
+    }
+
     for (Tuple transactionSummaryDatum : transactionSummaryData) {
       BigDecimal amount = transactionSummaryDatum.get("amount", BigDecimal.class);
       EntryPosition entryPosition = EntryPosition.valueOf(transactionSummaryDatum.get("entry_position", String.class));
       GeneralLedgerAccountType generalLedgerAccountType = GeneralLedgerAccountType.valueOf(transactionSummaryDatum.get("general_ledger_account_type", String.class));
       TransactionType transactionType = TransactionType.valueOf(transactionSummaryDatum.get("type", String.class));
 
-      if (Objects.isNull(reportSummary.getGeneralLedgerAccountMap().get(generalLedgerAccountType))) {
-        reportSummary.getGeneralLedgerAccountMap().put(generalLedgerAccountType, ReportSummary.GeneralLedgerReport
-            .builder()
-            .build());
-      }
-      ReportSummary.GeneralLedgerReport generalLedgerReport = reportSummary
-          .getGeneralLedgerAccountMap().get(generalLedgerAccountType);
-
-      if (Objects.isNull(generalLedgerReport.getTransactionTypeMap().get(transactionType))) {
-        generalLedgerReport.getTransactionTypeMap().put(transactionType,
-            ReportSummary.TransactionTypeReport.builder().build());
-      }
-      ReportSummary.TransactionTypeReport transactionTypeReport = generalLedgerReport
-          .getTransactionTypeMap().get(transactionType);
-
-      transactionTypeReport.setEntryPosition(entryPosition);
-      transactionTypeReport.setAmount(amount.doubleValue());
-
+      ReportSummary.GeneralLedgerData generalLedgerData = reportSummary
+          .getGeneralLedgerAccountTypeData().get(generalLedgerAccountType);
       ReportGeneralLedgerAccount lastMonthReportGeneralLedgerAccount = lastMonthReport.getReportGeneralLedgerAccounts()
           .stream().filter(r -> r.getName().equals(generalLedgerAccountType)).findFirst()
           .orElse(ReportGeneralLedgerAccount.builder().opname(Double.valueOf(0)).build());
       ReportGeneralLedgerAccount currentMonthReportGeneralLedgerAccount = currentMonthReport.getReportGeneralLedgerAccounts()
           .stream().filter(r -> r.getName().equals(generalLedgerAccountType)).findFirst()
           .orElse(ReportGeneralLedgerAccount.builder().opname(Double.valueOf(0)).build());
-      generalLedgerReport.setPreviousMonthBalance(lastMonthReportGeneralLedgerAccount.getTotal());
-      generalLedgerReport.setOpnameAmount(currentMonthReportGeneralLedgerAccount.getOpname());
+      generalLedgerData.setPreviousMonthBalance(lastMonthReportGeneralLedgerAccount.getTotal());
+      generalLedgerData.setOpnameAmount(currentMonthReportGeneralLedgerAccount.getOpname());
+
+      ReportSummary.TransactionTypeData transactionTypeData = generalLedgerData
+          .getTransactionTypeData().get(transactionType);
+
+      ReportSummary.EntryPositionData entryPositionData = transactionTypeData
+          .getEntryPositionData().get(entryPosition);
+      entryPositionData.setAmount(amount.doubleValue());
     }
     return reportSummary;
   }

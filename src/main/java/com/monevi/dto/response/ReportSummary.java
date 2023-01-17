@@ -20,14 +20,14 @@ public class ReportSummary {
   private String reportId;
 
   @Builder.Default
-  private Map<GeneralLedgerAccountType, GeneralLedgerReport> generalLedgerAccountMap = new HashMap<>();
+  private Map<GeneralLedgerAccountType, GeneralLedgerData> generalLedgerAccountTypeData = new HashMap<>();
 
   @Data
   @Builder
-  public static class GeneralLedgerReport {
+  public static class GeneralLedgerData {
 
     @Builder.Default
-    private Map<TransactionType, TransactionTypeReport> transactionTypeMap = new HashMap<>();
+    private Map<TransactionType, TransactionTypeData> transactionTypeData = new HashMap<>();
     private double previousMonthBalance;
     private double opnameAmount;
 
@@ -35,9 +35,18 @@ public class ReportSummary {
 
   @Data
   @Builder
-  public static class TransactionTypeReport {
+  public static class TransactionTypeData {
 
-    private EntryPosition entryPosition;
+    @Builder.Default
+    private Map<EntryPosition, EntryPositionData> entryPositionData = new HashMap<>();
+
+
+  }
+
+  @Data
+  @Builder
+  public static class EntryPositionData {
+
     private double amount;
 
   }
