@@ -32,4 +32,5 @@ public class ApiPath {
   public static final String EDIT = "/edit";
   public static final String DELETE = "/delete";
   public static final String SUMMARIZE = "/summarize";
+  public static final String CONVERT_EXCEL = "/convert-excel";
 }

@@ -20,6 +20,7 @@
 		<hibernate.jpamodelgen.version>5.3.7.Final</hibernate.jpamodelgen.version>
 		<springframework.security.version>6.0.0</springframework.security.version>
 		<jsonwebtoken.version>0.9.1</jsonwebtoken.version>
+		<apache.poi.version>5.2.0</apache.poi.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -95,6 +96,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>${apache.poi.version}</version>
 		</dependency>
 	</dependencies>
 
