@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  driver-class-name: org.postgresql.Driver
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MONEVI_GMAIL_USERNAME}
+    password: ${MONEVI_GMAIL_PASSWORD} # ask first before using this value
+    smtpAuth: true
+    smtpStartTlsEnable: true
+    mailDebug: true
+    templatePath: templates/email/
+  cache:
+    jcache:
+      config: classpath:ehcache.xml
+
+bucket4j:
+  enabled: true
+  filters:
+    - cache-name: buckets
+      url: /*
+      rate-limits:
+        - bandwidths:
+            - capacity: 5
+              time: 10
+              unit: seconds
+
+monevi:
+  jwt:
+    secretKey: ${MONEVI_SECRET_KEY}
+    access:
+      token:
+        expiration-time: 18000000 # in milliseconds, current: 5 hrs
+  redirect:
+    reset-password:
+      url: ${MONEVI_FRONT_END_URL}
