@@ -11,5 +11,6 @@ public interface RegionRepository extends JpaRepository<Region, String> {
 
   Optional<Region> findByNameAndMarkForDeleteIsFalse(String name);
   Optional<List<Region>> findByMarkForDeleteIsFalse(Sort sort);
+  Optional<Region> findByIdAndMarkForDeleteFalse(String regionId);
 
 }

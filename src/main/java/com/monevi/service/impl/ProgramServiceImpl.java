@@ -2,6 +2,7 @@ package com.monevi.service.impl;
 
 import com.monevi.constant.ErrorMessages;
 import com.monevi.dto.request.CreateProgramRequest;
+import com.monevi.dto.request.UpdateSubsidyProgramRequest;
 import com.monevi.entity.OrganizationRegion;
 import com.monevi.entity.Program;
 import com.monevi.exception.ApplicationException;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProgramServiceImpl implements ProgramService {
@@ -49,4 +49,12 @@ public class ProgramServiceImpl implements ProgramService {
         .orElse(Collections.emptyList());
   }
 
+  @Override
+  public Program updateSubsidy(String programId, UpdateSubsidyProgramRequest request) throws ApplicationException {
+    Program program = this.programRepository.findByIdAndMarkForDeleteFalse(programId)
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorMessages.PROGRAM_NOT_FOUND));
+    program.setSubsidy(request.getSubsidy());
+    return this.programRepository.save(program);
+  }
 }
