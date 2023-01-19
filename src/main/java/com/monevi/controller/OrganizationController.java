@@ -13,6 +13,7 @@ import com.monevi.service.OrganizationService;
 import com.monevi.util.OrganizationUrlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -74,17 +75,17 @@ public class OrganizationController {
       @RequestParam(defaultValue = "name", required = false) String[] sortBy,
       @RequestParam(defaultValue = "true", required = false) String[] isAscending) throws ApplicationException {
     GetOrganizationFilter filter = this.buildDefaultGetOrganizationFilter(searchTerm, regionName, sortBy, isAscending, page, size);
-    List<OrganizationResponse> organizationResponses = this.organizationService.getOrganizations(filter)
-        .stream()
+    Page<Organization> responses = this.organizationService.getOrganizations(filter);
+    List<OrganizationResponse> organizationResponses = responses.getContent().stream()
         .map(o -> this.organizationToOrganizationResponseConverter.convert(o))
         .collect(Collectors.toList());
     return MultipleBaseResponse.<OrganizationResponse>builder()
         .values(organizationResponses)
         .metadata(MultipleBaseResponse.Metadata
             .builder()
-            .size(size)
-            .totalPage(0)
-            .totalItems(organizationResponses.size())
+            .size(organizationResponses.size())
+            .totalPage(responses.getTotalPages())
+            .totalItems(responses.getTotalElements())
             .build())
         .build();
   }

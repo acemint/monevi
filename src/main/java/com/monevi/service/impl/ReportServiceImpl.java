@@ -28,6 +28,7 @@ import com.monevi.service.ReportService;
 import com.monevi.util.DateUtils;
 import com.monevi.util.FinanceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +39,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -59,10 +59,12 @@ public class ReportServiceImpl implements ReportService {
   private TransactionRepository transactionRepository;
 
   @Override
-  public List<Report> getReports(GetReportFilter filter) throws ApplicationException {
-    this.organizationRegionRepository.findByIdAndMarkForDeleteIsFalse(filter.getOrganizationRegionId())
-        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
-    return this.reportRepository.getReports(filter).orElse(Collections.emptyList());
+  public Page<Report> getReports(GetReportFilter filter) throws ApplicationException {
+    this.organizationRegionRepository
+        .findByIdAndMarkForDeleteIsFalse(filter.getOrganizationRegionId())
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
+    return this.reportRepository.getReports(filter);
   }
 
   @Override
@@ -186,7 +188,7 @@ public class ReportServiceImpl implements ReportService {
         .startDate(DateUtils.dateToFirstDayOfMonth(date))
         .endDate(DateUtils.dateToLastDayOfMonth(date))
         .build();
-    List<Report> reports = this.reportRepository.getReports(filter).orElse(Collections.emptyList());
+    List<Report> reports = this.reportRepository.getReports(filter).getContent();
     if (reports.size() != 0) {
       if (reports.get(0).getStatus().equals(ReportStatus.APPROVED_BY_SUPERVISOR) ||
           reports.get(0).getStatus().equals(ReportStatus.APPROVED_BY_CHAIRMAN)) {
@@ -274,9 +276,7 @@ public class ReportServiceImpl implements ReportService {
         .startDate(DateUtils.dateToFirstDayOfMonth(date))
         .endDate(DateUtils.dateToLastDayOfMonth(date))
         .build();
-    return this.transactionRepository.getTransactions(filter)
-        .orElse(Collections.emptyList());
-
+    return this.transactionRepository.getTransactions(filter).getContent();
   }
 
   private Optional<Report> getCurrentMonthReport(String organizationRegionId, String date) throws ApplicationException {
@@ -285,7 +285,7 @@ public class ReportServiceImpl implements ReportService {
         .startDate(DateUtils.dateToFirstDayOfMonth(date))
         .endDate(DateUtils.dateToLastDayOfMonth(date))
         .build();
-    List<Report> reports = this.reportRepository.getReports(filter).orElse(Collections.emptyList());
+    List<Report> reports = this.reportRepository.getReports(filter).getContent();
     if (reports.size() != 0) {
       return Optional.ofNullable(reports.get(0));
     }
@@ -299,7 +299,7 @@ public class ReportServiceImpl implements ReportService {
         .startDate(DateUtils.dateToFirstDayOfMonth(previousMonthDate))
         .endDate(DateUtils.dateToLastDayOfMonth(previousMonthDate))
         .build();
-    List<Report> reports = this.reportRepository.getReports(filter).orElse(Collections.emptyList());
+    List<Report> reports = this.reportRepository.getReports(filter).getContent();
     if (reports.size() != 0) {
       return Optional.ofNullable(reports.get(0));
     }

@@ -20,13 +20,12 @@ import com.monevi.util.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.Tuple;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -75,17 +74,16 @@ public class TransactionServiceImpl implements TransactionService {
   }
 
   @Override
-  public List<Transaction> getTransactions(GetTransactionFilter filter)
+  public Page<Transaction> getTransactions(GetTransactionFilter filter)
       throws ApplicationException {
-    return this.transactionRepository.getTransactions(filter).orElse(Collections.emptyList());
+    return this.transactionRepository.getTransactions(filter);
   }
 
   private void throwErrorOnExistingReportWithStatusApprovedBySupervisor(String organizationRegionId, String transactionDate)
       throws ApplicationException {
-    List<Report> reports = this.reportRepository.getReports(GetReportFilter.builder()
-            .organizationRegionId(organizationRegionId)
-            .build())
-        .orElse(Collections.emptyList());
+    List<Report> reports = this.reportRepository
+        .getReports(GetReportFilter.builder().organizationRegionId(organizationRegionId).build())
+        .getContent();
 
     int newTransactionMonth = DateUtils.dateInputToMonth(transactionDate);
     int newTransactionYear = DateUtils.dateInputToYear(transactionDate);

@@ -17,6 +17,7 @@ import com.monevi.util.ReportUrlUtils;
 import com.monevi.validation.annotation.ValidDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -55,17 +56,16 @@ public class ReportController {
       @RequestParam(defaultValue = "true", required = false) String[] isAscending) throws ApplicationException {
     GetReportFilter filter = this.buildDefaultGetReportsFilter(
         organizationRegionId, startDate,endDate, sortBy, isAscending, page, size);
-    List<ReportResponse> reportResponses = this.reportService.getReports(filter)
-        .stream()
-        .map(r -> this.reportToReportResponseConverter.convert(r))
-        .collect(Collectors.toList());
+    Page<Report> responses = this.reportService.getReports(filter);
+    List<ReportResponse> reportResponses = responses.stream()
+        .map(r -> this.reportToReportResponseConverter.convert(r)).collect(Collectors.toList());
     return MultipleBaseResponse.<ReportResponse>builder()
         .values(reportResponses)
         .metadata(MultipleBaseResponse.Metadata
             .builder()
             .size(reportResponses.size())
-            .totalPage(0)
-            .totalItems(reportResponses.size())
+            .totalPage(responses.getTotalPages())
+            .totalItems(responses.getTotalElements())
             .build())
         .build();
   }

@@ -11,12 +11,9 @@ import com.monevi.repository.ProgramRepository;
 import com.monevi.service.ProgramService;
 import com.monevi.util.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProgramServiceImpl implements ProgramService {
@@ -44,9 +41,8 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public List<Program> getPrograms(GetProgramFilter filter) throws ApplicationException {
-    return this.programRepository.getPrograms(filter)
-        .orElse(Collections.emptyList());
+  public Page<Program> getPrograms(GetProgramFilter filter) throws ApplicationException {
+    return this.programRepository.getPrograms(filter);
   }
 
 }

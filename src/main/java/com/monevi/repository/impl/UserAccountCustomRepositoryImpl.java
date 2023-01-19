@@ -1,6 +1,7 @@
 package com.monevi.repository.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -13,6 +14,9 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import com.monevi.entity.Organization;
 import com.monevi.entity.OrganizationRegion;
@@ -100,24 +104,31 @@ public class UserAccountCustomRepositoryImpl extends BaseCustomRepository
   }
 
   @Override
-  public Optional<List<UserAccount>> findAllStudentByFilter(GetStudentFilter filter)
+  public Page<UserAccount> findAllStudentByFilter(GetStudentFilter filter)
       throws ApplicationException {
     CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
     CriteriaQuery<UserAccount> userAccountCriteriaQuery =
         criteriaBuilder.createQuery(UserAccount.class);
     Root<UserAccount> userAccountRoot = userAccountCriteriaQuery.from(UserAccount.class);
+    CriteriaQuery<Long> countUserAccountCriteriaQuery = criteriaBuilder.createQuery(Long.class);
+    Root<UserAccount> countUserAccountRoot = countUserAccountCriteriaQuery.from(UserAccount.class);
 
     userAccountCriteriaQuery.select(userAccountRoot).where(
         this.predicateBuilder(criteriaBuilder, userAccountRoot, filter).toArray(new Predicate[0]));
+    countUserAccountCriteriaQuery.select(criteriaBuilder.count(countUserAccountRoot)).where(this
+        .predicateBuilder(criteriaBuilder, countUserAccountRoot, filter).toArray(new Predicate[0]));
 
     this.sort(criteriaBuilder, userAccountCriteriaQuery, userAccountRoot, filter.getPageable());
     TypedQuery<UserAccount> userAccountTypedQuery =
         this.entityManager.createQuery(userAccountCriteriaQuery);
+    Long countUserAccountResult =
+        this.entityManager.createQuery(countUserAccountCriteriaQuery).getSingleResult();
     this.page(userAccountTypedQuery, filter.getPageable());
     try {
-      return Optional.ofNullable(userAccountTypedQuery.getResultList());
+      return new PageImpl<>(userAccountTypedQuery.getResultList(), filter.getPageable(),
+          countUserAccountResult);
     } catch (Exception e) {
-      return Optional.empty();
+      return new PageImpl<>(Collections.emptyList(), filter.getPageable(), 0L);
     }
   }
 
