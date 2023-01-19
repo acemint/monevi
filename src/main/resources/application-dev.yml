@@ -1,7 +1,7 @@
 spring:
   datasource:
     type: org.apache.tomcat.jdbc.pool.DataSource
-    jdbc-url: jdbc:postgres://localhost:5432/postgres
+    url: jdbc:postgres://localhost:5432/postgres
     username: postgres
     password: test123
     driver-class-name: org.postgresql.Driver
