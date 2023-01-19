@@ -37,4 +37,6 @@ public interface ErrorMessages {
   String FILE_TOO_LARGE = "file size is too large";
   String AMOUNT_MUST_BE_GREATER_THAN_ZERO = "amount must be greated than zero";
   String FAIL_TO_CREATE_TRANSACTION = "fail to create transaction";
+  String START_DATE_MUST_NOT_BE_BLANK = "start date must not be blank";
+  String END_DATE_MUST_NOT_BE_BLANK = "end date must not be blank";
 }

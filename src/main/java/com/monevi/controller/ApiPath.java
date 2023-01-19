@@ -33,4 +33,5 @@ public class ApiPath {
   public static final String DELETE = "/delete";
   public static final String SUMMARIZE = "/summarize";
   public static final String CONVERT_EXCEL = "/convert-excel";
+  public static final String EDIT_SUBSIDY = EDIT + "-subsidy";
 }
