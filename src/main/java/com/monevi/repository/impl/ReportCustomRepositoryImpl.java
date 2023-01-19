@@ -2,6 +2,8 @@ package com.monevi.repository.impl;
 
 import com.monevi.entity.OrganizationRegion;
 import com.monevi.entity.OrganizationRegion_;
+import com.monevi.entity.Region;
+import com.monevi.entity.Region_;
 import com.monevi.entity.Report;
 import com.monevi.entity.Report_;
 import com.monevi.model.GetReportFilter;
@@ -56,6 +58,9 @@ public class ReportCustomRepositoryImpl
       GetReportFilter filter) {
     List<Predicate> predicates = new ArrayList<>();
     predicates.add(builder.isFalse(root.get(Report_.markForDelete)));
+    if (Objects.nonNull(filter.getReportStatus())) {
+      predicates.add(builder.equal(root.get(Report_.status), filter.getReportStatus()));
+    }
     if (Objects.nonNull(filter.getOrganizationRegionId())) {
       Join<Report, OrganizationRegion> reportJoin =
           root.join(Report_.organizationRegion);
@@ -71,6 +76,16 @@ public class ReportCustomRepositoryImpl
       predicates.add(builder.between(
           root.get(Report_.periodDate),
           new Timestamp(start.getMillis()), new Timestamp(end.getMillis())));
+    }
+    if (Objects.nonNull(filter.getRegionId())) {
+      Join<Report, OrganizationRegion> reportOrganizationRegionJoin =
+          root.join(Report_.organizationRegion);
+      Join<OrganizationRegion, Region> organizationRegionRegionJoin =
+          reportOrganizationRegionJoin.join(OrganizationRegion_.region);
+      predicates.add(
+          builder.isFalse(reportOrganizationRegionJoin.get(OrganizationRegion_.markForDelete)));
+      predicates
+          .add(builder.equal(organizationRegionRegionJoin.get(Region_.ID), filter.getRegionId()));
     }
     return predicates;
   }

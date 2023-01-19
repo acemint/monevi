@@ -28,4 +28,6 @@ public interface ErrorMessages {
   String INVALID_MONTH = "invalid month";
   String INVALID_TOKEN = "invalid token";
   String WRONG_CONFIRMATION_PASSWORD = "wrong confirmation password";
+  String START_DATE_MUST_NOT_BE_BLANK = "start date must not be blank";
+  String END_DATE_MUST_NOT_BE_BLANK = "end date must not be blank";
 }
