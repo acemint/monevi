@@ -1,5 +1,17 @@
 package com.monevi.service.impl;
 
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
 import com.monevi.constant.ErrorMessages;
 import com.monevi.dto.request.CreateTransactionRequest;
 import com.monevi.dto.request.UpdateTransactionRequest;
@@ -17,16 +29,6 @@ import com.monevi.repository.ReportRepository;
 import com.monevi.repository.TransactionRepository;
 import com.monevi.service.TransactionService;
 import com.monevi.util.DateUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -43,12 +45,28 @@ public class TransactionServiceImpl implements TransactionService {
   @Autowired
   private ProgramRepository programRepository;
 
-  public Transaction createNewTransaction(CreateTransactionRequest request)
+  @Override
+  public List<Transaction> createTransactions(List<CreateTransactionRequest> requests)
       throws ApplicationException {
-    this.throwErrorOnExistingReportWithStatusApprovedBySupervisor(request.getOrganizationRegionId(), request.getTransactionDate());
-    OrganizationRegion organizationRegion = this.organizationRegionRepository.findByIdAndMarkForDeleteIsFalse(
-        request.getOrganizationRegionId())
-        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
+    return Optional.ofNullable(requests).map(requestList -> requestList.stream().map(request -> {
+      try {
+        return this.createNewTransaction(request);
+      } catch (ApplicationException e) {
+        throw new RuntimeException(e);
+      }
+    }).collect(Collectors.toList()))
+        .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
+            ErrorMessages.FAIL_TO_CREATE_TRANSACTION));
+  }
+
+  private Transaction createNewTransaction(CreateTransactionRequest request)
+      throws ApplicationException {
+    this.throwErrorOnExistingReportWithStatusApprovedBySupervisor(request.getOrganizationRegionId(),
+        request.getTransactionDate());
+    OrganizationRegion organizationRegion = this.organizationRegionRepository
+        .findByIdAndMarkForDeleteIsFalse(request.getOrganizationRegionId())
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
     Transaction transaction = this.buildTransaction(request);
     transaction.setOrganizationRegion(organizationRegion);
     if (StringUtils.isNotBlank(request.getProgramId())) {

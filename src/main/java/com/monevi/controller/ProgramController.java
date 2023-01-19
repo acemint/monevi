@@ -3,6 +3,7 @@ package com.monevi.controller;
 import com.monevi.converter.Converter;
 import com.monevi.converter.ProgramToProgramResponseConverter;
 import com.monevi.dto.request.CreateProgramRequest;
+import com.monevi.dto.request.UpdateSubsidyProgramRequest;
 import com.monevi.dto.response.BaseResponse;
 import com.monevi.dto.response.MultipleBaseResponse;
 import com.monevi.dto.response.ProgramResponse;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -87,6 +89,16 @@ public class ProgramController {
         .organizationRegionId(organizationRegionId)
         .pageable(pageable)
         .build();
+  }
+
+  @PostMapping(value = ApiPath.EDIT_SUBSIDY, consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public BaseResponse<ProgramResponse> updateSubsidy(@NotBlank @RequestParam String programId,
+      @Valid @RequestBody UpdateSubsidyProgramRequest updateSubsidyProgramRequest)
+      throws ApplicationException {
+    Program program = this.programService.updateSubsidy(programId, updateSubsidyProgramRequest);
+    return BaseResponse.<ProgramResponse>builder()
+        .value(this.programToProgramResponseConverter.convert(program)).build();
   }
 
 }

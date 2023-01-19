@@ -28,4 +28,15 @@ public interface ErrorMessages {
   String INVALID_MONTH = "invalid month";
   String INVALID_TOKEN = "invalid token";
   String WRONG_CONFIRMATION_PASSWORD = "wrong confirmation password";
+
+  String INVALID_FILE_TYPE = "file type must be excel file (.xlsx)";
+  String NO_DATA_IN_EXCEL = "no data in excel";
+  String INVALID_ENTRY_POSITION = "invalid entry position";
+  String INVALID_GENERAL_LEDGER_ACCOUNT_TYPE = "invalid general ledger account type";
+  String INVALID_TRANSACTION_TYPE = "invalid transaction type";
+  String FILE_TOO_LARGE = "file size is too large";
+  String AMOUNT_MUST_BE_GREATER_THAN_ZERO = "amount must be greated than zero";
+  String FAIL_TO_CREATE_TRANSACTION = "fail to create transaction";
+  String START_DATE_MUST_NOT_BE_BLANK = "start date must not be blank";
+  String END_DATE_MUST_NOT_BE_BLANK = "end date must not be blank";
 }

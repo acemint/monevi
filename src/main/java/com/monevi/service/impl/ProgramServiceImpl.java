@@ -1,7 +1,13 @@
 package com.monevi.service.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
 import com.monevi.constant.ErrorMessages;
 import com.monevi.dto.request.CreateProgramRequest;
+import com.monevi.dto.request.UpdateSubsidyProgramRequest;
 import com.monevi.entity.OrganizationRegion;
 import com.monevi.entity.Program;
 import com.monevi.exception.ApplicationException;
@@ -10,10 +16,6 @@ import com.monevi.repository.OrganizationRegionRepository;
 import com.monevi.repository.ProgramRepository;
 import com.monevi.service.ProgramService;
 import com.monevi.util.DateUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 
 @Service
 public class ProgramServiceImpl implements ProgramService {
@@ -45,4 +47,12 @@ public class ProgramServiceImpl implements ProgramService {
     return this.programRepository.getPrograms(filter);
   }
 
+  @Override
+  public Program updateSubsidy(String programId, UpdateSubsidyProgramRequest request) throws ApplicationException {
+    Program program = this.programRepository.findByIdAndMarkForDeleteFalse(programId)
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorMessages.PROGRAM_NOT_FOUND));
+    program.setSubsidy(request.getSubsidy());
+    return this.programRepository.save(program);
+  }
 }

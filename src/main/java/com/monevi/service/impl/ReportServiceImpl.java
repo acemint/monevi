@@ -21,12 +21,14 @@ import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetReportFilter;
 import com.monevi.model.GetTransactionFilter;
 import com.monevi.repository.OrganizationRegionRepository;
+import com.monevi.repository.RegionRepository;
 import com.monevi.repository.ReportRepository;
 import com.monevi.repository.TransactionRepository;
 import com.monevi.repository.UserAccountRepository;
 import com.monevi.service.ReportService;
 import com.monevi.util.DateUtils;
 import com.monevi.util.FinanceUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -58,12 +60,27 @@ public class ReportServiceImpl implements ReportService {
   @Autowired
   private TransactionRepository transactionRepository;
 
+  @Autowired
+  private RegionRepository regionRepository;
+
   @Override
   public Page<Report> getReports(GetReportFilter filter) throws ApplicationException {
-    this.organizationRegionRepository
+    if (StringUtils.isNotBlank(filter.getOrganizationRegionId())) {this.organizationRegionRepository
         .findByIdAndMarkForDeleteIsFalse(filter.getOrganizationRegionId())
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
-            ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
+            ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));if (StringUtils.isBlank(filter.getStartDate())) {
+        throw new ApplicationException(HttpStatus.BAD_REQUEST,
+            ErrorMessages.START_DATE_MUST_NOT_BE_BLANK);
+      }
+      if (StringUtils.isBlank(filter.getEndDate())) {
+        throw new ApplicationException(HttpStatus.BAD_REQUEST,
+            ErrorMessages.END_DATE_MUST_NOT_BE_BLANK);
+      }
+    } else if (StringUtils.isNotBlank(filter.getRegionId())) {
+      this.regionRepository.findByIdAndMarkForDeleteFalse(filter.getRegionId())
+          .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+              ErrorMessages.REGION_DOES_NOT_EXIST));
+    }
     return this.reportRepository.getReports(filter);
   }
 
