@@ -1,20 +1,13 @@
 package com.monevi.controller;
 
-import com.monevi.converter.Converter;
-import com.monevi.converter.TransactionToTransactionResponseConverter;
-import com.monevi.dto.request.CreateTransactionRequest;
-import com.monevi.dto.request.UpdateTransactionRequest;
-import com.monevi.dto.response.BaseResponse;
-import com.monevi.dto.response.MultipleBaseResponse;
-import com.monevi.dto.response.TransactionResponse;
-import com.monevi.entity.Transaction;
-import com.monevi.enums.EntryPosition;
-import com.monevi.enums.GeneralLedgerAccountType;
-import com.monevi.enums.TransactionType;
-import com.monevi.exception.ApplicationException;
-import com.monevi.model.GetTransactionFilter;
-import com.monevi.service.TransactionService;
-import com.monevi.util.TransactionUrlUtils;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
@@ -29,12 +22,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.monevi.converter.Converter;
+import com.monevi.converter.TransactionToTransactionResponseConverter;
+import com.monevi.dto.request.CreateTransactionRequest;
+import com.monevi.dto.request.UpdateTransactionRequest;
+import com.monevi.dto.response.BaseResponse;
+import com.monevi.dto.response.ConvertExcelResponse;
+import com.monevi.dto.response.MultipleBaseResponse;
+import com.monevi.dto.response.TransactionResponse;
+import com.monevi.entity.Transaction;
+import com.monevi.enums.EntryPosition;
+import com.monevi.enums.GeneralLedgerAccountType;
+import com.monevi.enums.TransactionType;
+import com.monevi.exception.ApplicationException;
+import com.monevi.model.GetTransactionFilter;
+import com.monevi.service.ExcelService;
+import com.monevi.service.TransactionService;
+import com.monevi.util.TransactionUrlUtils;
 
 @RestController
 @RequestMapping(ApiPath.BASE + ApiPath.TRANSACTION)
@@ -44,16 +50,27 @@ public class TransactionController {
   private TransactionService transactionService;
 
   @Autowired
+  private ExcelService excelService;
+
+  @Autowired
   @Qualifier(TransactionToTransactionResponseConverter.TRANSACTION_TO_TRANSACTION_RESPONSE_BEAN_NAME + Converter.SUFFIX_BEAN_NAME)
   private Converter<Transaction, TransactionResponse> transactionToTransactionResponseConverter;
 
-  @PostMapping(value = ApiPath.CREATE_NEW, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public BaseResponse<TransactionResponse> createNewTransaction(
-      @Valid @RequestBody CreateTransactionRequest createTransactionRequest) throws ApplicationException {
-    Transaction newTransaction = this.transactionService.createNewTransaction(
-        createTransactionRequest);
-    return BaseResponse.<TransactionResponse>builder()
-        .value(this.transactionToTransactionResponseConverter.convert(newTransaction))
+  @PostMapping(value = ApiPath.CREATE_NEW, consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public MultipleBaseResponse<TransactionResponse> createNewTransaction(
+      @Valid @RequestBody List<CreateTransactionRequest> createTransactionRequests)
+      throws ApplicationException {
+    List<TransactionResponse> newTransactions =
+        this.transactionService.createTransactions(createTransactionRequests).stream()
+            .map(data -> this.transactionToTransactionResponseConverter.convert(data))
+            .collect(Collectors.toList());
+    return MultipleBaseResponse.<TransactionResponse>builder()
+        .values(newTransactions)
+        .metadata(MultipleBaseResponse.Metadata.builder()
+            .size(newTransactions.size())
+            .totalPage(0)
+            .totalItems(newTransactions.size()).build())
         .build();
   }
 
@@ -132,4 +149,13 @@ public class TransactionController {
         .build();
   }
 
+  @PostMapping(value = ApiPath.CONVERT_EXCEL, consumes = MediaType.ALL_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public BaseResponse<ConvertExcelResponse> processExcelFile(
+      @RequestParam String organizationRegionId, @RequestBody MultipartFile excelFile)
+      throws ApplicationException, IOException {
+    ConvertExcelResponse response =
+        this.excelService.processExcelFile(organizationRegionId, excelFile);
+    return BaseResponse.<ConvertExcelResponse>builder().value(response).build();
+  }
 }

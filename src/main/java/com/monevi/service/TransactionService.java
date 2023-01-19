@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface TransactionService {
 
-  Transaction createNewTransaction(CreateTransactionRequest request)
+  List<Transaction> createTransactions(List<CreateTransactionRequest> requests)
       throws ApplicationException;
 
   List<Transaction> getTransactions(GetTransactionFilter filter)
