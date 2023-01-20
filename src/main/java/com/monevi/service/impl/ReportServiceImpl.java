@@ -134,11 +134,13 @@ public class ReportServiceImpl implements ReportService {
 
   @Override
   public ReportSummary summarize(String organizationRegionId, String date) throws ApplicationException {
-    Report currentMonthReport = this.getCurrentMonthReport(organizationRegionId, date)
-        .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.REPORT_DOES_NOT_EXIST));
-    List<Tuple> transactionSummaryData = this.transactionRepository.groupingTransactionForReportDisplay(currentMonthReport.getId());
+    Optional<Report> currentMonthReport = this.getCurrentMonthReport(organizationRegionId, date);
+    if (!currentMonthReport.isPresent()) {
+      return null;
+    }
+    List<Tuple> transactionSummaryData = this.transactionRepository.groupingTransactionForReportDisplay(currentMonthReport.get().getId());
     Report lastMonthReport = this.getLastMonthReport(organizationRegionId, date).orElse(Report.builder().build());
-    return this.buildReportSummary(transactionSummaryData, currentMonthReport, lastMonthReport);
+    return this.buildReportSummary(transactionSummaryData, currentMonthReport.get(), lastMonthReport);
   }
 
   private void throwErrorOnInvalidReportHandlingByUser(Report report, UserAccount userAccount) throws ApplicationException {

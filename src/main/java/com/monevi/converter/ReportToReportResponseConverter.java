@@ -1,7 +1,10 @@
 package com.monevi.converter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import com.monevi.entity.ReportGeneralLedgerAccount;
 import org.springframework.stereotype.Component;
 
 import com.monevi.dto.response.ReportResponse;
@@ -24,8 +27,21 @@ public class ReportToReportResponseConverter implements Converter<Report, Report
         .status(source.getStatus())
         .comment(reportComment.getContent())
         .commentedBy(reportComment.getCommentedBy())
+        .generalLedgerAccountValues(this.convertGeneral(source))
         .build();
     return response;
   }
 
+  private List<ReportResponse.ReportGeneralLedgerAccountResponse> convertGeneral(Report report) {
+    List<ReportResponse.ReportGeneralLedgerAccountResponse> reportGeneralLedgerAccountResponses = new ArrayList<>();
+    for (ReportGeneralLedgerAccount reportGeneralLedgerAccount : report.getReportGeneralLedgerAccounts()) {
+      ReportResponse.ReportGeneralLedgerAccountResponse reportGeneralLedgerAccountResponse =
+          ReportResponse.ReportGeneralLedgerAccountResponse.builder()
+              .name(reportGeneralLedgerAccount.getName())
+              .amount(reportGeneralLedgerAccount.getTotal())
+              .build();
+      reportGeneralLedgerAccountResponses.add(reportGeneralLedgerAccountResponse);
+    }
+    return reportGeneralLedgerAccountResponses;
+  }
 }
