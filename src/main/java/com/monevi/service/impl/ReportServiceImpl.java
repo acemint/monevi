@@ -67,10 +67,12 @@ public class ReportServiceImpl implements ReportService {
 
   @Override
   public Page<Report> getReports(GetReportFilter filter) throws ApplicationException {
-    if (StringUtils.isNotBlank(filter.getOrganizationRegionId())) {this.organizationRegionRepository
-        .findByIdAndMarkForDeleteIsFalse(filter.getOrganizationRegionId())
-        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
-            ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));if (StringUtils.isBlank(filter.getStartDate())) {
+    if (StringUtils.isNotBlank(filter.getOrganizationRegionId())) {
+      this.organizationRegionRepository
+          .findByIdAndMarkForDeleteIsFalse(filter.getOrganizationRegionId())
+          .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+              ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
+      if (StringUtils.isBlank(filter.getStartDate())) {
         throw new ApplicationException(HttpStatus.BAD_REQUEST,
             ErrorMessages.START_DATE_MUST_NOT_BE_BLANK);
       }
