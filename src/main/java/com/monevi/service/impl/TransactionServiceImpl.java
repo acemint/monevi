@@ -1,6 +1,7 @@
 package com.monevi.service.impl;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -61,7 +62,7 @@ public class TransactionServiceImpl implements TransactionService {
 
   private Transaction createNewTransaction(CreateTransactionRequest request)
       throws ApplicationException {
-    this.throwErrorOnExistingReportWithStatusApprovedBySupervisor(request.getOrganizationRegionId(),
+    this.throwErrorOnExistingReportWithStatusAlreadySent(request.getOrganizationRegionId(),
         request.getTransactionDate());
     OrganizationRegion organizationRegion = this.organizationRegionRepository
         .findByIdAndMarkForDeleteIsFalse(request.getOrganizationRegionId())
@@ -76,7 +77,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
     return this.transactionRepository.save(transaction);
   }
-  
+
   private Program validateProgram(String programId, OrganizationRegion organizationRegion,
       String transactionDate) throws ApplicationException {
     Long date = DateUtils.convertDateToLong(transactionDate);
@@ -97,8 +98,10 @@ public class TransactionServiceImpl implements TransactionService {
     return this.transactionRepository.getTransactions(filter).orElse(Collections.emptyList());
   }
 
-  private void throwErrorOnExistingReportWithStatusApprovedBySupervisor(String organizationRegionId, String transactionDate)
+  private void throwErrorOnExistingReportWithStatusAlreadySent(String organizationRegionId, String transactionDate)
       throws ApplicationException {
+    List<ReportStatus> allowedReportStatuses = Arrays.asList(
+        ReportStatus.NOT_SENT, ReportStatus.UNAPPROVED);
     List<Report> reports = this.reportRepository.getReports(GetReportFilter.builder()
             .organizationRegionId(organizationRegionId)
             .build())
@@ -113,7 +116,7 @@ public class TransactionServiceImpl implements TransactionService {
 
       if (newTransactionMonth == existingReportMonth
           && newTransactionYear == existingReportYear
-          && report.getStatus().equals(ReportStatus.APPROVED_BY_SUPERVISOR)) {
+          && !allowedReportStatuses.contains(report.getStatus())) {
         throw new ApplicationException(HttpStatus.BAD_REQUEST,
             ErrorMessages.TRANSACTION_CANNOT_BE_CREATED_BECAUSE_REPORT_HAS_BEEN_APPROVED);
       }
@@ -141,12 +144,12 @@ public class TransactionServiceImpl implements TransactionService {
         this.transactionRepository.findByIdAndMarkForDeleteFalse(transactionId)
             .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
                 ErrorMessages.TRANSACTION_NOT_FOUND));
-    this.throwErrorOnExistingReportWithStatusApprovedBySupervisor(
+    this.throwErrorOnExistingReportWithStatusAlreadySent(
         existingTransaction.getOrganizationRegion().getId(),
         DateUtils.convertTimestampToString(existingTransaction.getTransactionDate()));
 
     Transaction updatedTransaction = this.buildTransaction(request, existingTransaction);
-    this.throwErrorOnExistingReportWithStatusApprovedBySupervisor(
+    this. throwErrorOnExistingReportWithStatusAlreadySent(
         existingTransaction.getOrganizationRegion().getId(),
         DateUtils.convertTimestampToString(updatedTransaction.getTransactionDate()));
     if (StringUtils.isNotBlank(request.getProgramId())) {
