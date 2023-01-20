@@ -31,6 +31,7 @@ import com.monevi.util.FinanceUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -204,6 +205,7 @@ public class ReportServiceImpl implements ReportService {
         .organizationRegionId(organizationRegionId)
         .startDate(DateUtils.dateToFirstDayOfMonth(date))
         .endDate(DateUtils.dateToLastDayOfMonth(date))
+        .pageable(PageRequest.of(0, Integer.MAX_VALUE))
         .build();
     List<Report> reports = this.reportRepository.getReports(filter).getContent();
     if (reports.size() != 0) {
@@ -292,6 +294,7 @@ public class ReportServiceImpl implements ReportService {
         .organizationRegionId(organizationRegionId)
         .startDate(DateUtils.dateToFirstDayOfMonth(date))
         .endDate(DateUtils.dateToLastDayOfMonth(date))
+        .pageable(PageRequest.of(0, Integer.MAX_VALUE))
         .build();
     return this.transactionRepository.getTransactions(filter).getContent();
   }
@@ -301,6 +304,7 @@ public class ReportServiceImpl implements ReportService {
         .organizationRegionId(organizationRegionId)
         .startDate(DateUtils.dateToFirstDayOfMonth(date))
         .endDate(DateUtils.dateToLastDayOfMonth(date))
+        .pageable(PageRequest.of(0, Integer.MAX_VALUE))
         .build();
     List<Report> reports = this.reportRepository.getReports(filter).getContent();
     if (reports.size() != 0) {
@@ -315,6 +319,7 @@ public class ReportServiceImpl implements ReportService {
         .organizationRegionId(organizationRegionId)
         .startDate(DateUtils.dateToFirstDayOfMonth(previousMonthDate))
         .endDate(DateUtils.dateToLastDayOfMonth(previousMonthDate))
+        .pageable(PageRequest.of(0, Integer.MAX_VALUE))
         .build();
     List<Report> reports = this.reportRepository.getReports(filter).getContent();
     if (reports.size() != 0) {

@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -100,7 +101,8 @@ public class TransactionServiceImpl implements TransactionService {
   private void throwErrorOnExistingReportWithStatusApprovedBySupervisor(String organizationRegionId, String transactionDate)
       throws ApplicationException {
     List<Report> reports = this.reportRepository
-        .getReports(GetReportFilter.builder().organizationRegionId(organizationRegionId).build())
+        .getReports(GetReportFilter.builder().organizationRegionId(organizationRegionId)
+            .pageable(PageRequest.of(0, Integer.MAX_VALUE)).build())
         .getContent();
 
     int newTransactionMonth = DateUtils.dateInputToMonth(transactionDate);
