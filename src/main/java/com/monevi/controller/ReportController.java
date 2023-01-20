@@ -1,23 +1,14 @@
 package com.monevi.controller;
 
-import com.monevi.converter.Converter;
-import com.monevi.converter.ReportToReportResponseConverter;
-import com.monevi.dto.request.SubmitReportRequest;
-import com.monevi.dto.request.ReportApproveRequest;
-import com.monevi.dto.request.ReportRejectRequest;
-import com.monevi.dto.response.BaseResponse;
-import com.monevi.dto.response.MultipleBaseResponse;
-import com.monevi.dto.response.ReportResponse;
-import com.monevi.dto.response.ReportSummary;
-import com.monevi.entity.Report;
-import com.monevi.enums.ReportStatus;
-import com.monevi.exception.ApplicationException;
-import com.monevi.model.GetReportFilter;
-import com.monevi.service.ReportService;
-import com.monevi.util.ReportUrlUtils;
-import com.monevi.validation.annotation.ValidDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -29,10 +20,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.monevi.converter.Converter;
+import com.monevi.converter.ReportToReportResponseConverter;
+import com.monevi.dto.request.ReportApproveRequest;
+import com.monevi.dto.request.ReportRejectRequest;
+import com.monevi.dto.request.SubmitReportRequest;
+import com.monevi.dto.response.BaseResponse;
+import com.monevi.dto.response.MultipleBaseResponse;
+import com.monevi.dto.response.ReportResponse;
+import com.monevi.dto.response.ReportSummary;
+import com.monevi.entity.Report;
+import com.monevi.enums.ReportStatus;
+import com.monevi.exception.ApplicationException;
+import com.monevi.model.GetReportFilter;
+import com.monevi.service.ReportService;
+import com.monevi.util.ReportUrlUtils;
+import com.monevi.validation.annotation.ValidDate;
 
 @RestController
 @RequestMapping(ApiPath.BASE + ApiPath.REPORT)
@@ -59,17 +62,16 @@ public class ReportController {
       throws ApplicationException {
     GetReportFilter filter = this.buildDefaultGetReportsFilter(regionId, organizationRegionId,
         startDate, endDate, reportStatus, sortBy, isAscending, page, size);
-    List<ReportResponse> reportResponses = this.reportService.getReports(filter)
-        .stream()
-        .map(r -> this.reportToReportResponseConverter.convert(r))
-        .collect(Collectors.toList());
+    Page<Report> responses = this.reportService.getReports(filter);
+    List<ReportResponse> reportResponses = responses.stream()
+        .map(r -> this.reportToReportResponseConverter.convert(r)).collect(Collectors.toList());
     return MultipleBaseResponse.<ReportResponse>builder()
         .values(reportResponses)
         .metadata(MultipleBaseResponse.Metadata
             .builder()
             .size(reportResponses.size())
-            .totalPage(0)
-            .totalItems(reportResponses.size())
+            .totalPage(responses.getTotalPages())
+            .totalItems(responses.getTotalElements())
             .build())
         .build();
   }

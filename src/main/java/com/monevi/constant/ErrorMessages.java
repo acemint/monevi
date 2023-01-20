@@ -39,4 +39,6 @@ public interface ErrorMessages {
   String FAIL_TO_CREATE_TRANSACTION = "fail to create transaction";
   String START_DATE_MUST_NOT_BE_BLANK = "start date must not be blank";
   String END_DATE_MUST_NOT_BE_BLANK = "end date must not be blank";
+  String USER_AND_ORGANIZATION_REGION_NOT_MATCH =
+      "user's organization region and organization region request not match";
 }

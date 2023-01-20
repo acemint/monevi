@@ -7,6 +7,8 @@ import com.monevi.dto.request.CreateSupervisorRequest;
 import com.monevi.entity.UserAccount;
 import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetStudentFilter;
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.data.domain.Page;
 
 public interface UserAccountService {
     UserAccount register(CreateStudentRequest request) throws ApplicationException;
@@ -17,6 +19,6 @@ public interface UserAccountService {
 
     UserAccount declineStudent(String studentId) throws ApplicationException;
 
-    List<UserAccount> findAllStudentByFilter(GetStudentFilter filter)
+   Page<UserAccount> findAllStudentByFilter(GetStudentFilter filter)
         throws ApplicationException;
 }

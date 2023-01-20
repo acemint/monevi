@@ -10,6 +10,7 @@ import javax.validation.constraints.NotBlank;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -109,8 +110,8 @@ public class TransactionController {
     GetTransactionFilter filter = this.buildDefaultGetTransactionFilter(organizationRegionId,
         regionId, entryPosition,
         generalLedgerAccountType, transactionType, startDate, endDate, sortBy, isAscending, page, size);
-    List<TransactionResponse> transactionResponses = this.transactionService.getTransactions(filter)
-        .stream()
+    Page<Transaction> responses = this.transactionService.getTransactions(filter);
+    List<TransactionResponse> transactionResponses = responses.getContent().stream()
         .map(t -> this.transactionToTransactionResponseConverter.convert(t))
         .collect(Collectors.toList());
     return MultipleBaseResponse.<TransactionResponse>builder()
@@ -118,8 +119,8 @@ public class TransactionController {
         .metadata(MultipleBaseResponse.Metadata
             .builder()
             .size(transactionResponses.size())
-            .totalPage(0)
-            .totalItems(transactionResponses.size())
+            .totalPage(responses.getTotalPages())
+            .totalItems(responses.getTotalElements())
             .build())
         .build();
   }

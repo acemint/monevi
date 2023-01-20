@@ -11,6 +11,8 @@ import com.monevi.repository.ReportCustomRepository;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -22,6 +24,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,10 +37,12 @@ public class ReportCustomRepositoryImpl
   private EntityManager entityManager;
 
   @Override
-  public Optional<List<Report>> getReports(GetReportFilter filter) {
+  public Page<Report> getReports(GetReportFilter filter) {
     CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
     CriteriaQuery<Report> reportCriteriaQuery = criteriaBuilder.createQuery(Report.class);
     Root<Report> reportRoot = reportCriteriaQuery.from(Report.class);
+    CriteriaQuery<Long> countReportCriteriaQuery = criteriaBuilder.createQuery(Long.class);
+    Root<Report> countReportRoot = countReportCriteriaQuery.from(Report.class);
 
     reportCriteriaQuery
         .select(reportRoot)
@@ -45,11 +50,22 @@ public class ReportCustomRepositoryImpl
             this.predicateBuilder(
                 criteriaBuilder, reportRoot, filter)
                 .toArray(new Predicate[0]));
+    
+    countReportCriteriaQuery.select(criteriaBuilder.count(countReportRoot))
+        .where(this.predicateBuilder(criteriaBuilder, countReportRoot, filter)
+            .toArray(new Predicate[0]));
 
     this.sort(criteriaBuilder, reportCriteriaQuery, reportRoot, filter.getPageable());
     TypedQuery<Report> reportTypedQuery = this.entityManager.createQuery(reportCriteriaQuery);
+    Long countReportResult =
+        this.entityManager.createQuery(countReportCriteriaQuery).getSingleResult();
     this.page(reportTypedQuery, filter.getPageable());
-    return Optional.ofNullable(reportTypedQuery.getResultList());
+    try {
+      return new PageImpl<>(reportTypedQuery.getResultList(), filter.getPageable(),
+          countReportResult);
+    } catch (Exception e) {
+      return new PageImpl<>(Collections.emptyList(), filter.getPageable(), 0L);
+    }
   }
 
   private List<Predicate> predicateBuilder(

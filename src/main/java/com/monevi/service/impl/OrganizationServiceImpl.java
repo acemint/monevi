@@ -6,17 +6,17 @@ import com.monevi.entity.OrganizationRegion;
 import com.monevi.entity.Region;
 import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetOrganizationFilter;
+import com.monevi.model.GetOrganizationWithProgramExistsFilter;
 import com.monevi.repository.OrganizationRepository;
 import com.monevi.repository.RegionRepository;
 import com.monevi.service.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -73,9 +73,8 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
-  public List<Organization> getOrganizations(GetOrganizationFilter filter) {
-    return this.organizationRepository.getOrganization(filter)
-        .orElse(Collections.emptyList());
+  public Page<Organization> getOrganizations(GetOrganizationFilter filter) {
+    return this.organizationRepository.getOrganization(filter);
   }
 
   private Set<OrganizationRegion> buildOrganizationRegions(Organization organization, Set<Region> regions) {
@@ -90,4 +89,9 @@ public class OrganizationServiceImpl implements OrganizationService {
     return organizationRegions;
   }
 
+  @Override
+  public Page<Organization> getOrganizationsByPeriodAndProgramExists(
+      GetOrganizationWithProgramExistsFilter filter) throws ApplicationException {
+    return this.organizationRepository.getOrganizationByRegionAndPeriodAndProgramExists(filter);
+  }
 }

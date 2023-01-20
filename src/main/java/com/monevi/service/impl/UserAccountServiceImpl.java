@@ -1,13 +1,12 @@
 package com.monevi.service.impl;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.monevi.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +24,7 @@ import com.monevi.model.GetStudentFilter;
 import com.monevi.repository.OrganizationRepository;
 import com.monevi.repository.RegionRepository;
 import com.monevi.repository.UserAccountRepository;
+import com.monevi.service.AuthService;
 import com.monevi.service.UserAccountService;
 
 @Service
@@ -179,7 +179,7 @@ public class UserAccountServiceImpl implements UserAccountService {
   }
 
   @Override
-  public List<UserAccount> findAllStudentByFilter(GetStudentFilter filter)
+  public Page<UserAccount> findAllStudentByFilter(GetStudentFilter filter)
       throws ApplicationException {
     if (Objects.nonNull(filter.getPeriodMonth())
         && (filter.getPeriodMonth() < 1 || filter.getPeriodMonth() > 12)) {
@@ -189,7 +189,6 @@ public class UserAccountServiceImpl implements UserAccountService {
         && UserAccountRole.SUPERVISOR.equals(filter.getStudentRole())) {
       throw new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_STUDENT_ROLE);
     }
-    return this.userAccountRepository.findAllStudentByFilter(filter)
-        .orElse(Collections.emptyList());
+    return this.userAccountRepository.findAllStudentByFilter(filter);
   }
 }

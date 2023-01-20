@@ -18,6 +18,7 @@ public class ProgramToProgramResponseConverter implements Converter<Program, Pro
         .subsidy(source.getSubsidy())
         .startDate(source.getStartDate().getTime())
         .endDate(source.getEndDate().getTime())
+        .periodYear(source.getPeriodYear())
         .build();
   }
 }

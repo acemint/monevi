@@ -23,7 +23,7 @@ public class MultipleBaseResponse<T> implements Serializable {
   @Builder
   public static class Metadata {
 
-    private int totalItems;
+    private long totalItems;
     private int totalPage;
     private int size;
 

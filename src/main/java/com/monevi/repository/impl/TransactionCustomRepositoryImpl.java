@@ -11,6 +11,8 @@ import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetTransactionFilter;
 import com.monevi.repository.TransactionCustomRepository;
 import com.monevi.util.DateUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -21,6 +23,7 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,21 +36,36 @@ public class TransactionCustomRepositoryImpl
   private EntityManager entityManager;
 
   @Override
-  public Optional<List<Transaction>> getTransactions(GetTransactionFilter filter) throws ApplicationException {
+  public Page<Transaction> getTransactions(GetTransactionFilter filter) throws ApplicationException {
     CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
     CriteriaQuery<Transaction> transactionCriteriaQuery = criteriaBuilder.createQuery(Transaction.class);
     Root<Transaction> transactionRoot = transactionCriteriaQuery.from(Transaction.class);
+    CriteriaQuery<Long> countTransactionCriteriaQuery = criteriaBuilder.createQuery(Long.class);
+    Root<Transaction> countTransactionRoot = countTransactionCriteriaQuery.from(Transaction.class);
 
     transactionCriteriaQuery
         .select(transactionRoot)
         .where(
             this.predicateBuilder(criteriaBuilder, transactionRoot, filter)
                 .toArray(new Predicate[0]));
+    
+    countTransactionCriteriaQuery
+        .select(criteriaBuilder.count(countTransactionRoot))
+        .where(this.predicateBuilder(criteriaBuilder, countTransactionRoot, filter)
+            .toArray(new Predicate[0]));
 
     this.sort(criteriaBuilder, transactionCriteriaQuery, transactionRoot, filter.getPageable());
-    TypedQuery<Transaction> transactionTypedQuery = this.entityManager.createQuery(transactionCriteriaQuery);
+    TypedQuery<Transaction> transactionTypedQuery =
+        this.entityManager.createQuery(transactionCriteriaQuery);
+    Long countTransactionResult =
+        this.entityManager.createQuery(countTransactionCriteriaQuery).getSingleResult();
     this.page(transactionTypedQuery, filter.getPageable());
-    return Optional.ofNullable(transactionTypedQuery.getResultList());
+    try {
+      return new PageImpl<>(transactionTypedQuery.getResultList(), filter.getPageable(),
+          countTransactionResult);
+    } catch (Exception e) {
+      return new PageImpl<>(Collections.emptyList(), filter.getPageable(), 0L);
+    }
   }
 
   private List<Predicate> predicateBuilder(
