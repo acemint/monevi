@@ -100,8 +100,6 @@ public class TransactionServiceImpl implements TransactionService {
 
   private void throwErrorOnExistingReportWithStatusAlreadySent(String organizationRegionId, String transactionDate)
       throws ApplicationException {
-    List<ReportStatus> allowedReportStatuses = Arrays.asList(
-        ReportStatus.NOT_SENT, ReportStatus.UNAPPROVED);
     List<Report> reports = this.reportRepository.getReports(GetReportFilter.builder()
             .organizationRegionId(organizationRegionId)
             .build())
@@ -116,7 +114,7 @@ public class TransactionServiceImpl implements TransactionService {
 
       if (newTransactionMonth == existingReportMonth
           && newTransactionYear == existingReportYear
-          && !allowedReportStatuses.contains(report.getStatus())) {
+          && !report.getStatus().equals(ReportStatus.NOT_SENT)) {
         throw new ApplicationException(HttpStatus.BAD_REQUEST,
             ErrorMessages.TRANSACTION_CANNOT_BE_CREATED_BECAUSE_REPORT_HAS_BEEN_APPROVED);
       }
