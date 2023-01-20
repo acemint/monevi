@@ -73,6 +73,9 @@ public class ProgramCustomRepositoryImpl
       predicates.add(builder.isFalse(programJoin.get(OrganizationRegion_.markForDelete)));
       predicates.add(builder.equal(programJoin.get(OrganizationRegion_.id), filter.getOrganizationRegionId()));
     }
+    if (Objects.nonNull(filter.getPeriodYear())) {
+      predicates.add(builder.equal(root.get(Program_.PERIOD_YEAR), filter.getPeriodYear()));
+    }
     return predicates;
   }
 }

@@ -1,5 +1,7 @@
 package com.monevi.service.impl;
 
+import com.monevi.entity.UserAccount;
+import com.monevi.repository.UserAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -26,10 +28,23 @@ public class ProgramServiceImpl implements ProgramService {
   @Autowired
   private ProgramRepository programRepository;
 
+  @Autowired
+  private UserAccountRepository userAccountRepository;
+  
   @Override
   public Program create(CreateProgramRequest request) throws ApplicationException {
+    UserAccount user =
+        this.userAccountRepository.findByIdAndMarkForDeleteIsFalse(request.getUserId())
+            .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+                ErrorMessages.USER_ACCOUNT_NOT_FOUND));
     OrganizationRegion organizationRegion = this.organizationRegionRepository.findByIdAndMarkForDeleteIsFalse(request.getOrganizationRegionId())
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
+    
+    if (!organizationRegion.equals(user.getOrganizationRegion())) {
+      throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+          ErrorMessages.USER_AND_ORGANIZATION_REGION_NOT_MATCH);
+    }
+    
     Program program = Program.builder()
         .name(request.getProgramName())
         .budget(request.getBudget())
@@ -37,6 +52,7 @@ public class ProgramServiceImpl implements ProgramService {
         .startDate(DateUtils.dateInputToTimestamp(request.getStartDate()))
         .endDate(DateUtils.dateInputToTimestamp(request.getEndDate()))
         .organizationRegion(organizationRegion)
+        .periodYear(user.getPeriodYear())
         .build();
     program.setOrganizationRegion(organizationRegion);
     return this.programRepository.save(program);

@@ -6,6 +6,7 @@ import com.monevi.entity.OrganizationRegion;
 import com.monevi.entity.Region;
 import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetOrganizationFilter;
+import com.monevi.model.GetOrganizationWithProgramExistsFilter;
 import com.monevi.repository.OrganizationRepository;
 import com.monevi.repository.RegionRepository;
 import com.monevi.service.OrganizationService;
@@ -88,4 +89,9 @@ public class OrganizationServiceImpl implements OrganizationService {
     return organizationRegions;
   }
 
+  @Override
+  public Page<Organization> getOrganizationsByPeriodAndProgramExists(
+      GetOrganizationWithProgramExistsFilter filter) throws ApplicationException {
+    return this.organizationRepository.getOrganizationByRegionAndPeriodAndProgramExists(filter);
+  }
 }

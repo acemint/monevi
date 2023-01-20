@@ -1,19 +1,19 @@
 package com.monevi.model;
 
+import org.springframework.data.domain.Pageable;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Pageable;
 
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetProgramFilter {
+public class GetOrganizationWithProgramExistsFilter {
 
-  private String organizationRegionId;
+  private String regionId;
   private Integer periodYear;
   private Pageable pageable;
-
 }

@@ -34,4 +34,5 @@ public class ApiPath {
   public static final String SUMMARIZE = "/summarize";
   public static final String CONVERT_EXCEL = "/convert-excel";
   public static final String EDIT_SUBSIDY = EDIT + "-subsidy";
+  public static final String FIND_ORGANIZATION_WITH_PROGRAM = FIND_ALL + "/program-exists";
 }

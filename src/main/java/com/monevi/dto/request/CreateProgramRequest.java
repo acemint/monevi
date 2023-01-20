@@ -36,4 +36,7 @@ public class CreateProgramRequest {
   @ValidDate
   private String endDate;
 
+  @NotBlank
+  private String userId;
+
 }
