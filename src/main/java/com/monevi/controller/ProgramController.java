@@ -46,12 +46,13 @@ public class ProgramController {
   @GetMapping(value = ApiPath.FIND_ALL, produces = MediaType.APPLICATION_JSON_VALUE)
   public MultipleBaseResponse<ProgramResponse> getPrograms(
       @RequestParam String organizationRegionId,
+      @RequestParam(required = false) Integer periodYear,
       @RequestParam(defaultValue = "0", required = false) int page,
       @RequestParam(defaultValue = "1000", required = false) int size,
       @RequestParam(defaultValue = "name", required = false) String[] sortBy,
       @RequestParam(defaultValue = "true", required = false) String[] isAscending) throws ApplicationException {
-    GetProgramFilter filter = this.buildDefaultGetProgramFilter(
-        organizationRegionId, sortBy, isAscending, page, size);
+    GetProgramFilter filter = this.buildDefaultGetProgramFilter(organizationRegionId, periodYear,
+        sortBy, isAscending, page, size);
     Page<Program> responses = this.programService.getPrograms(filter);
     List<ProgramResponse> programResponses = responses.stream()
         .map(p -> this.programToProgramResponseConverter.convert(p)).collect(Collectors.toList());
@@ -75,8 +76,8 @@ public class ProgramController {
         .build();
   }
 
-  private GetProgramFilter buildDefaultGetProgramFilter(
-      String organizationRegionId, String[] sortBy, String[] isAscending, int page, int size)
+  private GetProgramFilter buildDefaultGetProgramFilter(String organizationRegionId,
+      Integer periodYear, String[] sortBy, String[] isAscending, int page, int size)
       throws ApplicationException {
     List<Sort.Order> sortOrders = new ArrayList<>();
     int validSize = Math.min(sortBy.length, isAscending.length);
@@ -87,6 +88,7 @@ public class ProgramController {
     Pageable pageable = PageRequest.of(page, size, Sort.by(sortOrders));
     return GetProgramFilter.builder()
         .organizationRegionId(organizationRegionId)
+        .periodYear(periodYear)
         .pageable(pageable)
         .build();
   }

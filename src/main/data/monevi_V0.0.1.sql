@@ -249,3 +249,5 @@ ALTER TABLE monevi_user_account  ADD COLUMN reset_password_token VARCHAR(255);
 ALTER TABLE monevi_user_account  ADD COLUMN reset_password_token_expired_date TIMESTAMP;
 
 ALTER TABLE monevi_report_general_ledger_account ADD COLUMN opname DECIMAL;
+
+ALTER TABLE monevi_program ADD COLUMN period_year INT;

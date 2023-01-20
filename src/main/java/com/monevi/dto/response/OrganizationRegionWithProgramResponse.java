@@ -4,20 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.joda.time.DateTime;
 
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProgramResponse {
+public class OrganizationRegionWithProgramResponse {
 
   private String id;
   private String name;
-  private double budget;
-  private double subsidy;
-  private long startDate;
-  private long endDate;
-  private int periodYear;
-
+  private String abbreviation;
+  private Integer period;
 }
