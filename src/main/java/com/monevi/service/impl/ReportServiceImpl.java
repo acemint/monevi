@@ -31,6 +31,7 @@ import com.monevi.util.FinanceUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -65,10 +67,12 @@ public class ReportServiceImpl implements ReportService {
 
   @Override
   public Page<Report> getReports(GetReportFilter filter) throws ApplicationException {
-    if (StringUtils.isNotBlank(filter.getOrganizationRegionId())) {this.organizationRegionRepository
-        .findByIdAndMarkForDeleteIsFalse(filter.getOrganizationRegionId())
-        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
-            ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));if (StringUtils.isBlank(filter.getStartDate())) {
+    if (StringUtils.isNotBlank(filter.getOrganizationRegionId())) {
+      this.organizationRegionRepository
+          .findByIdAndMarkForDeleteIsFalse(filter.getOrganizationRegionId())
+          .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+              ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
+      if (StringUtils.isBlank(filter.getStartDate())) {
         throw new ApplicationException(HttpStatus.BAD_REQUEST,
             ErrorMessages.START_DATE_MUST_NOT_BE_BLANK);
       }
@@ -196,7 +200,9 @@ public class ReportServiceImpl implements ReportService {
     else if (report.getStatus().equals(ReportStatus.APPROVED_BY_CHAIRMAN)) {
       report.setStatus(ReportStatus.APPROVED_BY_SUPERVISOR);
     }
-    report.getReportComment().setMarkForDelete(true);
+    if (Objects.nonNull(report.getReportComment())) {
+      report.getReportComment().setMarkForDelete(true);
+    }
   }
 
   private void deleteExistingCurrentMonthReport(String organizationRegionId, String date) throws ApplicationException {
@@ -204,6 +210,7 @@ public class ReportServiceImpl implements ReportService {
         .organizationRegionId(organizationRegionId)
         .startDate(DateUtils.dateToFirstDayOfMonth(date))
         .endDate(DateUtils.dateToLastDayOfMonth(date))
+        .pageable(PageRequest.of(0, Integer.MAX_VALUE))
         .build();
     List<Report> reports = this.reportRepository.getReports(filter).getContent();
     if (reports.size() != 0) {
@@ -292,6 +299,7 @@ public class ReportServiceImpl implements ReportService {
         .organizationRegionId(organizationRegionId)
         .startDate(DateUtils.dateToFirstDayOfMonth(date))
         .endDate(DateUtils.dateToLastDayOfMonth(date))
+        .pageable(PageRequest.of(0, Integer.MAX_VALUE))
         .build();
     return this.transactionRepository.getTransactions(filter).getContent();
   }
@@ -301,6 +309,7 @@ public class ReportServiceImpl implements ReportService {
         .organizationRegionId(organizationRegionId)
         .startDate(DateUtils.dateToFirstDayOfMonth(date))
         .endDate(DateUtils.dateToLastDayOfMonth(date))
+        .pageable(PageRequest.of(0, Integer.MAX_VALUE))
         .build();
     List<Report> reports = this.reportRepository.getReports(filter).getContent();
     if (reports.size() != 0) {
@@ -315,6 +324,7 @@ public class ReportServiceImpl implements ReportService {
         .organizationRegionId(organizationRegionId)
         .startDate(DateUtils.dateToFirstDayOfMonth(previousMonthDate))
         .endDate(DateUtils.dateToLastDayOfMonth(previousMonthDate))
+        .pageable(PageRequest.of(0, Integer.MAX_VALUE))
         .build();
     List<Report> reports = this.reportRepository.getReports(filter).getContent();
     if (reports.size() != 0) {
