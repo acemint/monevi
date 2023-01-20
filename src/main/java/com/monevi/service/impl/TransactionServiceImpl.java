@@ -1,7 +1,9 @@
 package com.monevi.service.impl;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -68,6 +70,7 @@ public class TransactionServiceImpl implements TransactionService {
         .findByIdAndMarkForDeleteIsFalse(request.getOrganizationRegionId())
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
             ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
+    this.checkMonthlyReport(organizationRegion, request.getTransactionDate());
     Transaction transaction = this.buildTransaction(request);
     transaction.setOrganizationRegion(organizationRegion);
     if (StringUtils.isNotBlank(request.getProgramId())) {
@@ -76,6 +79,23 @@ public class TransactionServiceImpl implements TransactionService {
       transaction.setProgram(program);
     }
     return this.transactionRepository.save(transaction);
+  }
+
+  private void checkMonthlyReport(OrganizationRegion organizationRegion, String date)
+      throws ApplicationException {
+    Timestamp periodDate = DateUtils.dateInputToTimestamp(DateUtils.dateToFirstDayOfMonth(date));
+    Report currentMonthReport = this.reportRepository
+        .findByOrganizationRegionAndPeriodDateAndMarkForDeleteFalse(organizationRegion, periodDate)
+        .orElse(null);
+    if (Objects.nonNull(currentMonthReport)) {
+      if (!ReportStatus.NOT_SENT.equals(currentMonthReport.getStatus())) {
+        throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+      } else {
+        currentMonthReport.setMarkForDelete(true);
+        this.reportRepository.save(currentMonthReport);
+      }
+    }
   }
   
   private Program validateProgram(String programId, OrganizationRegion organizationRegion,
@@ -145,11 +165,15 @@ public class TransactionServiceImpl implements TransactionService {
     this.throwErrorOnExistingReportWithStatusApprovedBySupervisor(
         existingTransaction.getOrganizationRegion().getId(),
         DateUtils.convertTimestampToString(existingTransaction.getTransactionDate()));
+    this.checkMonthlyReport(existingTransaction.getOrganizationRegion(),
+        DateUtils.convertTimestampToString(existingTransaction.getTransactionDate()));
 
     Transaction updatedTransaction = this.buildTransaction(request, existingTransaction);
     this.throwErrorOnExistingReportWithStatusApprovedBySupervisor(
         existingTransaction.getOrganizationRegion().getId(),
         DateUtils.convertTimestampToString(updatedTransaction.getTransactionDate()));
+    this.checkMonthlyReport(existingTransaction.getOrganizationRegion(),
+        request.getTransactionDate());
     if (StringUtils.isNotBlank(request.getProgramId())) {
       Program program = this.validateProgram(request.getProgramId(),
           existingTransaction.getOrganizationRegion(), request.getTransactionDate());
