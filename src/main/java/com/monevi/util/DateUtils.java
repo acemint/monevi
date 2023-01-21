@@ -61,8 +61,8 @@ public class DateUtils {
   public static String deductMonthFromDate(String date, int amount) throws ApplicationException {
     DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd/MM/yyyy");
     DateTime dateTime = dateTimeFormatter.parseDateTime(date);
-    dateTime.minusMonths(amount);
-    return dateTimeFormatter.print(dateTime);
+    DateTime previousMonthDateTime = dateTime.minusMonths(amount);
+    return dateTimeFormatter.print(previousMonthDateTime);
   }
 
   public static String convertTimestampToString(Timestamp timestamp) throws ApplicationException {
