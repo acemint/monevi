@@ -1,12 +1,14 @@
 package com.monevi.service.impl;
 
 import com.monevi.constant.ErrorMessages;
+import com.monevi.dto.response.OrganizationRegionWithProgramResponse;
+import com.monevi.dto.response.OrganizationRegionWithReportResponse;
 import com.monevi.entity.Organization;
 import com.monevi.entity.OrganizationRegion;
 import com.monevi.entity.Region;
+import com.monevi.enums.ReportStatus;
 import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetOrganizationFilter;
-import com.monevi.model.GetOrganizationWithProgramExistsFilter;
 import com.monevi.repository.OrganizationRepository;
 import com.monevi.repository.RegionRepository;
 import com.monevi.service.OrganizationService;
@@ -16,7 +18,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Tuple;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -90,8 +96,46 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
-  public Page<Organization> getOrganizationsByPeriodAndProgramExists(
-      GetOrganizationWithProgramExistsFilter filter) throws ApplicationException {
-    return this.organizationRepository.getOrganizationByRegionAndPeriodAndProgramExists(filter);
+  public List<OrganizationRegionWithProgramResponse> getOrganizationsWithProgramExists(String regionId){
+    List<OrganizationRegionWithProgramResponse> organizationRegionWithProgramResponses = new ArrayList<>();
+    List<Tuple> organizations = this.organizationRepository.getOrganizationsWithProgram(regionId);
+    for (Tuple organization : organizations) {
+      String organizationRegionId = organization.get("organization_region_id", String.class);
+      String name = organization.get("organization_name", String.class);
+      String abbreviation = organization.get("organization_abbreviation", String.class);
+      Integer periodYear = organization.get("period_year", Integer.class);
+      OrganizationRegionWithProgramResponse organizationRegionWithReportResponse = OrganizationRegionWithProgramResponse
+          .builder()
+          .organizationRegionId(organizationRegionId)
+          .organizationName(name)
+          .organizationAbbreviation(abbreviation)
+          .periodYear(periodYear)
+          .build();
+      organizationRegionWithProgramResponses.add(organizationRegionWithReportResponse);
+    }
+    return organizationRegionWithProgramResponses;
+  }
+
+  @Override
+  public List<OrganizationRegionWithReportResponse> getOrganizationsWithReportExists(String regionId) {
+    List<OrganizationRegionWithReportResponse> organizationRegionWithReportResponses = new ArrayList<>();
+    List<Tuple> organizations = this.organizationRepository.getOrganizationsWithReport(regionId);
+    for (Tuple organization : organizations) {
+      String organizationRegionId = organization.get("organization_region_id", String.class);
+      String name = organization.get("organization_name", String.class);
+      String abbreviation = organization.get("organization_abbreviation", String.class);
+      Timestamp periodDate = organization.get("period_date", Timestamp.class);
+      ReportStatus reportStatus = ReportStatus.valueOf(organization.get("status", String.class));
+      OrganizationRegionWithReportResponse organizationRegionWithReportResponse = OrganizationRegionWithReportResponse
+          .builder()
+          .organizationRegionId(organizationRegionId)
+          .organizationName(name)
+          .organizationAbbreviation(abbreviation)
+          .periodDate(periodDate)
+          .reportStatus(reportStatus)
+          .build();
+      organizationRegionWithReportResponses.add(organizationRegionWithReportResponse);
+    }
+    return organizationRegionWithReportResponses;
   }
 }
