@@ -1,6 +1,7 @@
 package com.monevi.service.impl;
 
 import com.monevi.constant.ErrorMessages;
+import com.monevi.dto.request.SendEmailRequest;
 import com.monevi.dto.request.SubmitReportRequest;
 import com.monevi.dto.request.ReportApproveRequest;
 import com.monevi.dto.request.ReportRejectRequest;
@@ -14,6 +15,7 @@ import com.monevi.entity.Transaction;
 import com.monevi.entity.UserAccount;
 import com.monevi.enums.EntryPosition;
 import com.monevi.enums.GeneralLedgerAccountType;
+import com.monevi.enums.MessageTemplate;
 import com.monevi.enums.ReportStatus;
 import com.monevi.enums.TransactionType;
 import com.monevi.enums.UserAccountRole;
@@ -25,6 +27,7 @@ import com.monevi.repository.RegionRepository;
 import com.monevi.repository.ReportRepository;
 import com.monevi.repository.TransactionRepository;
 import com.monevi.repository.UserAccountRepository;
+import com.monevi.service.MessageService;
 import com.monevi.service.ReportService;
 import com.monevi.util.DateUtils;
 import com.monevi.util.FinanceUtils;
@@ -50,6 +53,11 @@ import java.util.stream.Collectors;
 @Service
 public class ReportServiceImpl implements ReportService {
 
+  private static final String URL_KEY = "url";
+  private static final String REPORT_MONTH = "reportMonth";
+  private static final String REPORT_YEAR = "reportYear";
+  private static final String ORGANIZATION_NAME = "organizationName";
+
   @Autowired
   private OrganizationRegionRepository organizationRegionRepository;
 
@@ -64,6 +72,9 @@ public class ReportServiceImpl implements ReportService {
 
   @Autowired
   private RegionRepository regionRepository;
+
+  @Autowired
+  private MessageService messageService;
 
   @Override
   public Page<Report> getReports(GetReportFilter filter) throws ApplicationException {
@@ -130,7 +141,7 @@ public class ReportServiceImpl implements ReportService {
     UserAccount userAccount = this.userAccountRepository.findByIdAndMarkForDeleteIsFalse(request.getUserId())
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.USER_ACCOUNT_DOES_NOT_EXIST));
     this.throwErrorOnInvalidReportHandlingByUser(report, userAccount);
-    this.approveReport(report);
+    this.approveReport(report, userAccount);
     return this.reportRepository.save(report);
   }
 
@@ -190,13 +201,15 @@ public class ReportServiceImpl implements ReportService {
         .build();
   }
 
-  private void approveReport(Report report) throws ApplicationException {
+  private void approveReport(Report report, UserAccount user) throws ApplicationException {
     if (report.getStatus().equals(ReportStatus.NOT_SENT)) {
       this.validateOpnameAndTransactionsData(report);
       report.setStatus(ReportStatus.UNAPPROVED);
+      this.sendEmailToChairman(report, user);
     }
     else if (report.getStatus().equals(ReportStatus.UNAPPROVED)) {
       report.setStatus(ReportStatus.APPROVED_BY_CHAIRMAN);
+      this.sendEmailToSupervisor(report, user);
     }
     else if (report.getStatus().equals(ReportStatus.APPROVED_BY_CHAIRMAN)) {
       report.setStatus(ReportStatus.APPROVED_BY_SUPERVISOR);
@@ -213,6 +226,63 @@ public class ReportServiceImpl implements ReportService {
             String.format(ErrorMessages.TOTAL_AND_OPNAME_NOT_MATCH, data.getName()));
       }
     }
+  }
+
+  private void sendEmailToChairman(Report report, UserAccount treasurerAccount)
+      throws ApplicationException {
+    String organizationRegionId = report.getOrganizationRegion().getId();
+    UserAccount recipient = this.userAccountRepository
+        .findAssignedUserByOrganizationRegionIdAndRoleAndMarkForDeleteFalse(
+            treasurerAccount.getPeriodMonth(), treasurerAccount.getPeriodYear(),
+            report.getOrganizationRegion().getId(), UserAccountRole.CHAIRMAN)
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorMessages.USER_ACCOUNT_NOT_FOUND));
+    String organizationName =
+        this.organizationRegionRepository.findByIdAndMarkForDeleteIsFalse(organizationRegionId)
+            .map(data -> data.getOrganization().getAbbreviation())
+            .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+                ErrorMessages.ORGANIZATION_DOES_NOT_EXIST));
+    String reportMonth = String.valueOf(report.getPeriodDate().toLocalDateTime().getMonth());
+    Map<String, String> variables = new HashMap<>();
+    variables.put(REPORT_MONTH,
+        reportMonth.substring(0, 1) + reportMonth.substring(1).toLowerCase());
+    variables.put(REPORT_YEAR, String.valueOf(report.getPeriodDate().toLocalDateTime().getYear()));
+    variables.put(ORGANIZATION_NAME, organizationName);
+    SendEmailRequest request =
+        SendEmailRequest.builder()
+            .messageTemplateId(MessageTemplate.SUBMITTED_REPORT)
+            .recipient(recipient.getEmail())
+            .variables(variables).build();
+    this.messageService.sendEmail(request);
+  }
+
+  private void sendEmailToSupervisor(Report report, UserAccount chairmanAccount)
+      throws ApplicationException {
+    List<String> recipients = this.userAccountRepository
+        .findAllByRoleAndRegionAndMarkForDeleteFalse(UserAccountRole.SUPERVISOR,
+            chairmanAccount.getOrganizationRegion().getRegion())
+            .map(data -> data.stream()
+                    .map(account -> account.getEmail()).collect(Collectors.toList()))
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorMessages.USER_ACCOUNT_NOT_FOUND));
+    String recipientEmails = String.join(",", recipients);
+    String organizationName = this.organizationRegionRepository
+        .findByIdAndMarkForDeleteIsFalse(chairmanAccount.getOrganizationRegion().getId())
+        .map(data -> data.getOrganization().getAbbreviation())
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorMessages.ORGANIZATION_DOES_NOT_EXIST));
+    String reportMonth = String.valueOf(report.getPeriodDate().toLocalDateTime().getMonth());
+    Map<String, String> variables = new HashMap<>();
+    variables.put(REPORT_MONTH,
+        reportMonth.substring(0, 1) + reportMonth.substring(1).toLowerCase());
+    variables.put(REPORT_YEAR, String.valueOf(report.getPeriodDate().toLocalDateTime().getYear()));
+    variables.put(ORGANIZATION_NAME, organizationName);
+    SendEmailRequest request =
+        SendEmailRequest.builder()
+            .messageTemplateId(MessageTemplate.SUBMITTED_REPORT)
+            .recipient(recipientEmails)
+            .variables(variables).build();
+    this.messageService.sendEmail(request);
   }
 
   private void deleteExistingCurrentMonthReport(String organizationRegionId, String date) throws ApplicationException {

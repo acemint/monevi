@@ -1,10 +1,15 @@
 package com.monevi.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.monevi.dto.request.SendEmailRequest;
+import com.monevi.enums.MessageTemplate;
+import com.monevi.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -44,6 +49,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 
   @Autowired
   private AuthService authService;
+  
+  @Autowired
+  private MessageService messageService;
 
   @Override
   public UserAccount register(CreateStudentRequest request) throws ApplicationException {
@@ -160,12 +168,23 @@ public class UserAccountServiceImpl implements UserAccountService {
         this.userAccountRepository.saveAll(deletedList);
       }
     }
+    this.sendEmailToStudent(user.getEmail(), user.getFullName());
     return user;
   }
 
   private UserAccount setUserMarkForDeleteTrue(UserAccount userAccount) {
     userAccount.setMarkForDelete(Boolean.TRUE);
     return userAccount;
+  }
+  
+  private void sendEmailToStudent(String studentEmail, String studentName) {
+//    Map<String, String> variables = new HashMap<>();
+//    variables.put("studentName", studentName);
+    SendEmailRequest request = SendEmailRequest.builder()
+        .messageTemplateId(MessageTemplate.APPROVED_ACCOUNT)
+//        .variables(variables)
+        .recipient(studentEmail).build();
+    this.messageService.sendEmail(request);
   }
 
   @Override
