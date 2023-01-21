@@ -76,6 +76,15 @@ public class ReportController {
         .build();
   }
 
+  @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+  public BaseResponse<ReportResponse> getReport(
+      String id) throws ApplicationException {
+    Report report = this.reportService.get(id);
+    return BaseResponse.<ReportResponse>builder()
+        .value(this.reportToReportResponseConverter.convert(report))
+        .build();
+  }
+
   @PostMapping(value = ApiPath.SUBMIT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<ReportResponse> submitReport(
       @Valid @RequestBody SubmitReportRequest request) throws ApplicationException {

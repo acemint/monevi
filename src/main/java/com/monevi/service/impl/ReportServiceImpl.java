@@ -89,6 +89,12 @@ public class ReportServiceImpl implements ReportService {
   }
 
   @Override
+  public Report get(String id) throws ApplicationException {
+    return this.reportRepository.findByIdAndMarkForDeleteIsFalse(id)
+        .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.REPORT_DOES_NOT_EXIST));
+  }
+
+  @Override
   public Report submitReport(SubmitReportRequest request) throws ApplicationException {
     OrganizationRegion organizationRegion = this.organizationRegionRepository.findByIdAndMarkForDeleteIsFalse(request.getOrganizationRegionId())
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
