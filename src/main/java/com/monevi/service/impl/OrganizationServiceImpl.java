@@ -121,6 +121,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     List<OrganizationRegionWithReportResponse> organizationRegionWithReportResponses = new ArrayList<>();
     List<Tuple> organizations = this.organizationRepository.getOrganizationsWithReport(regionId);
     for (Tuple organization : organizations) {
+      String reportId = organization.get("report_id", String.class);
       String organizationRegionId = organization.get("organization_region_id", String.class);
       String name = organization.get("organization_name", String.class);
       String abbreviation = organization.get("organization_abbreviation", String.class);
@@ -128,6 +129,7 @@ public class OrganizationServiceImpl implements OrganizationService {
       ReportStatus reportStatus = ReportStatus.valueOf(organization.get("status", String.class));
       OrganizationRegionWithReportResponse organizationRegionWithReportResponse = OrganizationRegionWithReportResponse
           .builder()
+          .reportId(reportId)
           .organizationRegionId(organizationRegionId)
           .organizationName(name)
           .organizationAbbreviation(abbreviation)

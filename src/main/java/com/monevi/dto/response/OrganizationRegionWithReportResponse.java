@@ -14,6 +14,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 public class OrganizationRegionWithReportResponse {
 
+  private String reportId;
   private String organizationRegionId;
   private String organizationName;
   private String organizationAbbreviation;
