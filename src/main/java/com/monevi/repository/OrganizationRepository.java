@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface OrganizationRepository extends JpaRepository<Organization, String>, OrganizationCustomRepository {
 
   String GET_ORGANIZATIONS_WITH_REPORT =
-      "SELECT DISTINCT mr.id as report_id, mo.id as organization_region_id, mo.name as organization_name, mo.abbreviation as organization_abbreviation, mr.period_date, mr.status FROM monevi_report mr "
+      "SELECT DISTINCT mr.id as report_id, mor.id as organization_region_id, mo.name as organization_name, mo.abbreviation as organization_abbreviation, mr.period_date, mr.status FROM monevi_report mr "
           + "JOIN monevi_organization_region mor ON mr.organization_region_id = mor.id "
           + "JOIN monevi_region mr2 ON mr2.id = mor.region_id "
           + "JOIN monevi_organization mo ON mo.id = mor.organization_id "
@@ -22,7 +22,7 @@ public interface OrganizationRepository extends JpaRepository<Organization, Stri
           + "AND mr2.mark_for_delete IS FALSE";
 
   String GET_ORGANIZATION_WITH_PROGRAM =
-      "SELECT DISTINCT mo.id as organization_region_id, mo.name as organization_name, mo.abbreviation as organization_abbreviation, mp.period_year FROM monevi_program mp "
+      "SELECT DISTINCT mor.id as organization_region_id, mo.name as organization_name, mo.abbreviation as organization_abbreviation, mp.period_year FROM monevi_program mp "
           + "JOIN monevi_organization_region mor ON mp.organization_region_id = mor.id "
           + "JOIN monevi_region mr2 ON mr2.id = mor.region_id "
           + "JOIN monevi_organization mo ON mo.id = mor.organization_id "
