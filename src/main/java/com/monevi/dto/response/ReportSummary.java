@@ -2,6 +2,7 @@ package com.monevi.dto.response;
 
 import com.monevi.enums.EntryPosition;
 import com.monevi.enums.GeneralLedgerAccountType;
+import com.monevi.enums.ReportStatus;
 import com.monevi.enums.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class ReportSummary {
 
   private String reportId;
+  private ReportStatus reportStatus;
 
   @Builder.Default
   private Map<GeneralLedgerAccountType, GeneralLedgerData> generalLedgerAccountTypeData = new HashMap<>();

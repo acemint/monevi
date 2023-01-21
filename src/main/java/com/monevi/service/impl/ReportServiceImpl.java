@@ -341,6 +341,7 @@ public class ReportServiceImpl implements ReportService {
 
   private ReportSummary buildReportSummary(List<Tuple> transactionSummaryData, Report currentMonthReport, Report lastMonthReport) {
     ReportSummary reportSummary = ReportSummary.builder()
+        .reportStatus(currentMonthReport.getStatus())
         .reportId(currentMonthReport.getId())
         .build();
 
