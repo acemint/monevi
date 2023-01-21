@@ -88,7 +88,7 @@ public class TransactionServiceImpl implements TransactionService {
         .findByOrganizationRegionAndPeriodDateAndMarkForDeleteFalse(organizationRegion, periodDate)
         .orElse(null);
     if (Objects.nonNull(currentMonthReport)) {
-      if (!ReportStatus.NOT_SENT.equals(currentMonthReport.getStatus())) {
+      if (!isReportStatusValid(currentMonthReport.getStatus())) {
         throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
             ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
       } else {
@@ -96,6 +96,10 @@ public class TransactionServiceImpl implements TransactionService {
         this.reportRepository.save(currentMonthReport);
       }
     }
+  }
+
+  private boolean isReportStatusValid(ReportStatus reportStatus) {
+    return ReportStatus.NOT_SENT.equals(reportStatus) || ReportStatus.DECLINED.equals(reportStatus);
   }
   
   private Program validateProgram(String programId, OrganizationRegion organizationRegion,

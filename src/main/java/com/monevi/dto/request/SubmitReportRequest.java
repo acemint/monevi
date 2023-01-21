@@ -25,6 +25,9 @@ public class SubmitReportRequest {
   @ValidDate
   private String date;
 
+  @NotBlank
+  private String userId;
+
   private Map<GeneralLedgerAccountType, Double> opnameData;
 
 }

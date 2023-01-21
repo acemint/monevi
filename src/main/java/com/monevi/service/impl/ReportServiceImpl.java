@@ -104,7 +104,8 @@ public class ReportServiceImpl implements ReportService {
       }
     }
     Report newReport = this.buildNewReport(organizationRegion, transactions,
-        previousMonthReport.orElse(Report.builder().build()), request.getDate(), request.getOpnameData());
+        previousMonthReport.orElse(Report.builder().build()), request.getDate(),
+        request.getUserId(), request.getOpnameData());
 
     transactions.forEach(t -> t.setReport(newReport));
     this.transactionRepository.saveAll(transactions);
@@ -174,12 +175,16 @@ public class ReportServiceImpl implements ReportService {
     if (report.getStatus().equals(ReportStatus.APPROVED_BY_SUPERVISOR)) {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
     }
+    if (report.getStatus().equals(ReportStatus.DECLINED)) {
+      throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+          ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+    }
   }
 
   private void rejectReport(Report report, String fullName, String comment) {
     ReportComment reportComment = this.buildReportComment(report, fullName, comment);
     report.setReportComment(reportComment);
-    report.setStatus(ReportStatus.UNAPPROVED);
+    report.setStatus(ReportStatus.DECLINED);
   }
 
   private ReportComment buildReportComment(Report report, String commentedBy, String comment) {
@@ -238,6 +243,7 @@ public class ReportServiceImpl implements ReportService {
       List<Transaction> currentMonthTransactions,
       Report previousMonthReport,
       String date,
+      String userId,
       Map<GeneralLedgerAccountType, Double> opnameData) throws ApplicationException {
 
     Report newReport = Report.builder()
@@ -245,6 +251,7 @@ public class ReportServiceImpl implements ReportService {
         .status(ReportStatus.NOT_SENT)
         .organizationRegion(organizationRegion)
         .reportGeneralLedgerAccounts(Collections.emptySet())
+        .userId(userId)
         .build();
 
     Map<GeneralLedgerAccountType, Double> generalLedgerAccountAmounts = new HashMap<>();

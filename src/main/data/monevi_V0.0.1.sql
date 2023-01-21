@@ -251,3 +251,5 @@ ALTER TABLE monevi_user_account  ADD COLUMN reset_password_token_expired_date TI
 ALTER TABLE monevi_report_general_ledger_account ADD COLUMN opname DECIMAL;
 
 ALTER TABLE monevi_program ADD COLUMN period_year INT;
+
+ALTER TABLE monevi_report ADD COLUMN user_id VARCHAR(255);
