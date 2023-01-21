@@ -190,8 +190,9 @@ public class ReportServiceImpl implements ReportService {
         .build();
   }
 
-  private void approveReport(Report report) {
+  private void approveReport(Report report) throws ApplicationException {
     if (report.getStatus().equals(ReportStatus.NOT_SENT)) {
+      this.validateOpnameAndTransactionsData(report);
       report.setStatus(ReportStatus.UNAPPROVED);
     }
     else if (report.getStatus().equals(ReportStatus.UNAPPROVED)) {
@@ -202,6 +203,15 @@ public class ReportServiceImpl implements ReportService {
     }
     if (Objects.nonNull(report.getReportComment())) {
       report.getReportComment().setMarkForDelete(true);
+    }
+  }
+
+  private void validateOpnameAndTransactionsData(Report report) throws ApplicationException {
+    for (ReportGeneralLedgerAccount data : report.getReportGeneralLedgerAccounts()) {
+      if (data.getOpname() != data.getTotal()) {
+        throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            String.format(ErrorMessages.TOTAL_AND_OPNAME_NOT_MATCH, data.getName()));
+      }
     }
   }
 

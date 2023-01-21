@@ -41,4 +41,5 @@ public interface ErrorMessages {
   String END_DATE_MUST_NOT_BE_BLANK = "end date must not be blank";
   String USER_AND_ORGANIZATION_REGION_NOT_MATCH =
       "user's organization region and organization region request not match";
+  String TOTAL_AND_OPNAME_NOT_MATCH = "total %s and opname not match";
 }
