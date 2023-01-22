@@ -6,6 +6,7 @@ public class ApiPath {
   public static final String BASE = "/api/monevi";
 
   public static final String ORGANIZATION = "/organization";
+  public static final String ORGANIZATION_REGION = "/organization-region";
   public static final String REGION = "/region";
   public static final String STUDENT = "/student";
   public static final String SUPERVISOR = "/supervisor";
