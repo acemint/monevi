@@ -94,6 +94,11 @@ public class ReportServiceImpl implements ReportService {
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
     this.deleteExistingCurrentMonthReport(request.getOrganizationRegionId(), request.getDate());
 
+    UserAccount userAccount =
+        this.userAccountRepository.findByIdAndMarkForDeleteIsFalse(request.getUserId())
+            .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+                ErrorMessages.USER_ACCOUNT_NOT_FOUND));
+
     List<Transaction> transactions = this.getCurrentMonthTransactions(
         organizationRegion.getId(), request.getDate());
     Optional<Report> previousMonthReport = this.getLastMonthReport(
@@ -105,7 +110,7 @@ public class ReportServiceImpl implements ReportService {
     }
     Report newReport = this.buildNewReport(organizationRegion, transactions,
         previousMonthReport.orElse(Report.builder().build()), request.getDate(),
-        request.getUserId(), request.getOpnameData());
+        userAccount.getPeriodYear(), request.getOpnameData());
 
     transactions.forEach(t -> t.setReport(newReport));
     this.transactionRepository.saveAll(transactions);
@@ -243,7 +248,7 @@ public class ReportServiceImpl implements ReportService {
       List<Transaction> currentMonthTransactions,
       Report previousMonthReport,
       String date,
-      String userId,
+      Integer termOfOffice,
       Map<GeneralLedgerAccountType, Double> opnameData) throws ApplicationException {
 
     Report newReport = Report.builder()
@@ -251,7 +256,7 @@ public class ReportServiceImpl implements ReportService {
         .status(ReportStatus.NOT_SENT)
         .organizationRegion(organizationRegion)
         .reportGeneralLedgerAccounts(Collections.emptySet())
-        .userId(userId)
+        .termOfOffice(termOfOffice)
         .build();
 
     Map<GeneralLedgerAccountType, Double> generalLedgerAccountAmounts = new HashMap<>();

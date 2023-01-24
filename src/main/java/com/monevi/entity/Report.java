@@ -34,7 +34,7 @@ public class Report extends BaseEntity {
   public static final String PERIOD_DATE_COLUMN_NAME = "PERIOD_DATE";
   public static final String STATUS_COLUMN_NAME = "STATUS";
   public static final String ORGANIZATION_REGION_ID_COLUMN_NAME = "ORGANIZATION_REGION_ID";
-  public static final String USER_ID_COLUMN_NAME = "USER_ID";
+  public static final String TERM_OF_OFFICE_COLUMN_NAME = "TERM_OF_OFFICE";
   public static final String GENERAL_LEDGER_ACCOUNT_MAPPED_BY_FIELD_NAME = "report";
   public static final String REPORT_COMMENT_MAPPED_BY_FIELD_NAME = "report";
 
@@ -57,7 +57,7 @@ public class Report extends BaseEntity {
   @JoinColumn(name = Report.ORGANIZATION_REGION_ID_COLUMN_NAME, nullable = false)
   private OrganizationRegion organizationRegion;
 
-  @Column(name = Report.USER_ID_COLUMN_NAME, nullable = false)
-  private String userId;
+  @Column(name = Report.TERM_OF_OFFICE_COLUMN_NAME, nullable = false)
+  private Integer termOfOffice;
 
 }
