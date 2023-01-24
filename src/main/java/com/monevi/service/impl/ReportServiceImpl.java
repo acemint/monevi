@@ -366,6 +366,10 @@ public class ReportServiceImpl implements ReportService {
         .reportStatus(currentMonthReport.getStatus())
         .reportId(currentMonthReport.getId())
         .build();
+    if (reportSummary.getReportStatus().equals(ReportStatus.DECLINED)) {
+      reportSummary.setComment(currentMonthReport.getReportComment().getContent());
+      reportSummary.setComment(currentMonthReport.getReportComment().getCommentedBy());
+    }
 
     for (GeneralLedgerAccountType generalLedgerAccountType : GeneralLedgerAccountType.values()) {
       reportSummary.getGeneralLedgerAccountTypeData().put(generalLedgerAccountType, ReportSummary.GeneralLedgerData

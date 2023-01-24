@@ -20,5 +20,6 @@ public class OrganizationRegionWithReportResponse {
   private String organizationAbbreviation;
   private Timestamp periodDate;
   private ReportStatus reportStatus;
+  private Integer termOfOffice;
 
 }

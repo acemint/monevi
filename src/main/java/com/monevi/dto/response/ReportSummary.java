@@ -20,6 +20,8 @@ public class ReportSummary {
 
   private String reportId;
   private ReportStatus reportStatus;
+  private String commentedBy;
+  private String comment;
 
   @Builder.Default
   private Map<GeneralLedgerAccountType, GeneralLedgerData> generalLedgerAccountTypeData = new HashMap<>();

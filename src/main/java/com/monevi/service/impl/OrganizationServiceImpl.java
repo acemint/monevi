@@ -127,12 +127,14 @@ public class OrganizationServiceImpl implements OrganizationService {
       String abbreviation = organization.get("organization_abbreviation", String.class);
       Timestamp periodDate = organization.get("period_date", Timestamp.class);
       ReportStatus reportStatus = ReportStatus.valueOf(organization.get("status", String.class));
+      Integer termOfOffice = organization.get("term_of_office", Integer.class);
       OrganizationRegionWithReportResponse organizationRegionWithReportResponse = OrganizationRegionWithReportResponse
           .builder()
           .reportId(reportId)
           .organizationRegionId(organizationRegionId)
           .organizationName(name)
           .organizationAbbreviation(abbreviation)
+          .termOfOffice(termOfOffice)
           .periodDate(periodDate)
           .reportStatus(reportStatus)
           .build();
