@@ -34,6 +34,7 @@ public class Program extends BaseEntity {
   public static final String START_DATE_COLUMN_NAME = "START_DATE";
   public static final String END_DATE_COLUMN_NAME = "END_DATE";
   public static final String PERIOD_COLUMN_NAME = "PERIOD_YEAR";
+  public static final String LOCKED_PROGRAM_COLUMN_NAME = "LOCKED_PROGRAM";
   public static final String TRANSACTIONS_MAPPED_BY_COLUMN_NAME = "program";
 
   @Column(name = Program.NAME_COLUMN_NAME, nullable = false)
@@ -62,4 +63,6 @@ public class Program extends BaseEntity {
   @Column(name = Program.PERIOD_COLUMN_NAME, nullable = false)
   private Integer periodYear;
 
+  @Column(name = Program.LOCKED_PROGRAM_COLUMN_NAME, nullable = false)
+  private boolean lockedProgram = false;
 }

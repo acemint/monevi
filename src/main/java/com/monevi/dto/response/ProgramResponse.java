@@ -19,5 +19,6 @@ public class ProgramResponse {
   private long startDate;
   private long endDate;
   private int periodYear;
+  private boolean lockedProgram;
 
 }
