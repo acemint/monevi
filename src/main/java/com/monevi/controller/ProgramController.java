@@ -93,14 +93,22 @@ public class ProgramController {
         .build();
   }
 
-  @PostMapping(value = ApiPath.EDIT_SUBSIDY, consumes = MediaType.APPLICATION_JSON_VALUE,
+  @PostMapping(value = ApiPath.EDIT, consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  public BaseResponse<ProgramResponse> updateSubsidy(@NotBlank @RequestParam String programId,
+  public BaseResponse<ProgramResponse> updateProgram(@NotBlank @RequestParam String userId,
+      @NotBlank @RequestParam String programId,
       @Valid @RequestBody UpdateSubsidyProgramRequest updateSubsidyProgramRequest)
       throws ApplicationException {
-    Program program = this.programService.updateSubsidy(programId, updateSubsidyProgramRequest);
+    Program program = this.programService.updateProgram(userId, programId, updateSubsidyProgramRequest);
     return BaseResponse.<ProgramResponse>builder()
         .value(this.programToProgramResponseConverter.convert(program)).build();
   }
 
+  @GetMapping(value = ApiPath.LOCK, produces = MediaType.APPLICATION_JSON_VALUE)
+  public BaseResponse<ProgramResponse> lockProgram(@NotBlank @RequestParam String userId,
+      @NotBlank @RequestParam String programId) throws ApplicationException {
+    Program program = this.programService.lockProgram(userId, programId);
+    return BaseResponse.<ProgramResponse>builder()
+        .value(this.programToProgramResponseConverter.convert(program)).build();
+  }
 }

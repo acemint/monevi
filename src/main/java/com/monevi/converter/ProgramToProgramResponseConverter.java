@@ -19,6 +19,7 @@ public class ProgramToProgramResponseConverter implements Converter<Program, Pro
         .startDate(source.getStartDate().getTime())
         .endDate(source.getEndDate().getTime())
         .periodYear(source.getPeriodYear())
+        .lockedProgram(source.isLockedProgram())
         .build();
   }
 }

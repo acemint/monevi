@@ -273,3 +273,5 @@ ALTER TABLE monevi_report_history ALTER created_date TYPE TIMESTAMPTZ USING crea
 ALTER TABLE monevi_report_history ALTER updated_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
 
 ALTER TABLE monevi_report ALTER period_date TYPE TIMESTAMPTZ USING period_date AT TIME ZONE 'UTC';
+
+ALTER TABLE monevi_report ADD COLUMN locked_program BOOLEAN DEFAULT FALSE;
