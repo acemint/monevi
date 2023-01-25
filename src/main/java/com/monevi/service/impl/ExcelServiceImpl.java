@@ -86,7 +86,11 @@ public class ExcelServiceImpl implements ExcelService {
   }
 
   private boolean checkFirstCellDataInRow(int row, XSSFSheet page) {
-    return Objects.nonNull(page.getRow(row).getCell(0).getLocalDateTimeCellValue());
+    try {
+      return Objects.nonNull(page.getRow(row).getCell(0).getLocalDateTimeCellValue());
+    } catch (Exception e) {
+      return Boolean.FALSE;
+    }
   }
 
   private CreateTransactionRequest convertToTransaction(XSSFRow rowData,
