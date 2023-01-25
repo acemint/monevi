@@ -7,6 +7,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.monevi.entity.ReportComment;
+import com.monevi.entity.ReportGeneralLedgerAccount;
+import com.monevi.repository.GeneralLedgerAccountRepository;
+import com.monevi.repository.ReportCommentRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +51,12 @@ public class TransactionServiceImpl implements TransactionService {
   
   @Autowired
   private ProgramRepository programRepository;
+  
+  @Autowired
+  private GeneralLedgerAccountRepository generalLedgerAccountRepository;
+  
+  @Autowired
+  private ReportCommentRepository reportCommentRepository;
 
   @Override
   public List<Transaction> createTransactions(List<CreateTransactionRequest> requests)
@@ -94,6 +104,23 @@ public class TransactionServiceImpl implements TransactionService {
       } else {
         currentMonthReport.setMarkForDelete(true);
         this.reportRepository.save(currentMonthReport);
+
+        List<ReportGeneralLedgerAccount> generalLedgerAccounts = this.generalLedgerAccountRepository
+            .findAllByReportAndMarkForDeleteFalse(currentMonthReport).orElse(null);
+        if (Objects.nonNull(generalLedgerAccounts)) {
+          generalLedgerAccounts = generalLedgerAccounts.stream().map(generalLedgerAccount -> {
+            generalLedgerAccount.setMarkForDelete(true);
+            return generalLedgerAccount;
+          }).collect(Collectors.toList());
+          this.generalLedgerAccountRepository.saveAll(generalLedgerAccounts);
+        }
+
+        ReportComment comment = this.reportCommentRepository
+            .findByReportAndMarkForDeleteFalse(currentMonthReport).orElse(null);
+        if (Objects.nonNull(comment)) {
+          comment.setMarkForDelete(true);
+          this.reportCommentRepository.save(comment);
+        }
       }
     }
   }
