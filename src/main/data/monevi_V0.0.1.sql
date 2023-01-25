@@ -253,3 +253,23 @@ ALTER TABLE monevi_report_general_ledger_account ADD COLUMN opname DECIMAL;
 ALTER TABLE monevi_program ADD COLUMN period_year INT;
 
 ALTER TABLE monevi_report ADD COLUMN term_of_office INT;
+
+CREATE TABLE IF NOT EXISTS monevi_report_history (
+    id VARCHAR(255),
+    mark_for_delete BOOLEAN NOT NULL,
+    created_date TIMESTAMP NOT NULL,
+    created_by VARCHAR(255) NOT NULL,
+    updated_date TIMESTAMP NOT NULL,
+    updated_by VARCHAR(255) NOT NULL,
+    report_id VARCHAR(255) NOT NULL,
+    user_id VARCHAR(255),
+    remarks VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (report_id) REFERENCES monevi_report (id),
+    FOREIGN KEY (user_id) REFERENCES monevi_user_account (id)
+    );
+
+ALTER TABLE monevi_report_history ALTER created_date TYPE TIMESTAMPTZ USING created_date AT TIME ZONE 'UTC';
+ALTER TABLE monevi_report_history ALTER updated_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
+
+ALTER TABLE monevi_report ALTER period_date TYPE TIMESTAMPTZ USING period_date AT TIME ZONE 'UTC';
