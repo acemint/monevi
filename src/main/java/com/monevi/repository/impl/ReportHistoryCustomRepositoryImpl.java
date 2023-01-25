@@ -42,7 +42,7 @@ public class ReportHistoryCustomRepositoryImpl extends BaseCustomRepository
   private EntityManager entityManager;
 
   @Override
-  public Page<Tuple> findReportHistoryByRole(GetReportHistoryFilter filter)
+  public Page<Tuple> findReportHistoryByUser(GetReportHistoryFilter filter)
       throws ApplicationException {
     CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
     CriteriaQuery<Tuple> criteriaQuery = criteriaBuilder.createTupleQuery();

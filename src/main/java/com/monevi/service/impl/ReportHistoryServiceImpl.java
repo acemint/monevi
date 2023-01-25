@@ -76,7 +76,7 @@ public class ReportHistoryServiceImpl implements ReportHistoryService {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.INVALID_ROLE);
     }
     
-    Page<Tuple> result = this.reportHistoryRepository.findReportHistoryByRole(filter);
+    Page<Tuple> result = this.reportHistoryRepository.findReportHistoryByUser(filter);
     List<ReportHistoryFindResponseVO> historyVOList = result.getContent().stream()
         .map(this::toReportHistoryFindResponseVO)
         .collect(Collectors.toList());

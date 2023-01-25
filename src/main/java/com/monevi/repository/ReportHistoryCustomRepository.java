@@ -9,5 +9,5 @@ import com.monevi.model.GetReportHistoryFilter;
 
 public interface ReportHistoryCustomRepository {
 
-  Page<Tuple> findReportHistoryByRole(GetReportHistoryFilter filter) throws ApplicationException;
+  Page<Tuple> findReportHistoryByUser(GetReportHistoryFilter filter) throws ApplicationException;
 }
