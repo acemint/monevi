@@ -20,8 +20,10 @@ import com.monevi.enums.UserAccountRole;
 import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetReportFilter;
 import com.monevi.model.GetTransactionFilter;
+import com.monevi.repository.GeneralLedgerAccountRepository;
 import com.monevi.repository.OrganizationRegionRepository;
 import com.monevi.repository.RegionRepository;
+import com.monevi.repository.ReportCommentRepository;
 import com.monevi.repository.ReportRepository;
 import com.monevi.repository.TransactionRepository;
 import com.monevi.repository.UserAccountRepository;
@@ -64,6 +66,12 @@ public class ReportServiceImpl implements ReportService {
 
   @Autowired
   private RegionRepository regionRepository;
+
+  @Autowired
+  private GeneralLedgerAccountRepository generalLedgerAccountRepository;
+  
+  @Autowired
+  private ReportCommentRepository reportCommentRepository;
 
   @Override
   public Page<Report> getReports(GetReportFilter filter) throws ApplicationException {
@@ -246,6 +254,23 @@ public class ReportServiceImpl implements ReportService {
       }
       reports.get(0).setMarkForDelete(true);
       this.reportRepository.save(reports.get(0));
+
+      List<ReportGeneralLedgerAccount> generalLedgerAccounts = this.generalLedgerAccountRepository
+          .findAllByReportAndMarkForDeleteFalse(reports.get(0)).orElse(null);
+      if (Objects.nonNull(generalLedgerAccounts)) {
+        generalLedgerAccounts = generalLedgerAccounts.stream().map(generalLedgerAccount -> {
+          generalLedgerAccount.setMarkForDelete(true);
+          return generalLedgerAccount;
+        }).collect(Collectors.toList());
+        this.generalLedgerAccountRepository.saveAll(generalLedgerAccounts);
+      }
+
+      ReportComment comment = this.reportCommentRepository
+          .findByReportAndMarkForDeleteFalse(reports.get(0)).orElse(null);
+      if (Objects.nonNull(comment)) {
+        comment.setMarkForDelete(true);
+        this.reportCommentRepository.save(comment);
+      }
     }
   }
 
