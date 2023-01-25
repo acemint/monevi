@@ -25,6 +25,7 @@ public interface ErrorMessages {
 
   String USER_ACCOUNT_NOT_FOUND = "user not found";
   String INVALID_STUDENT_ROLE = "this role is not student's role";
+  String INVALID_ROLE = "invalid user role";
   String INVALID_MONTH = "invalid month";
   String INVALID_TOKEN = "invalid token";
   String WRONG_CONFIRMATION_PASSWORD = "wrong confirmation password";
