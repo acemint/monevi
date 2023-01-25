@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,8 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.monevi.converter.Converter;
 import com.monevi.converter.UserAccountToStudentFindAllResponseConverter;
 import com.monevi.converter.UserAccountToUserAccountResponseConverter;
-import com.monevi.dto.request.CreateStudentRequest;
-import com.monevi.dto.request.CreateSupervisorRequest;
 import com.monevi.dto.response.BaseResponse;
 import com.monevi.dto.response.MultipleBaseResponse;
 import com.monevi.dto.response.StudentFindAllResponse;
@@ -47,30 +43,10 @@ public class UserAccountController {
   @Autowired
   @Qualifier(UserAccountToUserAccountResponseConverter.COMPONENT_NAME + Converter.SUFFIX_BEAN_NAME)
   private Converter<UserAccount, UserAccountResponse> userAccountToUserAccountResponse;
-  
+
   @Autowired
   @Qualifier(UserAccountToStudentFindAllResponseConverter.COMPONENT_NAME + Converter.SUFFIX_BEAN_NAME)
   private Converter<UserAccount, StudentFindAllResponse> userAccountStudentFindAllResponseConverter;
-
-  @PostMapping(value = ApiPath.REGISTER + ApiPath.STUDENT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public BaseResponse<UserAccountResponse> createStudent(
-      @Valid @RequestBody CreateStudentRequest request)
-      throws ApplicationException {
-    UserAccount userAccount = this.userAccountService.register(request);
-    return BaseResponse.<UserAccountResponse>builder()
-             .value(this.userAccountToUserAccountResponse.convert(userAccount))
-             .build();
-  }
-
-  @PostMapping(value = ApiPath.REGISTER + ApiPath.SUPERVISOR, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public BaseResponse<UserAccountResponse> createSupervisor(
-      @Valid @RequestBody CreateSupervisorRequest request)
-      throws ApplicationException {
-    UserAccount userAccount = this.userAccountService.register(request);
-    return BaseResponse.<UserAccountResponse>builder()
-        .value(this.userAccountToUserAccountResponse.convert(userAccount))
-        .build();
-  }
 
   // @PreAuthorize("hasRole('SUPERVISOR')")
   @PostMapping(value = ApiPath.SUPERVISOR + ApiPath.APPROVE_ACCOUNT)
