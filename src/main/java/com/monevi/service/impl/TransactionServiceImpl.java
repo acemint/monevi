@@ -7,6 +7,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.monevi.entity.ReportComment;
+import com.monevi.entity.ReportGeneralLedgerAccount;
+import com.monevi.repository.GeneralLedgerAccountRepository;
+import com.monevi.repository.ReportCommentRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +51,12 @@ public class TransactionServiceImpl implements TransactionService {
   
   @Autowired
   private ProgramRepository programRepository;
+  
+  @Autowired
+  private GeneralLedgerAccountRepository generalLedgerAccountRepository;
+  
+  @Autowired
+  private ReportCommentRepository reportCommentRepository;
 
   @Override
   public List<Transaction> createTransactions(List<CreateTransactionRequest> requests)
@@ -88,14 +98,35 @@ public class TransactionServiceImpl implements TransactionService {
         .findByOrganizationRegionAndPeriodDateAndMarkForDeleteFalse(organizationRegion, periodDate)
         .orElse(null);
     if (Objects.nonNull(currentMonthReport)) {
-      if (!ReportStatus.NOT_SENT.equals(currentMonthReport.getStatus())) {
+      if (!isReportStatusValid(currentMonthReport.getStatus())) {
         throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
             ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
       } else {
         currentMonthReport.setMarkForDelete(true);
         this.reportRepository.save(currentMonthReport);
+
+        List<ReportGeneralLedgerAccount> generalLedgerAccounts = this.generalLedgerAccountRepository
+            .findAllByReportAndMarkForDeleteFalse(currentMonthReport).orElse(null);
+        if (Objects.nonNull(generalLedgerAccounts)) {
+          generalLedgerAccounts = generalLedgerAccounts.stream().map(generalLedgerAccount -> {
+            generalLedgerAccount.setMarkForDelete(true);
+            return generalLedgerAccount;
+          }).collect(Collectors.toList());
+          this.generalLedgerAccountRepository.saveAll(generalLedgerAccounts);
+        }
+
+        ReportComment comment = this.reportCommentRepository
+            .findByReportAndMarkForDeleteFalse(currentMonthReport).orElse(null);
+        if (Objects.nonNull(comment)) {
+          comment.setMarkForDelete(true);
+          this.reportCommentRepository.save(comment);
+        }
       }
     }
+  }
+
+  private boolean isReportStatusValid(ReportStatus reportStatus) {
+    return ReportStatus.NOT_SENT.equals(reportStatus) || ReportStatus.DECLINED.equals(reportStatus);
   }
   
   private Program validateProgram(String programId, OrganizationRegion organizationRegion,

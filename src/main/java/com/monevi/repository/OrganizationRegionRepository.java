@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface OrganizationRegionRepository extends JpaRepository<OrganizationRegion, String> {
 
-  Optional<OrganizationRegion> findByIdAndMarkForDeleteIsFalse(String id) throws ApplicationException;
+  Optional<OrganizationRegion> findByIdAndMarkForDeleteIsFalse(String id);
 
 }

@@ -9,11 +9,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrganizationRegionWithProgramResponse {
+public class OrganizationRegionResponse {
 
-  private String organizationRegionId;
+  private String id;
+  private String regionName;
   private String organizationName;
-  private String organizationAbbreviation;
-  private Integer periodYear;
 
 }

@@ -15,6 +15,8 @@ public interface ReportService {
 
   Page<Report> getReports(GetReportFilter filter) throws ApplicationException;
 
+  Report get(String id) throws ApplicationException;
+
   Report submitReport(SubmitReportRequest request) throws ApplicationException;
 
   Report reject(ReportRejectRequest request) throws ApplicationException;

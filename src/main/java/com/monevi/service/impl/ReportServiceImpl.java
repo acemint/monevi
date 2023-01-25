@@ -1,10 +1,30 @@
 package com.monevi.service.impl;
 
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.persistence.Tuple;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
 import com.monevi.constant.ErrorMessages;
-import com.monevi.dto.request.SendEmailRequest;
-import com.monevi.dto.request.SubmitReportRequest;
 import com.monevi.dto.request.ReportApproveRequest;
 import com.monevi.dto.request.ReportRejectRequest;
+import com.monevi.dto.request.SendEmailRequest;
+import com.monevi.dto.request.SubmitReportRequest;
 import com.monevi.dto.response.ReportSummary;
 import com.monevi.entity.BaseEntity;
 import com.monevi.entity.OrganizationRegion;
@@ -22,8 +42,10 @@ import com.monevi.enums.UserAccountRole;
 import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetReportFilter;
 import com.monevi.model.GetTransactionFilter;
+import com.monevi.repository.GeneralLedgerAccountRepository;
 import com.monevi.repository.OrganizationRegionRepository;
 import com.monevi.repository.RegionRepository;
+import com.monevi.repository.ReportCommentRepository;
 import com.monevi.repository.ReportRepository;
 import com.monevi.repository.TransactionRepository;
 import com.monevi.repository.UserAccountRepository;
@@ -31,24 +53,6 @@ import com.monevi.service.MessageService;
 import com.monevi.service.ReportService;
 import com.monevi.util.DateUtils;
 import com.monevi.util.FinanceUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
-import javax.persistence.Tuple;
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -72,6 +76,12 @@ public class ReportServiceImpl implements ReportService {
 
   @Autowired
   private RegionRepository regionRepository;
+
+  @Autowired
+  private GeneralLedgerAccountRepository generalLedgerAccountRepository;
+
+  @Autowired
+  private ReportCommentRepository reportCommentRepository;
 
   @Autowired
   private MessageService messageService;
@@ -100,10 +110,21 @@ public class ReportServiceImpl implements ReportService {
   }
 
   @Override
+  public Report get(String id) throws ApplicationException {
+    return this.reportRepository.findByIdAndMarkForDeleteIsFalse(id)
+        .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.REPORT_DOES_NOT_EXIST));
+  }
+
+  @Override
   public Report submitReport(SubmitReportRequest request) throws ApplicationException {
     OrganizationRegion organizationRegion = this.organizationRegionRepository.findByIdAndMarkForDeleteIsFalse(request.getOrganizationRegionId())
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
     this.deleteExistingCurrentMonthReport(request.getOrganizationRegionId(), request.getDate());
+
+    UserAccount userAccount =
+        this.userAccountRepository.findByIdAndMarkForDeleteIsFalse(request.getUserId())
+            .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+                ErrorMessages.USER_ACCOUNT_NOT_FOUND));
 
     List<Transaction> transactions = this.getCurrentMonthTransactions(
         organizationRegion.getId(), request.getDate());
@@ -115,7 +136,8 @@ public class ReportServiceImpl implements ReportService {
       }
     }
     Report newReport = this.buildNewReport(organizationRegion, transactions,
-        previousMonthReport.orElse(Report.builder().build()), request.getDate(), request.getOpnameData());
+        previousMonthReport.orElse(Report.builder().build()), request.getDate(),
+        userAccount.getPeriodYear(), request.getOpnameData());
 
     transactions.forEach(t -> t.setReport(newReport));
     this.transactionRepository.saveAll(transactions);
@@ -185,12 +207,16 @@ public class ReportServiceImpl implements ReportService {
     if (report.getStatus().equals(ReportStatus.APPROVED_BY_SUPERVISOR)) {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
     }
+    if (report.getStatus().equals(ReportStatus.DECLINED)) {
+      throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+          ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+    }
   }
 
   private void rejectReport(Report report, String fullName, String comment) {
     ReportComment reportComment = this.buildReportComment(report, fullName, comment);
     report.setReportComment(reportComment);
-    report.setStatus(ReportStatus.UNAPPROVED);
+    report.setStatus(ReportStatus.DECLINED);
   }
 
   private ReportComment buildReportComment(Report report, String commentedBy, String comment) {
@@ -300,6 +326,23 @@ public class ReportServiceImpl implements ReportService {
       }
       reports.get(0).setMarkForDelete(true);
       this.reportRepository.save(reports.get(0));
+
+      List<ReportGeneralLedgerAccount> generalLedgerAccounts = this.generalLedgerAccountRepository
+          .findAllByReportAndMarkForDeleteFalse(reports.get(0)).orElse(null);
+      if (Objects.nonNull(generalLedgerAccounts)) {
+        generalLedgerAccounts = generalLedgerAccounts.stream().map(generalLedgerAccount -> {
+          generalLedgerAccount.setMarkForDelete(true);
+          return generalLedgerAccount;
+        }).collect(Collectors.toList());
+        this.generalLedgerAccountRepository.saveAll(generalLedgerAccounts);
+      }
+
+      ReportComment comment = this.reportCommentRepository
+          .findByReportAndMarkForDeleteFalse(reports.get(0)).orElse(null);
+      if (Objects.nonNull(comment)) {
+        comment.setMarkForDelete(true);
+        this.reportCommentRepository.save(comment);
+      }
     }
   }
 
@@ -308,6 +351,7 @@ public class ReportServiceImpl implements ReportService {
       List<Transaction> currentMonthTransactions,
       Report previousMonthReport,
       String date,
+      Integer termOfOffice,
       Map<GeneralLedgerAccountType, Double> opnameData) throws ApplicationException {
 
     Report newReport = Report.builder()
@@ -315,6 +359,7 @@ public class ReportServiceImpl implements ReportService {
         .status(ReportStatus.NOT_SENT)
         .organizationRegion(organizationRegion)
         .reportGeneralLedgerAccounts(Collections.emptySet())
+        .termOfOffice(termOfOffice)
         .build();
 
     Map<GeneralLedgerAccountType, Double> generalLedgerAccountAmounts = new HashMap<>();
@@ -415,8 +460,13 @@ public class ReportServiceImpl implements ReportService {
 
   private ReportSummary buildReportSummary(List<Tuple> transactionSummaryData, Report currentMonthReport, Report lastMonthReport) {
     ReportSummary reportSummary = ReportSummary.builder()
+        .reportStatus(currentMonthReport.getStatus())
         .reportId(currentMonthReport.getId())
         .build();
+    if (reportSummary.getReportStatus().equals(ReportStatus.DECLINED)) {
+      reportSummary.setComment(currentMonthReport.getReportComment().getContent());
+      reportSummary.setComment(currentMonthReport.getReportComment().getCommentedBy());
+    }
 
     for (GeneralLedgerAccountType generalLedgerAccountType : GeneralLedgerAccountType.values()) {
       reportSummary.getGeneralLedgerAccountTypeData().put(generalLedgerAccountType, ReportSummary.GeneralLedgerData
