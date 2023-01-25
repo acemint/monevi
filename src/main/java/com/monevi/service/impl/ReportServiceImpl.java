@@ -27,6 +27,7 @@ import com.monevi.repository.ReportCommentRepository;
 import com.monevi.repository.ReportRepository;
 import com.monevi.repository.TransactionRepository;
 import com.monevi.repository.UserAccountRepository;
+import com.monevi.service.ReportHistoryService;
 import com.monevi.service.ReportService;
 import com.monevi.util.DateUtils;
 import com.monevi.util.FinanceUtils;
@@ -72,6 +73,9 @@ public class ReportServiceImpl implements ReportService {
   
   @Autowired
   private ReportCommentRepository reportCommentRepository;
+
+  @Autowired
+  private ReportHistoryService reportHistoryService;
 
   @Override
   public Page<Report> getReports(GetReportFilter filter) throws ApplicationException {
@@ -140,6 +144,7 @@ public class ReportServiceImpl implements ReportService {
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.USER_ACCOUNT_DOES_NOT_EXIST));
     this.throwErrorOnInvalidReportHandlingByUser(report, userAccount);
     this.rejectReport(report, userAccount.getFullName(), request.getComment());
+    this.reportHistoryService.createReportHistory(userAccount.getId(), report.getId());
     return this.reportRepository.save(report);
   }
 
@@ -151,6 +156,7 @@ public class ReportServiceImpl implements ReportService {
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.USER_ACCOUNT_DOES_NOT_EXIST));
     this.throwErrorOnInvalidReportHandlingByUser(report, userAccount);
     this.approveReport(report);
+    this.reportHistoryService.createReportHistory(userAccount.getId(), report.getId());
     return this.reportRepository.save(report);
   }
 
