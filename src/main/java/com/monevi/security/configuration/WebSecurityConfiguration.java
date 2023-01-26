@@ -69,7 +69,7 @@ public class WebSecurityConfiguration {
         .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
         .authorizeRequests()
-        .antMatchers("/api/monevi/region/**", "/api/monevi/auth/**")
+        .antMatchers("/api/monevi/region/**", "/api/monevi/organization/all", "/api/monevi/auth/**")
         .permitAll()
         .antMatchers("/api/monevi/transaction/**",
             "/api/monevi/user/**",
