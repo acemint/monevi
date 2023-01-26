@@ -25,6 +25,5 @@ public class TransactionResponse implements Serializable {
   private GeneralLedgerAccountType generalLedgerAccountType;
   private String description;
   private byte[] proof;
-  private String program;
 
 }

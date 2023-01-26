@@ -11,7 +11,6 @@ import com.monevi.entity.ReportComment;
 import com.monevi.entity.ReportGeneralLedgerAccount;
 import com.monevi.repository.GeneralLedgerAccountRepository;
 import com.monevi.repository.ReportCommentRepository;
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,7 +22,6 @@ import com.monevi.constant.ErrorMessages;
 import com.monevi.dto.request.CreateTransactionRequest;
 import com.monevi.dto.request.UpdateTransactionRequest;
 import com.monevi.entity.OrganizationRegion;
-import com.monevi.entity.Program;
 import com.monevi.entity.Report;
 import com.monevi.entity.Transaction;
 import com.monevi.enums.ReportStatus;
@@ -31,7 +29,6 @@ import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetReportFilter;
 import com.monevi.model.GetTransactionFilter;
 import com.monevi.repository.OrganizationRegionRepository;
-import com.monevi.repository.ProgramRepository;
 import com.monevi.repository.ReportRepository;
 import com.monevi.repository.TransactionRepository;
 import com.monevi.service.TransactionService;
@@ -48,9 +45,6 @@ public class TransactionServiceImpl implements TransactionService {
 
   @Autowired
   private ReportRepository reportRepository;
-  
-  @Autowired
-  private ProgramRepository programRepository;
   
   @Autowired
   private GeneralLedgerAccountRepository generalLedgerAccountRepository;
@@ -83,11 +77,6 @@ public class TransactionServiceImpl implements TransactionService {
     this.checkMonthlyReport(organizationRegion, request.getTransactionDate());
     Transaction transaction = this.buildTransaction(request);
     transaction.setOrganizationRegion(organizationRegion);
-    if (StringUtils.isNotBlank(request.getProgramId())) {
-      Program program = this.validateProgram(request.getProgramId(), organizationRegion,
-          request.getTransactionDate());
-      transaction.setProgram(program);
-    }
     return this.transactionRepository.save(transaction);
   }
 
@@ -127,20 +116,6 @@ public class TransactionServiceImpl implements TransactionService {
 
   private boolean isReportStatusValid(ReportStatus reportStatus) {
     return ReportStatus.NOT_SENT.equals(reportStatus) || ReportStatus.DECLINED.equals(reportStatus);
-  }
-  
-  private Program validateProgram(String programId, OrganizationRegion organizationRegion,
-      String transactionDate) throws ApplicationException {
-    Long date = DateUtils.convertDateToLong(transactionDate);
-    Program program = this.programRepository
-        .findByIdAndOrganizationRegionAndMarkForDeleteFalse(programId, organizationRegion)
-        .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
-            ErrorMessages.PROGRAM_NOT_FOUND));
-    if (date < program.getStartDate().getTime() || date > program.getEndDate().getTime()) {
-      throw new ApplicationException(HttpStatus.BAD_REQUEST,
-          ErrorMessages.PROGRAM_NOT_STARTED_OR_ALREADY_ENDED);
-    }
-    return program;
   }
 
   @Override
@@ -205,13 +180,6 @@ public class TransactionServiceImpl implements TransactionService {
         DateUtils.convertTimestampToString(updatedTransaction.getTransactionDate()));
     this.checkMonthlyReport(existingTransaction.getOrganizationRegion(),
         request.getTransactionDate());
-    if (StringUtils.isNotBlank(request.getProgramId())) {
-      Program program = this.validateProgram(request.getProgramId(),
-          existingTransaction.getOrganizationRegion(), request.getTransactionDate());
-      updatedTransaction.setProgram(program);
-    } else {
-      updatedTransaction.setProgram(null);
-    }
     return this.transactionRepository.save(updatedTransaction);
   }
   

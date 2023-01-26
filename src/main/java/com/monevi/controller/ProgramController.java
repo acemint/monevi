@@ -3,7 +3,7 @@ package com.monevi.controller;
 import com.monevi.converter.Converter;
 import com.monevi.converter.ProgramToProgramResponseConverter;
 import com.monevi.dto.request.CreateProgramRequest;
-import com.monevi.dto.request.UpdateSubsidyProgramRequest;
+import com.monevi.dto.request.UpdateProgramRequest;
 import com.monevi.dto.response.BaseResponse;
 import com.monevi.dto.response.MultipleBaseResponse;
 import com.monevi.dto.response.ProgramResponse;
@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -97,9 +98,9 @@ public class ProgramController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<ProgramResponse> updateProgram(@NotBlank @RequestParam String userId,
       @NotBlank @RequestParam String programId,
-      @Valid @RequestBody UpdateSubsidyProgramRequest updateSubsidyProgramRequest)
+      @Valid @RequestBody UpdateProgramRequest updateProgramRequest)
       throws ApplicationException {
-    Program program = this.programService.updateProgram(userId, programId, updateSubsidyProgramRequest);
+    Program program = this.programService.updateProgram(userId, programId, updateProgramRequest);
     return BaseResponse.<ProgramResponse>builder()
         .value(this.programToProgramResponseConverter.convert(program)).build();
   }
@@ -110,5 +111,12 @@ public class ProgramController {
     Program program = this.programService.lockProgram(userId, programId);
     return BaseResponse.<ProgramResponse>builder()
         .value(this.programToProgramResponseConverter.convert(program)).build();
+  }
+
+  @DeleteMapping(value = ApiPath.DELETE)
+  public BaseResponse<Boolean> deleteProgram(@RequestParam @NotBlank String programId)
+      throws ApplicationException {
+    Boolean response = this.programService.deleteProgram(programId);
+    return BaseResponse.<Boolean>builder().value(response).build();
   }
 }
