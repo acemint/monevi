@@ -40,6 +40,4 @@ public class UpdateTransactionRequest {
   private String description;
 
   private String proof;
-
-  private String programId;
 }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.monevi.constant.ErrorMessages;
 import com.monevi.dto.request.CreateProgramRequest;
-import com.monevi.dto.request.UpdateSubsidyProgramRequest;
+import com.monevi.dto.request.UpdateProgramRequest;
 import com.monevi.entity.OrganizationRegion;
 import com.monevi.entity.Program;
 import com.monevi.exception.ApplicationException;
@@ -79,7 +79,7 @@ public class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public Program updateProgram(String userId, String programId, UpdateSubsidyProgramRequest request)
+  public Program updateProgram(String userId, String programId, UpdateProgramRequest request)
       throws ApplicationException {
     Program program = this.programRepository.findByIdAndMarkForDeleteFalse(programId)
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
@@ -92,9 +92,16 @@ public class ProgramServiceImpl implements ProgramService {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
           ErrorMessages.PROGRAM_IS_LOCKED);
     }
+    if (this.validateStartDateAndEndDate(request.getStartDate(), request.getEndDate())) {
+      throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+          ErrorMessages.INVALID_START_DATE_END_DATE);
+    }
+    
     program.setSubsidy(request.getSubsidy());
     program.setBudget(request.getBudget());
     program.setName(request.getName());
+    program.setStartDate(DateUtils.dateInputToTimestamp(request.getStartDate()));
+    program.setEndDate(DateUtils.dateInputToTimestamp(request.getEndDate()));
     return this.programRepository.save(program);
   }
 
@@ -114,5 +121,15 @@ public class ProgramServiceImpl implements ProgramService {
     
     program.setLockedProgram(true);
     return this.programRepository.save(program);
+  }
+
+  @Override
+  public Boolean deleteProgram(String programId) throws ApplicationException {
+    Program program = this.programRepository.findByIdAndMarkForDeleteFalse(programId)
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorMessages.PROGRAM_NOT_FOUND));
+    program.setMarkForDelete(true);
+    this.programRepository.save(program);
+    return Boolean.TRUE;
   }
 }
