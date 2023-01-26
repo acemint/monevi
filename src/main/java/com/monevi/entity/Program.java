@@ -6,16 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = Program.ENTITY_NAME)
@@ -35,7 +31,6 @@ public class Program extends BaseEntity {
   public static final String END_DATE_COLUMN_NAME = "END_DATE";
   public static final String PERIOD_COLUMN_NAME = "PERIOD_YEAR";
   public static final String LOCKED_PROGRAM_COLUMN_NAME = "LOCKED_PROGRAM";
-  public static final String TRANSACTIONS_MAPPED_BY_COLUMN_NAME = "program";
 
   @Column(name = Program.NAME_COLUMN_NAME, nullable = false)
   private String name;
@@ -43,6 +38,7 @@ public class Program extends BaseEntity {
   @Column(name = Program.BUDGET_COLUMN_NAME, nullable = false)
   private double budget;
 
+  @Builder.Default
   @Column(name = Program.SUBSIDY_COLUMN_NAME, nullable = false)
   private double subsidy = 0;
 
@@ -52,10 +48,6 @@ public class Program extends BaseEntity {
   @Column(name = Program.END_DATE_COLUMN_NAME, nullable = false)
   private Timestamp endDate;
 
-  @Builder.Default
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = Program.TRANSACTIONS_MAPPED_BY_COLUMN_NAME)
-  private Set<Transaction> transactions = new HashSet<>();
-
   @ManyToOne
   @JoinColumn(name = Program.ORGANIZATION_REGION_ID_COLUMN_NAME, nullable = false)
   private OrganizationRegion organizationRegion;
@@ -63,6 +55,7 @@ public class Program extends BaseEntity {
   @Column(name = Program.PERIOD_COLUMN_NAME, nullable = false)
   private Integer periodYear;
 
+  @Builder.Default
   @Column(name = Program.LOCKED_PROGRAM_COLUMN_NAME, nullable = false)
   private boolean lockedProgram = false;
 }

@@ -27,9 +27,6 @@ public class TransactionToTransactionResponseConverter implements Converter<Tran
         .description(source.getDescription())
         .proof(source.getProof())
         .build();
-    if(Objects.nonNull(source.getProgram())) {
-      response.setProgram(source.getProgram().getName());
-    }
     return response;
   }
 }

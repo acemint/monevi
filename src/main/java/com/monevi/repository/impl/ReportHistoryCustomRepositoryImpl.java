@@ -15,6 +15,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import com.monevi.dto.response.ReportHistoryFindResponse;
+import com.monevi.enums.ReportStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
@@ -97,9 +98,12 @@ public class ReportHistoryCustomRepositoryImpl extends BaseCustomRepository
     } else if (UserAccountRole.SUPERVISOR.equals(filter.getUserRole())) {
       Join<OrganizationRegion, Region> region = organizationRegion.join(OrganizationRegion_.REGION);
       predicates.add(builder.equal(region.get(Region_.id), filter.getRegionId()));
-      predicates
-          .add(builder.notEqual(userAccount.get(UserAccount_.role), UserAccountRole.TREASURER));
       predicates.add(builder.notEqual(userAccount.get(UserAccount_.id), filter.getUserId()));
+      predicates.add(
+          builder.or(builder.equal(userAccount.get(UserAccount_.role), UserAccountRole.SUPERVISOR),
+              builder.and(
+                  builder.equal(userAccount.get(UserAccount_.role), UserAccountRole.CHAIRMAN),
+                  builder.notEqual(report.get(Report_.status), ReportStatus.DECLINED))));
     }
     return predicates;
   }
