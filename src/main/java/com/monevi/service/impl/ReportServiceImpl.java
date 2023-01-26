@@ -15,6 +15,7 @@ import javax.persistence.Tuple;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -58,10 +59,15 @@ import com.monevi.util.FinanceUtils;
 @Service
 public class ReportServiceImpl implements ReportService {
 
+  @Value("${monevi.redirect.login.url}")
+  private String loginUrl;
+
   private static final String URL_KEY = "url";
   private static final String REPORT_MONTH = "reportMonth";
   private static final String REPORT_YEAR = "reportYear";
   private static final String ORGANIZATION_NAME = "organizationName";
+  private static final String BY = "by";
+  private static final String ROLE = "role";
 
   @Autowired
   private OrganizationRegionRepository organizationRegionRepository;
@@ -245,6 +251,7 @@ public class ReportServiceImpl implements ReportService {
     }
     else if (report.getStatus().equals(ReportStatus.APPROVED_BY_CHAIRMAN)) {
       report.setStatus(ReportStatus.APPROVED_BY_SUPERVISOR);
+      this.sendEmailToTreasurer(report);
     }
     if (Objects.nonNull(report.getReportComment())) {
       report.getReportComment().setMarkForDelete(true);
@@ -277,9 +284,10 @@ public class ReportServiceImpl implements ReportService {
     String reportMonth = String.valueOf(report.getPeriodDate().toLocalDateTime().getMonth());
     Map<String, String> variables = new HashMap<>();
     variables.put(REPORT_MONTH,
-        reportMonth.substring(0, 1) + reportMonth.substring(1).toLowerCase());
+        reportMonth.charAt(0) + reportMonth.substring(1).toLowerCase());
     variables.put(REPORT_YEAR, String.valueOf(report.getPeriodDate().toLocalDateTime().getYear()));
     variables.put(ORGANIZATION_NAME, organizationName);
+    variables.put(URL_KEY, loginUrl);
     SendEmailRequest request =
         SendEmailRequest.builder()
             .messageTemplateId(MessageTemplate.SUBMITTED_REPORT)
@@ -294,7 +302,7 @@ public class ReportServiceImpl implements ReportService {
         .findAllByRoleAndRegionAndMarkForDeleteFalse(UserAccountRole.SUPERVISOR,
             chairmanAccount.getOrganizationRegion().getRegion())
             .map(data -> data.stream()
-                    .map(account -> account.getEmail()).collect(Collectors.toList()))
+                    .map(UserAccount::getEmail).collect(Collectors.toList()))
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
             ErrorMessages.USER_ACCOUNT_NOT_FOUND));
     String recipientEmails = String.join(",", recipients);
@@ -306,13 +314,34 @@ public class ReportServiceImpl implements ReportService {
     String reportMonth = String.valueOf(report.getPeriodDate().toLocalDateTime().getMonth());
     Map<String, String> variables = new HashMap<>();
     variables.put(REPORT_MONTH,
-        reportMonth.substring(0, 1) + reportMonth.substring(1).toLowerCase());
+        reportMonth.charAt(0) + reportMonth.substring(1).toLowerCase());
     variables.put(REPORT_YEAR, String.valueOf(report.getPeriodDate().toLocalDateTime().getYear()));
     variables.put(ORGANIZATION_NAME, organizationName);
+    variables.put(URL_KEY, loginUrl);
     SendEmailRequest request =
         SendEmailRequest.builder()
             .messageTemplateId(MessageTemplate.SUBMITTED_REPORT)
             .recipient(recipientEmails)
+            .variables(variables).build();
+    this.messageService.sendEmail(request);
+  }
+
+  private void sendEmailToTreasurer(Report report) throws ApplicationException {
+    UserAccount recipient = this.userAccountRepository
+        .findAssignedUserByOrganizationRegionIdAndRoleAndMarkForDeleteFalse(null,
+            report.getTermOfOffice(), report.getOrganizationRegion().getId(),
+            UserAccountRole.TREASURER)
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorMessages.USER_ACCOUNT_NOT_FOUND));
+    String reportMonth = String.valueOf(report.getPeriodDate().toLocalDateTime().getMonth());
+    Map<String, String> variables = new HashMap<>();
+    variables.put(REPORT_MONTH,
+        reportMonth.charAt(0) + reportMonth.substring(1).toLowerCase());
+    variables.put(REPORT_YEAR, String.valueOf(report.getPeriodDate().toLocalDateTime().getYear()));
+    SendEmailRequest request =
+        SendEmailRequest.builder()
+            .messageTemplateId(MessageTemplate.APPROVED_REPORT)
+            .recipient(recipient.getEmail())
             .variables(variables).build();
     this.messageService.sendEmail(request);
   }

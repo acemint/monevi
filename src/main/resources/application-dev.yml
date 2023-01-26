@@ -42,3 +42,5 @@ monevi:
   redirect:
     reset-password:
       url: https://www.google.com/
+    login:
+      url: https://dancing-cajeta-a43756.netlify.app/

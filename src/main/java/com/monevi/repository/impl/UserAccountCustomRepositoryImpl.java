@@ -67,8 +67,11 @@ public class UserAccountCustomRepositoryImpl extends BaseCustomRepository
     predicates.add(builder.isFalse(root.get(UserAccount_.MARK_FOR_DELETE)));
     predicates.add(builder.equal(root.get(UserAccount_.LOCKED_ACCOUNT), isLockedAccount));
     predicates.add(builder.equal(root.get(UserAccount_.ROLE), role));
-    predicates.add(builder.equal(root.get(UserAccount_.PERIOD_MONTH), periodMonth));
     predicates.add(builder.equal(root.get(UserAccount_.PERIOD_YEAR), periodYear));
+
+    if (Objects.nonNull(periodMonth)) {
+      predicates.add(builder.equal(root.get(UserAccount_.PERIOD_MONTH), periodMonth));
+    }
 
     Join<UserAccount, OrganizationRegion> organizationRegionJoin =
         root.join(UserAccount_.ORGANIZATION_REGION);
