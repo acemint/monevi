@@ -69,7 +69,7 @@ public class MessageServiceImpl implements MessageService {
 
   private String toSubject(MessageTemplate messageTemplateId, Map<String, String> variables) {
     if (Objects.nonNull(messageTemplateId)) {
-      if (MessageTemplate.DECILNED_REPORT.equals(messageTemplateId)
+      if (MessageTemplate.DECLINED_REPORT.equals(messageTemplateId)
           || MessageTemplate.APPROVED_REPORT.equals(messageTemplateId)) {
         return String.format(messageTemplateId.getSubject(), variables.get(REPORT_MONTH),
             variables.get(REPORT_YEAR));
