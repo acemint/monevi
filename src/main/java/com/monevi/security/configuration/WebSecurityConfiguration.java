@@ -69,10 +69,9 @@ public class WebSecurityConfiguration {
         .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
         .authorizeRequests()
-        .antMatchers("/api/monevi/auth/**")
+        .antMatchers("/api/monevi/region/**", "/api/monevi/auth/**")
         .permitAll()
-        .antMatchers("/api/monevi/region/**",
-            "/api/monevi/transaction/**",
+        .antMatchers("/api/monevi/transaction/**",
             "/api/monevi/user/**",
             "/api/monevi/report/**",
             "/api/monevi/program/**",
@@ -84,7 +83,7 @@ public class WebSecurityConfiguration {
     return http.build();
   }
 
-  @Bean
+  @Bean("corsConfigurationSource")
   public CorsConfigurationSource corsConfigurationSource() {
     List<String> listOfAllowedMethod = Arrays.asList("GET", "PUT", "POST", "DELETE");
     List<String> listOfAllowedHeaders = Arrays.asList("Authorization", "Content-Type");
@@ -94,7 +93,7 @@ public class WebSecurityConfiguration {
     configuration.setAllowedOrigins(listOfAllowedOrigins);
     configuration.setAllowedMethods(listOfAllowedMethod);
     configuration.setAllowCredentials(true);
-    configuration.setExposedHeaders(listOfAllowedHeaders);
+    configuration.setAllowedHeaders(listOfAllowedHeaders);
 
     UrlBasedCorsConfigurationSource source= new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
