@@ -273,3 +273,8 @@ ALTER TABLE monevi_report_history ALTER created_date TYPE TIMESTAMPTZ USING crea
 ALTER TABLE monevi_report_history ALTER updated_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';
 
 ALTER TABLE monevi_report ALTER period_date TYPE TIMESTAMPTZ USING period_date AT TIME ZONE 'UTC';
+
+ALTER TABLE monevi_program ADD COLUMN locked_program BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE monevi_transaction  DROP CONSTRAINT monevi_transaction_program_id_fkey;
+ALTER TABLE monevi_transaction  DROP COLUMN program_id;

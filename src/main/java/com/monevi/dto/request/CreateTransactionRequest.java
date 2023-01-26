@@ -45,7 +45,5 @@ public class CreateTransactionRequest {
   private String description;
 
   private String proof;
-
-  private String programId;
   
 }

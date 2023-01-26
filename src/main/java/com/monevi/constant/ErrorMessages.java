@@ -43,4 +43,7 @@ public interface ErrorMessages {
   String USER_AND_ORGANIZATION_REGION_NOT_MATCH =
       "user's organization region and organization region request not match";
   String TOTAL_AND_OPNAME_NOT_MATCH = "total %s and opname not match";
+  String PROGRAM_IS_LOCKED = "program is locked and can not be edited";
+  String PROGRAM_HANDLING_IS_PROHIBITED = "program handling is prohibited";
+  String INVALID_START_DATE_END_DATE = "invalid start date and end date";
 }
