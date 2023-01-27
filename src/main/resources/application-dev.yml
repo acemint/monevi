@@ -41,7 +41,7 @@ monevi:
         expiration-time: 18000000 # in milliseconds, current: 5 hrs
   redirect:
     reset-password:
-      url: https://monevi.netlify.app/
+      url: https://monevi.netlify.app/reset-password?token=%s
     login:
      url: https://monevi.netlify.app/
   cors:
