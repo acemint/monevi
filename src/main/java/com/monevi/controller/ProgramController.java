@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -68,6 +69,7 @@ public class ProgramController {
         .build();
   }
 
+  @PreAuthorize("hasAnyRole('TREASURER', 'CHAIRMAN')")
   @PostMapping(value = ApiPath.CREATE_NEW, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<ProgramResponse> create(
       @Valid @RequestBody CreateProgramRequest createProgramRequest) throws ApplicationException {
@@ -94,6 +96,7 @@ public class ProgramController {
         .build();
   }
 
+  @PreAuthorize("hasAnyRole('TREASURER', 'CHAIRMAN', 'SUPERVISOR')")
   @PostMapping(value = ApiPath.EDIT, consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<ProgramResponse> updateProgram(@NotBlank @RequestParam String userId,
@@ -105,6 +108,7 @@ public class ProgramController {
         .value(this.programToProgramResponseConverter.convert(program)).build();
   }
 
+  @PreAuthorize("hasRole('SUPERVISOR')")
   @GetMapping(value = ApiPath.LOCK, produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<ProgramResponse> lockProgram(@NotBlank @RequestParam String userId,
       @NotBlank @RequestParam String programId) throws ApplicationException {
@@ -113,6 +117,7 @@ public class ProgramController {
         .value(this.programToProgramResponseConverter.convert(program)).build();
   }
 
+  @PreAuthorize("hasAnyRole('TREASURER', 'CHAIRMAN', 'SUPERVISOR')")
   @DeleteMapping(value = ApiPath.DELETE)
   public BaseResponse<Boolean> deleteProgram(@RequestParam @NotBlank String programId)
       throws ApplicationException {

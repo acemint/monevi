@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,7 +49,7 @@ public class UserAccountController {
   @Qualifier(UserAccountToStudentFindAllResponseConverter.COMPONENT_NAME + Converter.SUFFIX_BEAN_NAME)
   private Converter<UserAccount, StudentFindAllResponse> userAccountStudentFindAllResponseConverter;
 
-  // @PreAuthorize("hasRole('SUPERVISOR')")
+  @PreAuthorize("hasRole('SUPERVISOR')")
   @PostMapping(value = ApiPath.SUPERVISOR + ApiPath.APPROVE_ACCOUNT)
   public BaseResponse<UserAccountResponse> approveStudent(@RequestParam @NotBlank String studentId)
       throws ApplicationException {
@@ -57,13 +58,13 @@ public class UserAccountController {
         .value(this.userAccountToUserAccountResponse.convert(userAccount)).build();
   }
 
-  // @PreAuthorize("hasRole('SUPERVISOR')")
+  @PreAuthorize("hasRole('SUPERVISOR')")
   @PostMapping(value = ApiPath.SUPERVISOR + ApiPath.DECLINE_ACCOUNT)
   public BaseResponse<UserAccountResponse> declineAccount(@RequestParam @NotBlank String studentId)
-          throws ApplicationException {
+      throws ApplicationException {
     UserAccount userAccount = this.userAccountService.declineStudent(studentId);
     return BaseResponse.<UserAccountResponse>builder()
-            .value(this.userAccountToUserAccountResponse.convert(userAccount)).build();
+        .value(this.userAccountToUserAccountResponse.convert(userAccount)).build();
   }
 
   @GetMapping(value = ApiPath.FIND_ALL_STUDENT, produces = MediaType.APPLICATION_JSON_VALUE)
