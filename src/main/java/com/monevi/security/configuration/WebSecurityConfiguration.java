@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,6 +28,9 @@ import com.monevi.security.service.UserDetailsServiceImpl;
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfiguration {
+
+  @Value("${monevi.cors.allowed-path}")
+  private String allowedPath;
 
   @Autowired
   private UserDetailsServiceImpl userDetailsService;
@@ -86,11 +90,12 @@ public class WebSecurityConfiguration {
   @Bean("corsConfigurationSource")
   public CorsConfigurationSource corsConfigurationSource() {
     List<String> listOfAllowedMethod = Arrays.asList("GET", "PUT", "POST", "DELETE");
-    List<String> listOfAllowedHeaders = Arrays.asList("Authorization", "Content-Type");
-    List<String> listOfAllowedOrigins = Arrays.asList("*");
+    List<String> listOfAllowedHeaders =
+        Arrays.asList("Authorization", "Content-Type", "Cache-Control");
+    List<String> listOfAllowedOrigins = Arrays.asList(allowedPath);
     CorsConfiguration configuration = new CorsConfiguration();
 
-    configuration.setAllowedOrigins(listOfAllowedOrigins);
+    configuration.setAllowedOriginPatterns(listOfAllowedOrigins);
     configuration.setAllowedMethods(listOfAllowedMethod);
     configuration.setAllowCredentials(true);
     configuration.setAllowedHeaders(listOfAllowedHeaders);
