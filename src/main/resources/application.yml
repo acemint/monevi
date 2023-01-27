@@ -35,3 +35,7 @@ monevi:
   redirect:
     reset-password:
       url: ${MONEVI_FRONT_END_URL}
+    login:
+      url: ${MONEVI_LOGIN_REDIRECT_URL}
+  cors:
+    allowed-path: ${MONEVI_ALLOWED_PATH}

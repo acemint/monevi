@@ -14,7 +14,7 @@ public class ApiPath {
   public static final String REPORT = "/report";
   public static final String PROGRAM = "/program";
   public static final String USER = "/user";
-  public static final String AUTH = USER + "/auth";
+  public static final String AUTH = "/auth";
   public static final String HISTORY = "/history";
 
   public static final String FIND_ALL = "/all";
