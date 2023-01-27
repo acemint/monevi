@@ -113,8 +113,7 @@ public class AuthServiceImpl implements AuthService {
   }
 
   private String generateResetPasswordUrl(String token) {
-    // TODO: change to -> return resetPasswordBaseUrl + token;
-    return resetPasswordBaseUrl;
+    return String.format(resetPasswordBaseUrl, token);
   }
 
   @Override

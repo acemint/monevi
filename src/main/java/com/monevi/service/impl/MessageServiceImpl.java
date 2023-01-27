@@ -43,15 +43,17 @@ public class MessageServiceImpl implements MessageService {
       final MimeMessageHelper mailMessage = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
       final Context ctx = new Context();
-      for(Map.Entry<String, String> variable: request.getVariables().entrySet()) {
-        ctx.setVariable(variable.getKey(), variable.getValue());
+      if (Objects.nonNull(request.getVariables())) {
+        for (Map.Entry<String, String> variable : request.getVariables().entrySet()) {
+          ctx.setVariable(variable.getKey(), variable.getValue());
+        }
       }
 
       String htmlBody = javaMailSender.templateEngine()
           .process(request.getMessageTemplateId().getTemplateFile(), ctx);
 
       mailMessage.setFrom(new InternetAddress(sender));
-      mailMessage.setTo(request.getRecipient());
+      mailMessage.setTo(InternetAddress.parse(request.getRecipient()));
       mailMessage.setText(htmlBody, true);
       mailMessage.setSubject(toSubject(request.getMessageTemplateId(), request.getVariables()));
 
@@ -67,7 +69,7 @@ public class MessageServiceImpl implements MessageService {
 
   private String toSubject(MessageTemplate messageTemplateId, Map<String, String> variables) {
     if (Objects.nonNull(messageTemplateId)) {
-      if (MessageTemplate.DECILNED_REPORT.equals(messageTemplateId)
+      if (MessageTemplate.DECLINED_REPORT.equals(messageTemplateId)
           || MessageTemplate.APPROVED_REPORT.equals(messageTemplateId)) {
         return String.format(messageTemplateId.getSubject(), variables.get(REPORT_MONTH),
             variables.get(REPORT_YEAR));
