@@ -278,3 +278,20 @@ ALTER TABLE monevi_program ADD COLUMN locked_program BOOLEAN DEFAULT FALSE;
 
 ALTER TABLE monevi_transaction  DROP CONSTRAINT monevi_transaction_program_id_fkey;
 ALTER TABLE monevi_transaction  DROP COLUMN program_id;
+
+CREATE TABLE IF NOT EXISTS monevi_wallet (
+    id VARCHAR(255),
+    mark_for_delete BOOLEAN NOT NULL,
+    created_date TIMESTAMP NOT NULL,
+    created_by VARCHAR(255) NOT NULL,
+    updated_date TIMESTAMP NOT NULL,
+    updated_by VARCHAR(255) NOT NULL,
+    organization_region_id VARCHAR(255) NOT NULL,
+    name VARCHAR(255),
+    total DECIMAL NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    FOREIGN KEY (organization_region_id) REFERENCES monevi_organization_region (id)
+    );
+
+ALTER TABLE monevi_wallet ALTER created_date TYPE TIMESTAMPTZ USING created_date AT TIME ZONE 'UTC';
+ALTER TABLE monevi_wallet ALTER updated_date TYPE TIMESTAMPTZ USING updated_date AT TIME ZONE 'UTC';

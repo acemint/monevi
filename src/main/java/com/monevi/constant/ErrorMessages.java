@@ -46,4 +46,5 @@ public interface ErrorMessages {
   String PROGRAM_IS_LOCKED = "program is locked and can not be edited";
   String PROGRAM_HANDLING_IS_PROHIBITED = "program handling is prohibited";
   String INVALID_START_DATE_END_DATE = "invalid start date and end date";
+  String INVALID_DATE = "invalid date";
 }
