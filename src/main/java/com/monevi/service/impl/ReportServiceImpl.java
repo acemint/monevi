@@ -1,37 +1,5 @@
 package com.monevi.service.impl;
 
-import com.monevi.constant.ErrorMessages;
-import com.monevi.dto.request.SubmitReportRequest;
-import com.monevi.dto.request.ReportApproveRequest;
-import com.monevi.dto.request.ReportRejectRequest;
-import com.monevi.dto.response.ReportSummary;
-import com.monevi.entity.BaseEntity;
-import com.monevi.entity.OrganizationRegion;
-import com.monevi.entity.Report;
-import com.monevi.entity.ReportComment;
-import com.monevi.entity.ReportGeneralLedgerAccount;
-import com.monevi.entity.Transaction;
-import com.monevi.entity.UserAccount;
-import com.monevi.enums.EntryPosition;
-import com.monevi.enums.GeneralLedgerAccountType;
-import com.monevi.enums.ReportStatus;
-import com.monevi.enums.TransactionType;
-import com.monevi.enums.UserAccountRole;
-import com.monevi.exception.ApplicationException;
-import com.monevi.model.GetReportFilter;
-import com.monevi.model.GetTransactionFilter;
-import com.monevi.repository.OrganizationRegionRepository;
-import com.monevi.repository.ReportRepository;
-import com.monevi.repository.TransactionRepository;
-import com.monevi.repository.UserAccountRepository;
-import com.monevi.service.ReportService;
-import com.monevi.util.DateUtils;
-import com.monevi.util.FinanceUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
-import javax.persistence.Tuple;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,8 +11,63 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.persistence.Tuple;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+import com.monevi.constant.ErrorMessages;
+import com.monevi.dto.request.ReportApproveRequest;
+import com.monevi.dto.request.ReportRejectRequest;
+import com.monevi.dto.request.SendEmailRequest;
+import com.monevi.dto.request.SubmitReportRequest;
+import com.monevi.dto.response.ReportSummary;
+import com.monevi.entity.BaseEntity;
+import com.monevi.entity.OrganizationRegion;
+import com.monevi.entity.Report;
+import com.monevi.entity.ReportComment;
+import com.monevi.entity.ReportGeneralLedgerAccount;
+import com.monevi.entity.Transaction;
+import com.monevi.entity.UserAccount;
+import com.monevi.enums.EntryPosition;
+import com.monevi.enums.GeneralLedgerAccountType;
+import com.monevi.enums.MessageTemplate;
+import com.monevi.enums.ReportStatus;
+import com.monevi.enums.TransactionType;
+import com.monevi.enums.UserAccountRole;
+import com.monevi.exception.ApplicationException;
+import com.monevi.model.GetReportFilter;
+import com.monevi.model.GetTransactionFilter;
+import com.monevi.repository.GeneralLedgerAccountRepository;
+import com.monevi.repository.OrganizationRegionRepository;
+import com.monevi.repository.RegionRepository;
+import com.monevi.repository.ReportCommentRepository;
+import com.monevi.repository.ReportRepository;
+import com.monevi.repository.TransactionRepository;
+import com.monevi.repository.UserAccountRepository;
+import com.monevi.service.MessageService;
+import com.monevi.service.ReportHistoryService;
+import com.monevi.service.ReportService;
+import com.monevi.util.DateUtils;
+import com.monevi.util.FinanceUtils;
+
 @Service
 public class ReportServiceImpl implements ReportService {
+
+  @Value("${monevi.redirect.login.url}")
+  private String loginUrl;
+
+  private static final String URL_KEY = "url";
+  private static final String REPORT_MONTH_KEY = "reportMonth";
+  private static final String REPORT_YEAR_KEY = "reportYear";
+  private static final String ORGANIZATION_NAME_KEY = "organizationName";
+  private static final String COMMENT_KEY = "comment";
+  private static final String COMMENTED_BY_KEY = "commentedBy";
 
   @Autowired
   private OrganizationRegionRepository organizationRegionRepository;
@@ -58,11 +81,48 @@ public class ReportServiceImpl implements ReportService {
   @Autowired
   private TransactionRepository transactionRepository;
 
+  @Autowired
+  private RegionRepository regionRepository;
+
+  @Autowired
+  private GeneralLedgerAccountRepository generalLedgerAccountRepository;
+
+  @Autowired
+  private ReportCommentRepository reportCommentRepository;
+
+  @Autowired
+  private ReportHistoryService reportHistoryService;
+
+  @Autowired
+  private MessageService messageService;
+
   @Override
-  public List<Report> getReports(GetReportFilter filter) throws ApplicationException {
-    this.organizationRegionRepository.findByIdAndMarkForDeleteIsFalse(filter.getOrganizationRegionId())
-        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
-    return this.reportRepository.getReports(filter).orElse(Collections.emptyList());
+  public Page<Report> getReports(GetReportFilter filter) throws ApplicationException {
+    if (StringUtils.isNotBlank(filter.getOrganizationRegionId())) {
+      this.organizationRegionRepository
+          .findByIdAndMarkForDeleteIsFalse(filter.getOrganizationRegionId())
+          .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+              ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
+      if (StringUtils.isBlank(filter.getStartDate())) {
+        throw new ApplicationException(HttpStatus.BAD_REQUEST,
+            ErrorMessages.START_DATE_MUST_NOT_BE_BLANK);
+      }
+      if (StringUtils.isBlank(filter.getEndDate())) {
+        throw new ApplicationException(HttpStatus.BAD_REQUEST,
+            ErrorMessages.END_DATE_MUST_NOT_BE_BLANK);
+      }
+    } else if (StringUtils.isNotBlank(filter.getRegionId())) {
+      this.regionRepository.findByIdAndMarkForDeleteFalse(filter.getRegionId())
+          .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+              ErrorMessages.REGION_DOES_NOT_EXIST));
+    }
+    return this.reportRepository.getReports(filter);
+  }
+
+  @Override
+  public Report get(String id) throws ApplicationException {
+    return this.reportRepository.findByIdAndMarkForDeleteIsFalse(id)
+        .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.REPORT_DOES_NOT_EXIST));
   }
 
   @Override
@@ -70,6 +130,11 @@ public class ReportServiceImpl implements ReportService {
     OrganizationRegion organizationRegion = this.organizationRegionRepository.findByIdAndMarkForDeleteIsFalse(request.getOrganizationRegionId())
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
     this.deleteExistingCurrentMonthReport(request.getOrganizationRegionId(), request.getDate());
+
+    UserAccount userAccount =
+        this.userAccountRepository.findByIdAndMarkForDeleteIsFalse(request.getUserId())
+            .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+                ErrorMessages.USER_ACCOUNT_NOT_FOUND));
 
     List<Transaction> transactions = this.getCurrentMonthTransactions(
         organizationRegion.getId(), request.getDate());
@@ -81,7 +146,8 @@ public class ReportServiceImpl implements ReportService {
       }
     }
     Report newReport = this.buildNewReport(organizationRegion, transactions,
-        previousMonthReport.orElse(Report.builder().build()), request.getDate(), request.getOpnameData());
+        previousMonthReport.orElse(Report.builder().build()), request.getDate(),
+        userAccount.getPeriodYear(), request.getOpnameData());
 
     transactions.forEach(t -> t.setReport(newReport));
     this.transactionRepository.saveAll(transactions);
@@ -97,6 +163,8 @@ public class ReportServiceImpl implements ReportService {
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.USER_ACCOUNT_DOES_NOT_EXIST));
     this.throwErrorOnInvalidReportHandlingByUser(report, userAccount);
     this.rejectReport(report, userAccount.getFullName(), request.getComment());
+    this.reportHistoryService.createReportHistory(userAccount.getId(), report.getId());
+    this.sendEmailToTreasurer(report, MessageTemplate.DECLINED_REPORT);
     return this.reportRepository.save(report);
   }
 
@@ -107,7 +175,8 @@ public class ReportServiceImpl implements ReportService {
     UserAccount userAccount = this.userAccountRepository.findByIdAndMarkForDeleteIsFalse(request.getUserId())
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.USER_ACCOUNT_DOES_NOT_EXIST));
     this.throwErrorOnInvalidReportHandlingByUser(report, userAccount);
-    this.approveReport(report);
+    this.approveReport(report, userAccount);
+    this.reportHistoryService.createReportHistory(userAccount.getId(), report.getId());
     return this.reportRepository.save(report);
   }
 
@@ -151,12 +220,16 @@ public class ReportServiceImpl implements ReportService {
     if (report.getStatus().equals(ReportStatus.APPROVED_BY_SUPERVISOR)) {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
     }
+    if (report.getStatus().equals(ReportStatus.DECLINED)) {
+      throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+          ErrorMessages.REPORT_HANDLING_IS_PROHIBITED);
+    }
   }
 
   private void rejectReport(Report report, String fullName, String comment) {
     ReportComment reportComment = this.buildReportComment(report, fullName, comment);
     report.setReportComment(reportComment);
-    report.setStatus(ReportStatus.UNAPPROVED);
+    report.setStatus(ReportStatus.DECLINED);
   }
 
   private ReportComment buildReportComment(Report report, String commentedBy, String comment) {
@@ -167,17 +240,117 @@ public class ReportServiceImpl implements ReportService {
         .build();
   }
 
-  private void approveReport(Report report) {
+  private void approveReport(Report report, UserAccount user) throws ApplicationException {
     if (report.getStatus().equals(ReportStatus.NOT_SENT)) {
+      this.validateOpnameAndTransactionsData(report);
       report.setStatus(ReportStatus.UNAPPROVED);
+      this.sendEmailToChairman(report, user);
     }
     else if (report.getStatus().equals(ReportStatus.UNAPPROVED)) {
       report.setStatus(ReportStatus.APPROVED_BY_CHAIRMAN);
+      this.sendEmailToSupervisor(report, user);
     }
     else if (report.getStatus().equals(ReportStatus.APPROVED_BY_CHAIRMAN)) {
       report.setStatus(ReportStatus.APPROVED_BY_SUPERVISOR);
+      this.sendEmailToTreasurer(report, MessageTemplate.APPROVED_REPORT);
     }
-    report.getReportComment().setMarkForDelete(true);
+    if (Objects.nonNull(report.getReportComment())) {
+      report.getReportComment().setMarkForDelete(true);
+    }
+  }
+
+  private void validateOpnameAndTransactionsData(Report report) throws ApplicationException {
+    for (ReportGeneralLedgerAccount data : report.getReportGeneralLedgerAccounts()) {
+      if (data.getOpname() != data.getTotal()) {
+        throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            String.format(ErrorMessages.TOTAL_AND_OPNAME_NOT_MATCH, data.getName()));
+      }
+    }
+  }
+
+  private void sendEmailToChairman(Report report, UserAccount treasurerAccount)
+      throws ApplicationException {
+    String organizationRegionId = report.getOrganizationRegion().getId();
+    UserAccount recipient = this.userAccountRepository
+        .findAssignedUserByOrganizationRegionIdAndRoleAndMarkForDeleteFalse(
+            treasurerAccount.getPeriodMonth(), treasurerAccount.getPeriodYear(),
+            report.getOrganizationRegion().getId(), UserAccountRole.CHAIRMAN)
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorMessages.USER_ACCOUNT_NOT_FOUND));
+    String organizationName =
+        this.organizationRegionRepository.findByIdAndMarkForDeleteIsFalse(organizationRegionId)
+            .map(data -> data.getOrganization().getAbbreviation())
+            .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+                ErrorMessages.ORGANIZATION_DOES_NOT_EXIST));
+    String reportMonth = String.valueOf(report.getPeriodDate().toLocalDateTime().getMonth());
+    Map<String, String> variables = new HashMap<>();
+    variables.put(REPORT_MONTH_KEY,
+        reportMonth.charAt(0) + reportMonth.substring(1).toLowerCase());
+    variables.put(REPORT_YEAR_KEY, String.valueOf(report.getPeriodDate().toLocalDateTime().getYear()));
+    variables.put(ORGANIZATION_NAME_KEY, organizationName);
+    variables.put(URL_KEY, loginUrl);
+    SendEmailRequest request =
+        SendEmailRequest.builder()
+            .messageTemplateId(MessageTemplate.SUBMITTED_REPORT)
+            .recipient(recipient.getEmail())
+            .variables(variables).build();
+    this.messageService.sendEmail(request);
+  }
+
+  private void sendEmailToSupervisor(Report report, UserAccount chairmanAccount)
+      throws ApplicationException {
+    List<String> recipients = this.userAccountRepository
+        .findAllByRoleAndRegionAndMarkForDeleteFalse(UserAccountRole.SUPERVISOR,
+            chairmanAccount.getOrganizationRegion().getRegion())
+            .map(data -> data.stream()
+                    .map(UserAccount::getEmail).collect(Collectors.toList()))
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorMessages.USER_ACCOUNT_NOT_FOUND));
+    String recipientEmails = String.join(",", recipients);
+    String organizationName = this.organizationRegionRepository
+        .findByIdAndMarkForDeleteIsFalse(chairmanAccount.getOrganizationRegion().getId())
+        .map(data -> data.getOrganization().getAbbreviation())
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorMessages.ORGANIZATION_DOES_NOT_EXIST));
+    String reportMonth = String.valueOf(report.getPeriodDate().toLocalDateTime().getMonth());
+    Map<String, String> variables = new HashMap<>();
+    variables.put(REPORT_MONTH_KEY,
+        reportMonth.charAt(0) + reportMonth.substring(1).toLowerCase());
+    variables.put(REPORT_YEAR_KEY, String.valueOf(report.getPeriodDate().toLocalDateTime().getYear()));
+    variables.put(ORGANIZATION_NAME_KEY, organizationName);
+    variables.put(URL_KEY, loginUrl);
+    SendEmailRequest request =
+        SendEmailRequest.builder()
+            .messageTemplateId(MessageTemplate.SUBMITTED_REPORT)
+            .recipient(recipientEmails)
+            .variables(variables).build();
+    this.messageService.sendEmail(request);
+  }
+
+  private void sendEmailToTreasurer(Report report, MessageTemplate template) throws ApplicationException {
+    UserAccount recipient = this.userAccountRepository
+        .findAssignedUserByOrganizationRegionIdAndRoleAndMarkForDeleteFalse(null,
+            report.getTermOfOffice(), report.getOrganizationRegion().getId(),
+            UserAccountRole.TREASURER)
+        .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorMessages.USER_ACCOUNT_NOT_FOUND));
+    String reportMonth = String.valueOf(report.getPeriodDate().toLocalDateTime().getMonth());
+    Map<String, String> variables = new HashMap<>();
+    variables.put(REPORT_MONTH_KEY,
+        reportMonth.charAt(0) + reportMonth.substring(1).toLowerCase());
+    variables.put(REPORT_YEAR_KEY, String.valueOf(report.getPeriodDate().toLocalDateTime().getYear()));
+
+    if(MessageTemplate.DECLINED_REPORT.equals(template)) {
+      variables.put(COMMENT_KEY, report.getReportComment().getContent());
+      variables.put(COMMENTED_BY_KEY, report.getReportComment().getCommentedBy());
+    }
+
+    SendEmailRequest request =
+        SendEmailRequest.builder()
+            .messageTemplateId(template)
+            .recipient(recipient.getEmail())
+            .variables(variables).build();
+    this.messageService.sendEmail(request);
   }
 
   private void deleteExistingCurrentMonthReport(String organizationRegionId, String date) throws ApplicationException {
@@ -185,8 +358,9 @@ public class ReportServiceImpl implements ReportService {
         .organizationRegionId(organizationRegionId)
         .startDate(DateUtils.dateToFirstDayOfMonth(date))
         .endDate(DateUtils.dateToLastDayOfMonth(date))
+        .pageable(PageRequest.of(0, Integer.MAX_VALUE))
         .build();
-    List<Report> reports = this.reportRepository.getReports(filter).orElse(Collections.emptyList());
+    List<Report> reports = this.reportRepository.getReports(filter).getContent();
     if (reports.size() != 0) {
       if (reports.get(0).getStatus().equals(ReportStatus.APPROVED_BY_SUPERVISOR) ||
           reports.get(0).getStatus().equals(ReportStatus.APPROVED_BY_CHAIRMAN)) {
@@ -194,6 +368,23 @@ public class ReportServiceImpl implements ReportService {
       }
       reports.get(0).setMarkForDelete(true);
       this.reportRepository.save(reports.get(0));
+
+      List<ReportGeneralLedgerAccount> generalLedgerAccounts = this.generalLedgerAccountRepository
+          .findAllByReportAndMarkForDeleteFalse(reports.get(0)).orElse(null);
+      if (Objects.nonNull(generalLedgerAccounts)) {
+        generalLedgerAccounts = generalLedgerAccounts.stream().map(generalLedgerAccount -> {
+          generalLedgerAccount.setMarkForDelete(true);
+          return generalLedgerAccount;
+        }).collect(Collectors.toList());
+        this.generalLedgerAccountRepository.saveAll(generalLedgerAccounts);
+      }
+
+      ReportComment comment = this.reportCommentRepository
+          .findByReportAndMarkForDeleteFalse(reports.get(0)).orElse(null);
+      if (Objects.nonNull(comment)) {
+        comment.setMarkForDelete(true);
+        this.reportCommentRepository.save(comment);
+      }
     }
   }
 
@@ -202,6 +393,7 @@ public class ReportServiceImpl implements ReportService {
       List<Transaction> currentMonthTransactions,
       Report previousMonthReport,
       String date,
+      Integer termOfOffice,
       Map<GeneralLedgerAccountType, Double> opnameData) throws ApplicationException {
 
     Report newReport = Report.builder()
@@ -209,6 +401,7 @@ public class ReportServiceImpl implements ReportService {
         .status(ReportStatus.NOT_SENT)
         .organizationRegion(organizationRegion)
         .reportGeneralLedgerAccounts(Collections.emptySet())
+        .termOfOffice(termOfOffice)
         .build();
 
     Map<GeneralLedgerAccountType, Double> generalLedgerAccountAmounts = new HashMap<>();
@@ -273,10 +466,9 @@ public class ReportServiceImpl implements ReportService {
         .organizationRegionId(organizationRegionId)
         .startDate(DateUtils.dateToFirstDayOfMonth(date))
         .endDate(DateUtils.dateToLastDayOfMonth(date))
+        .pageable(PageRequest.of(0, Integer.MAX_VALUE))
         .build();
-    return this.transactionRepository.getTransactions(filter)
-        .orElse(Collections.emptyList());
-
+    return this.transactionRepository.getTransactions(filter).getContent();
   }
 
   private Optional<Report> getCurrentMonthReport(String organizationRegionId, String date) throws ApplicationException {
@@ -284,8 +476,9 @@ public class ReportServiceImpl implements ReportService {
         .organizationRegionId(organizationRegionId)
         .startDate(DateUtils.dateToFirstDayOfMonth(date))
         .endDate(DateUtils.dateToLastDayOfMonth(date))
+        .pageable(PageRequest.of(0, Integer.MAX_VALUE))
         .build();
-    List<Report> reports = this.reportRepository.getReports(filter).orElse(Collections.emptyList());
+    List<Report> reports = this.reportRepository.getReports(filter).getContent();
     if (reports.size() != 0) {
       return Optional.ofNullable(reports.get(0));
     }
@@ -298,8 +491,9 @@ public class ReportServiceImpl implements ReportService {
         .organizationRegionId(organizationRegionId)
         .startDate(DateUtils.dateToFirstDayOfMonth(previousMonthDate))
         .endDate(DateUtils.dateToLastDayOfMonth(previousMonthDate))
+        .pageable(PageRequest.of(0, Integer.MAX_VALUE))
         .build();
-    List<Report> reports = this.reportRepository.getReports(filter).orElse(Collections.emptyList());
+    List<Report> reports = this.reportRepository.getReports(filter).getContent();
     if (reports.size() != 0) {
       return Optional.ofNullable(reports.get(0));
     }
@@ -308,8 +502,13 @@ public class ReportServiceImpl implements ReportService {
 
   private ReportSummary buildReportSummary(List<Tuple> transactionSummaryData, Report currentMonthReport, Report lastMonthReport) {
     ReportSummary reportSummary = ReportSummary.builder()
+        .reportStatus(currentMonthReport.getStatus())
         .reportId(currentMonthReport.getId())
         .build();
+    if (reportSummary.getReportStatus().equals(ReportStatus.DECLINED)) {
+      reportSummary.setComment(currentMonthReport.getReportComment().getContent());
+      reportSummary.setCommentedBy(currentMonthReport.getReportComment().getCommentedBy());
+    }
 
     for (GeneralLedgerAccountType generalLedgerAccountType : GeneralLedgerAccountType.values()) {
       reportSummary.getGeneralLedgerAccountTypeData().put(generalLedgerAccountType, ReportSummary.GeneralLedgerData

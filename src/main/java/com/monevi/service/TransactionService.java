@@ -5,15 +5,16 @@ import com.monevi.dto.request.UpdateTransactionRequest;
 import com.monevi.entity.Transaction;
 import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetTransactionFilter;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface TransactionService {
 
-  Transaction createNewTransaction(CreateTransactionRequest request)
+  List<Transaction> createTransactions(List<CreateTransactionRequest> requests)
       throws ApplicationException;
 
-  List<Transaction> getTransactions(GetTransactionFilter filter)
+  Page<Transaction> getTransactions(GetTransactionFilter filter)
       throws ApplicationException;
 
   Transaction updateTransaction(String transactionId, UpdateTransactionRequest request)

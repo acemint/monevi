@@ -11,4 +11,9 @@ public interface ProgramRepository extends JpaRepository<Program, String>, Progr
 
   Optional<Program> findByIdAndOrganizationRegionAndMarkForDeleteFalse(String programId,
       OrganizationRegion organizationRegion);
+
+  Optional<Program> findByIdAndMarkForDeleteFalse(String programId);
+  
+  Boolean existsAllByOrganizationRegionAndPeriodYearAndMarkForDeleteFalse(
+      OrganizationRegion organizationRegion, Integer periodYear);
 }

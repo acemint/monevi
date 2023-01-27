@@ -1,16 +1,18 @@
 package com.monevi.util;
 
-import com.monevi.constant.ErrorMessages;
-import com.monevi.exception.ApplicationException;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.http.HttpStatus;
 
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.monevi.constant.ErrorMessages;
+import com.monevi.exception.ApplicationException;
 
 public class DateUtils {
 
@@ -59,8 +61,8 @@ public class DateUtils {
   public static String deductMonthFromDate(String date, int amount) throws ApplicationException {
     DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd/MM/yyyy");
     DateTime dateTime = dateTimeFormatter.parseDateTime(date);
-    dateTime.minusMonths(amount);
-    return dateTimeFormatter.print(dateTime);
+    DateTime previousMonthDateTime = dateTime.minusMonths(amount);
+    return dateTimeFormatter.print(previousMonthDateTime);
   }
 
   public static String convertTimestampToString(Timestamp timestamp) throws ApplicationException {
@@ -73,5 +75,11 @@ public class DateUtils {
     DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd/MM/yyyy");
     DateTime dateTime = dateTimeFormatter.parseDateTime(date);
     return dateTime.getMillis();
+  }
+
+  public static String convertToDefaultPattern(String date) throws ApplicationException {
+    String defaultFormat = "%s/%s/%s";
+    String[] splittedDate = StringUtils.split(date, '-');
+    return String.format(defaultFormat, splittedDate[2], splittedDate[1], splittedDate[0]);
   }
 }

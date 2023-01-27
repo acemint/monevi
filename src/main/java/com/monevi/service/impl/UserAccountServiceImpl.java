@@ -1,13 +1,17 @@
 package com.monevi.service.impl;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.monevi.service.AuthService;
+import com.monevi.dto.request.SendEmailRequest;
+import com.monevi.enums.MessageTemplate;
+import com.monevi.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +29,7 @@ import com.monevi.model.GetStudentFilter;
 import com.monevi.repository.OrganizationRepository;
 import com.monevi.repository.RegionRepository;
 import com.monevi.repository.UserAccountRepository;
+import com.monevi.service.AuthService;
 import com.monevi.service.UserAccountService;
 
 @Service
@@ -44,6 +49,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 
   @Autowired
   private AuthService authService;
+  
+  @Autowired
+  private MessageService messageService;
 
   @Override
   public UserAccount register(CreateStudentRequest request) throws ApplicationException {
@@ -160,12 +168,23 @@ public class UserAccountServiceImpl implements UserAccountService {
         this.userAccountRepository.saveAll(deletedList);
       }
     }
+    this.sendEmailToStudent(user.getEmail(), user.getFullName());
     return user;
   }
 
   private UserAccount setUserMarkForDeleteTrue(UserAccount userAccount) {
     userAccount.setMarkForDelete(Boolean.TRUE);
     return userAccount;
+  }
+  
+  private void sendEmailToStudent(String studentEmail, String studentName) {
+//    Map<String, String> variables = new HashMap<>();
+//    variables.put("studentName", studentName);
+    SendEmailRequest request = SendEmailRequest.builder()
+        .messageTemplateId(MessageTemplate.APPROVED_ACCOUNT)
+//        .variables(variables)
+        .recipient(studentEmail).build();
+    this.messageService.sendEmail(request);
   }
 
   @Override
@@ -179,7 +198,7 @@ public class UserAccountServiceImpl implements UserAccountService {
   }
 
   @Override
-  public List<UserAccount> findAllStudentByFilter(GetStudentFilter filter)
+  public Page<UserAccount> findAllStudentByFilter(GetStudentFilter filter)
       throws ApplicationException {
     if (Objects.nonNull(filter.getPeriodMonth())
         && (filter.getPeriodMonth() < 1 || filter.getPeriodMonth() > 12)) {
@@ -189,7 +208,6 @@ public class UserAccountServiceImpl implements UserAccountService {
         && UserAccountRole.SUPERVISOR.equals(filter.getStudentRole())) {
       throw new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_STUDENT_ROLE);
     }
-    return this.userAccountRepository.findAllStudentByFilter(filter)
-        .orElse(Collections.emptyList());
+    return this.userAccountRepository.findAllStudentByFilter(filter);
   }
 }

@@ -6,6 +6,7 @@ public class ApiPath {
   public static final String BASE = "/api/monevi";
 
   public static final String ORGANIZATION = "/organization";
+  public static final String ORGANIZATION_REGION = "/organization-region";
   public static final String REGION = "/region";
   public static final String STUDENT = "/student";
   public static final String SUPERVISOR = "/supervisor";
@@ -13,13 +14,15 @@ public class ApiPath {
   public static final String REPORT = "/report";
   public static final String PROGRAM = "/program";
   public static final String USER = "/user";
-  public static final String AUTH = USER + "/auth";
+  public static final String AUTH = "/auth";
+  public static final String HISTORY = "/history";
 
   public static final String FIND_ALL = "/all";
   public static final String CREATE_NEW = "/create-new";
   public static final String ADD_REGION = "/add-region";
   public static final String REJECT = "/reject";
   public static final String APPROVE = "/approve";
+  public static final String LOCK = "/lock";
   public static final String REGISTER = "/register";
   public static final String LOGIN = "/login";
   public static final String RESET_PASSWORD = "/reset-password";
@@ -32,4 +35,7 @@ public class ApiPath {
   public static final String EDIT = "/edit";
   public static final String DELETE = "/delete";
   public static final String SUMMARIZE = "/summarize";
+  public static final String CONVERT_EXCEL = "/convert-excel";
+  public static final String FIND_ORGANIZATION_WITH_PROGRAM = FIND_ALL + "/program-exists";
+  public static final String FIND_ORGANIZATION_WITH_REPORT = FIND_ALL + "/report-exists";
 }

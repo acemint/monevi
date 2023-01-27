@@ -3,6 +3,8 @@ package com.monevi.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+
 import com.monevi.entity.UserAccount;
 import com.monevi.enums.UserAccountRole;
 import com.monevi.exception.ApplicationException;
@@ -18,6 +20,6 @@ public interface UserAccountCustomRepository {
       Integer periodMonth, Integer periodYear, String organizationRegionId, UserAccountRole role)
       throws ApplicationException;
 
-  Optional<List<UserAccount>> findAllStudentByFilter(GetStudentFilter filter)
+  Page<UserAccount> findAllStudentByFilter(GetStudentFilter filter)
       throws ApplicationException;
 }

@@ -37,7 +37,6 @@ public class Transaction extends BaseEntity {
   public static final String PROOF_COLUMN_NAME = "PROOF";
   public static final String GENERAL_LEDGER_ACCOUNT_TYPE = "GENERAL_LEDGER_ACCOUNT_TYPE";
   public static final String REPORT_ID_COLUMN_NAME = "REPORT_ID";
-  public static final String PROGRAM_ID_COLUMN_NAME = "PROGRAM_ID";
   public static final String ORGANIZATION_REGION_ID_COLUMN_NAME = "ORGANIZATION_REGION_ID";
 
   @Column(name = Transaction.NAME_COLUMN_NAME, nullable = false)
@@ -76,9 +75,5 @@ public class Transaction extends BaseEntity {
   @ManyToOne
   @JoinColumn(name = Transaction.REPORT_ID_COLUMN_NAME, nullable = false)
   private Report report;
-
-  @ManyToOne
-  @JoinColumn(name = Transaction.PROGRAM_ID_COLUMN_NAME)
-  private Program program;
 
 }

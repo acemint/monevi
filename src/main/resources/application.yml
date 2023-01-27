@@ -1,8 +1,6 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    type: org.apache.tomcat.jdbc.pool.DataSource
     driver-class-name: org.postgresql.Driver
   mail:
     host: smtp.gmail.com
@@ -37,3 +35,7 @@ monevi:
   redirect:
     reset-password:
       url: ${MONEVI_FRONT_END_URL}
+    login:
+      url: ${MONEVI_LOGIN_REDIRECT_URL}
+  cors:
+    allowed-path: ${MONEVI_ALLOWED_PATH}

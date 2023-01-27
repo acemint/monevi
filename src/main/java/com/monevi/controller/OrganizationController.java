@@ -1,24 +1,26 @@
 package com.monevi.controller;
 
 import com.monevi.converter.Converter;
-import com.monevi.dto.request.OrganizationCreateNewRequest;
 import com.monevi.dto.request.OrganizationAddRegionRequest;
+import com.monevi.dto.request.OrganizationCreateNewRequest;
 import com.monevi.dto.response.BaseResponse;
 import com.monevi.dto.response.MultipleBaseResponse;
+import com.monevi.dto.response.OrganizationRegionWithProgramResponse;
+import com.monevi.dto.response.OrganizationRegionWithReportResponse;
 import com.monevi.dto.response.OrganizationResponse;
 import com.monevi.entity.Organization;
 import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetOrganizationFilter;
+import com.monevi.model.GetOrganizationWithProgramExistsFilter;
 import com.monevi.service.OrganizationService;
 import com.monevi.util.OrganizationUrlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +41,9 @@ public class OrganizationController {
 
   @Autowired
   private Converter<Organization, OrganizationResponse> organizationToOrganizationResponseConverter;
+  
+  @Autowired
+  private Converter<Organization, OrganizationRegionWithProgramResponse> organizationOrganizationRegionWithProgramResponseConverter;
 
   @PostMapping(path = ApiPath.CREATE_NEW, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<OrganizationResponse> publishNewOrganizationData(
@@ -74,17 +79,17 @@ public class OrganizationController {
       @RequestParam(defaultValue = "name", required = false) String[] sortBy,
       @RequestParam(defaultValue = "true", required = false) String[] isAscending) throws ApplicationException {
     GetOrganizationFilter filter = this.buildDefaultGetOrganizationFilter(searchTerm, regionName, sortBy, isAscending, page, size);
-    List<OrganizationResponse> organizationResponses = this.organizationService.getOrganizations(filter)
-        .stream()
+    Page<Organization> responses = this.organizationService.getOrganizations(filter);
+    List<OrganizationResponse> organizationResponses = responses.getContent().stream()
         .map(o -> this.organizationToOrganizationResponseConverter.convert(o))
         .collect(Collectors.toList());
     return MultipleBaseResponse.<OrganizationResponse>builder()
         .values(organizationResponses)
         .metadata(MultipleBaseResponse.Metadata
             .builder()
-            .size(size)
-            .totalPage(0)
-            .totalItems(organizationResponses.size())
+            .size(organizationResponses.size())
+            .totalPage(responses.getTotalPages())
+            .totalItems(responses.getTotalElements())
             .build())
         .build();
   }
@@ -106,4 +111,59 @@ public class OrganizationController {
         .build();
   }
 
+  @GetMapping(path = ApiPath.FIND_ORGANIZATION_WITH_PROGRAM,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public MultipleBaseResponse<OrganizationRegionWithProgramResponse> getOrganizationsWithProgramExists(
+      @RequestParam String regionId,
+      @RequestParam(defaultValue = "0", required = false) int page,
+      @RequestParam(defaultValue = "1000", required = false) int size,
+      @RequestParam(defaultValue = "name", required = false) String[] sortBy,
+      @RequestParam(defaultValue = "true", required = false) String[] isAscending)
+      throws ApplicationException {
+    List<OrganizationRegionWithProgramResponse> responses =
+        this.organizationService.getOrganizationsWithProgramExists(regionId);
+    return MultipleBaseResponse.<OrganizationRegionWithProgramResponse>builder()
+        .values(responses)
+        .metadata(MultipleBaseResponse.Metadata.builder()
+            .size(responses.size())
+            .totalPage(0)
+            .totalItems(responses.size())
+            .build())
+        .build();
+  }
+
+  @GetMapping(path = ApiPath.FIND_ORGANIZATION_WITH_REPORT, produces = MediaType.APPLICATION_JSON_VALUE)
+  public MultipleBaseResponse<OrganizationRegionWithReportResponse> getOrganizationsWithReportExists(
+      @RequestParam String regionId,
+      @RequestParam(defaultValue = "0", required = false) int page,
+      @RequestParam(defaultValue = "1000", required = false) int size,
+      @RequestParam(defaultValue = "name", required = false) String[] sortBy,
+      @RequestParam(defaultValue = "true", required = false) String[] isAscending) throws ApplicationException {
+    List<OrganizationRegionWithReportResponse> organizationRegionWithReportResponses = this.organizationService.getOrganizationsWithReportExists(regionId);
+    return MultipleBaseResponse.<OrganizationRegionWithReportResponse>builder()
+        .values(organizationRegionWithReportResponses)
+        .metadata(MultipleBaseResponse.Metadata.builder()
+            .size(organizationRegionWithReportResponses.size())
+            .totalPage(0)
+            .totalItems(organizationRegionWithReportResponses.size())
+            .build())
+        .build();
+  }
+
+//  private GetOrganizationWithProgramExistsFilter buildDefaultGetOrganizationWithProgramFilter(
+//      String regionId, Integer periodYear, String[] sortBy, String[] isAscending, int page,
+//      int size) throws ApplicationException {
+//    List<Sort.Order> sortOrders = new ArrayList<>();
+//    int validSize = Math.min(sortBy.length, isAscending.length);
+//    for (int i = 0; i < validSize; i++) {
+//      OrganizationUrlUtils.checkValidSortedBy(sortBy[i]);
+//      sortOrders
+//          .add(new Sort.Order(OrganizationUrlUtils.getSortDirection(isAscending[i]), sortBy[i]));
+//    }
+//    Pageable pageable = PageRequest.of(page, size, Sort.by(sortOrders));
+//    return GetOrganizationWithProgramExistsFilter.builder()
+//        .regionId(regionId)
+//        .periodYear(periodYear)
+//        .pageable(pageable).build();
+//  }
 }

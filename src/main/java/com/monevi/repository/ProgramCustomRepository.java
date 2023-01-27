@@ -2,12 +2,10 @@ package com.monevi.repository;
 
 import com.monevi.entity.Program;
 import com.monevi.model.GetProgramFilter;
-
-import java.util.List;
-import java.util.Optional;
+import org.springframework.data.domain.Page;
 
 public interface ProgramCustomRepository {
 
-  Optional<List<Program>> getPrograms(GetProgramFilter filter);
+  Page<Program> getPrograms(GetProgramFilter filter);
 
 }

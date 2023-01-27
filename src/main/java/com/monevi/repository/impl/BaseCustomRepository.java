@@ -46,7 +46,7 @@ public abstract class BaseCustomRepository {
     if (Objects.isNull(pageable)) {
       return;
     }
-    typedQuery.setFirstResult((int) pageable.getOffset())
+    typedQuery.setFirstResult(pageable.getPageNumber() * pageable.getPageSize())
         .setMaxResults(pageable.getPageSize());
   }
 

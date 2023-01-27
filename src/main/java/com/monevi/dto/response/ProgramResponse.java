@@ -18,5 +18,7 @@ public class ProgramResponse {
   private double subsidy;
   private long startDate;
   private long endDate;
+  private int periodYear;
+  private boolean lockedProgram;
 
 }

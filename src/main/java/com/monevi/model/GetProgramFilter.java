@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 public class GetProgramFilter {
 
   private String organizationRegionId;
+  private Integer periodYear;
   private Pageable pageable;
 
 }

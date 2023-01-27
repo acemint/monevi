@@ -2,12 +2,14 @@ package com.monevi.repository;
 
 import com.monevi.entity.Organization;
 import com.monevi.model.GetOrganizationFilter;
-
-import java.util.List;
-import java.util.Optional;
+import com.monevi.model.GetOrganizationWithProgramExistsFilter;
+import org.springframework.data.domain.Page;
 
 public interface OrganizationCustomRepository {
 
-  Optional<List<Organization>> getOrganization(GetOrganizationFilter filter);
+  Page<Organization> getOrganization(GetOrganizationFilter filter);
+  
+  Page<Organization> getOrganizationByRegionAndPeriodAndProgramExists(
+      GetOrganizationWithProgramExistsFilter filter);
 
 }
