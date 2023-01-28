@@ -2,7 +2,9 @@ package com.monevi.security.configuration;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -79,7 +81,8 @@ public class WebSecurityConfiguration {
             "/api/monevi/user/**",
             "/api/monevi/report/**",
             "/api/monevi/program/**",
-            "/api/monevi/organization/**")
+            "/api/monevi/organization/**",
+            "/api/monevi/wallet/**")
         .authenticated();
     http.authenticationProvider(authenticationProvider());
     http.addFilterBefore(authenticationJwtTokenFilter(),
@@ -92,7 +95,8 @@ public class WebSecurityConfiguration {
     List<String> listOfAllowedMethod = Arrays.asList("GET", "PUT", "POST", "DELETE");
     List<String> listOfAllowedHeaders =
         Arrays.asList("Authorization", "Content-Type", "Cache-Control");
-    List<String> listOfAllowedOrigins = Arrays.asList(allowedPath);
+    List<String> listOfAllowedOrigins =
+        Arrays.stream(StringUtils.split(allowedPath, ",")).collect(Collectors.toList());
     CorsConfiguration configuration = new CorsConfiguration();
 
     configuration.setAllowedOriginPatterns(listOfAllowedOrigins);

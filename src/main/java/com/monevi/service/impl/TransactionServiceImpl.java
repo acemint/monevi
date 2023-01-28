@@ -11,6 +11,7 @@ import com.monevi.entity.ReportComment;
 import com.monevi.entity.ReportGeneralLedgerAccount;
 import com.monevi.repository.GeneralLedgerAccountRepository;
 import com.monevi.repository.ReportCommentRepository;
+import com.monevi.service.WalletService;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -52,6 +53,9 @@ public class TransactionServiceImpl implements TransactionService {
   @Autowired
   private ReportCommentRepository reportCommentRepository;
 
+  @Autowired
+  private WalletService walletService;
+
   @Override
   public List<Transaction> createTransactions(List<CreateTransactionRequest> requests)
       throws ApplicationException {
@@ -75,9 +79,19 @@ public class TransactionServiceImpl implements TransactionService {
         .orElseThrow(() -> new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
             ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
     this.checkMonthlyReport(organizationRegion, request.getTransactionDate());
+    this.validateTransactionDate(request.getTransactionDate());
     Transaction transaction = this.buildTransaction(request);
     transaction.setOrganizationRegion(organizationRegion);
-    return this.transactionRepository.save(transaction);
+    this.transactionRepository.save(transaction);
+    this.walletService.recalculateWalletByGeneralLedgerAccountType(transaction);
+    return transaction;
+  }
+
+  private void validateTransactionDate(String transactionDate) throws ApplicationException {
+    Long date = DateUtils.convertDateToLong(transactionDate);
+    if (date > System.currentTimeMillis()) {
+      throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.INVALID_DATE);
+    }
   }
 
   private void checkMonthlyReport(OrganizationRegion organizationRegion, String date)
@@ -173,14 +187,18 @@ public class TransactionServiceImpl implements TransactionService {
         DateUtils.convertTimestampToString(existingTransaction.getTransactionDate()));
     this.checkMonthlyReport(existingTransaction.getOrganizationRegion(),
         DateUtils.convertTimestampToString(existingTransaction.getTransactionDate()));
+    this.walletService.recalculateWalletByRemovedTransaction(existingTransaction);
 
+    this.validateTransactionDate(request.getTransactionDate());
     Transaction updatedTransaction = this.buildTransaction(request, existingTransaction);
     this.throwErrorOnExistingReportWithStatusApprovedBySupervisor(
         existingTransaction.getOrganizationRegion().getId(),
         DateUtils.convertTimestampToString(updatedTransaction.getTransactionDate()));
     this.checkMonthlyReport(existingTransaction.getOrganizationRegion(),
         request.getTransactionDate());
-    return this.transactionRepository.save(updatedTransaction);
+    this.transactionRepository.save(updatedTransaction);
+    this.walletService.recalculateWalletByGeneralLedgerAccountType(updatedTransaction);
+    return updatedTransaction;
   }
   
   private Transaction buildTransaction(UpdateTransactionRequest request,
@@ -203,6 +221,7 @@ public class TransactionServiceImpl implements TransactionService {
         this.transactionRepository.findByIdAndMarkForDeleteFalse(transactionId)
             .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
                 ErrorMessages.TRANSACTION_NOT_FOUND));
+    this.walletService.recalculateWalletByRemovedTransaction(transaction);
     transaction.setMarkForDelete(true);
     this.transactionRepository.save(transaction);
     return Boolean.TRUE;

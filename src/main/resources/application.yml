@@ -3,10 +3,10 @@ spring:
     type: org.apache.tomcat.jdbc.pool.DataSource
     driver-class-name: org.postgresql.Driver
   mail:
-    host: smtp.gmail.com
+    host: ${MONEVI_MAIL_HOST}
     port: 587
-    username: ${MONEVI_GMAIL_USERNAME}
-    password: ${MONEVI_GMAIL_PASSWORD}
+    username: ${MONEVI_MAIL_USERNAME}
+    password: ${MONEVI_MAIL_PASSWORD}
     smtpAuth: true
     smtpStartTlsEnable: true
     mailDebug: true
@@ -31,7 +31,7 @@ monevi:
     secretKey: ${MONEVI_SECRET_KEY}
     access:
       token:
-        expiration-time: 18000000
+        expiration-time: ${MONEVI_JWT_EXPIRATION_TIME}
   redirect:
     reset-password:
       url: ${MONEVI_FRONT_END_URL}
