@@ -29,12 +29,10 @@ public class MessageServiceImpl implements MessageService {
   private static final String REPORT_YEAR = "reportYear";
   private static final String ORGANIZATION_NAME = "organizationName";
   private static final String DEFAULT_SUBJECT = "Monevi";
+  private static final String SENDER = "no-reply@monevi.com";
 
   @Autowired
   private JavaMailConfiguration javaMailSender;
-
-  @Value("${spring.mail.username}")
-  private String sender;
 
   @Override
   public SendMessageResponse sendEmail(SendEmailRequest request) {
@@ -52,7 +50,7 @@ public class MessageServiceImpl implements MessageService {
       String htmlBody = javaMailSender.templateEngine()
           .process(request.getMessageTemplateId().getTemplateFile(), ctx);
 
-      mailMessage.setFrom(new InternetAddress(sender));
+      mailMessage.setFrom(new InternetAddress(SENDER));
       mailMessage.setTo(InternetAddress.parse(request.getRecipient()));
       mailMessage.setText(htmlBody, true);
       mailMessage.setSubject(toSubject(request.getMessageTemplateId(), request.getVariables()));
@@ -86,7 +84,7 @@ public class MessageServiceImpl implements MessageService {
   
   private SendMessageResponse toSendMessageResponse(SendEmailRequest request) {
     return SendMessageResponse.builder()
-        .sender(sender)
+        .sender(SENDER)
         .recipient(request.getRecipient())
         .messageType(request.getMessageTemplateId().name())
         .build();

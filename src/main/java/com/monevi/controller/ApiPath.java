@@ -16,6 +16,7 @@ public class ApiPath {
   public static final String USER = "/user";
   public static final String AUTH = "/auth";
   public static final String HISTORY = "/history";
+  public static final String WALLET = "/wallet";
 
   public static final String FIND_ALL = "/all";
   public static final String CREATE_NEW = "/create-new";
@@ -38,4 +39,5 @@ public class ApiPath {
   public static final String CONVERT_EXCEL = "/convert-excel";
   public static final String FIND_ORGANIZATION_WITH_PROGRAM = FIND_ALL + "/program-exists";
   public static final String FIND_ORGANIZATION_WITH_REPORT = FIND_ALL + "/report-exists";
+  public static final String CALCULATE = "/calculate";
 }

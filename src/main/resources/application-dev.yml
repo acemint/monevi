@@ -6,10 +6,10 @@ spring:
     password: test123
     driver-class-name: org.postgresql.Driver
   mail:
-    host: smtp.gmail.com
+    host: smtp.mailtrap.io
     port: 587
-    username: monevi.test@gmail.com
-    password: test123 # ask first before using this value
+    username: username  # ask first
+    password: test123   # ask first
     smtpAuth: true
     smtpStartTlsEnable: true
     mailDebug: true
@@ -43,6 +43,6 @@ monevi:
     reset-password:
       url: https://monevi.netlify.app/reset-password?token=%s
     login:
-     url: https://monevi.netlify.app/
+     url: https://monevi.netlify.app/login/
   cors:
     allowed-path: http://localhost:5173/

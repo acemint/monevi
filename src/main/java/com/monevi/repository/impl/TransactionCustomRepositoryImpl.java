@@ -7,6 +7,8 @@ import com.monevi.entity.Region;
 import com.monevi.entity.Region_;
 import com.monevi.entity.Transaction;
 import com.monevi.entity.Transaction_;
+import com.monevi.enums.EntryPosition;
+import com.monevi.enums.GeneralLedgerAccountType;
 import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetTransactionFilter;
 import com.monevi.repository.TransactionCustomRepository;
@@ -110,4 +112,41 @@ public class TransactionCustomRepositoryImpl
     return predicates;
   }
 
+  @Override
+  public Double calculateTotalByGeneralLedgerAccountTypeAndOrganizationRegionId(
+      GeneralLedgerAccountType type, String organizationRegionId) throws ApplicationException {
+    CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
+    CriteriaQuery<Double> transactionCriteriaQuery = builder.createQuery(Double.class);
+    Root<Transaction> transactionRoot = transactionCriteriaQuery.from(Transaction.class);
+
+    transactionCriteriaQuery
+        .select(builder.sum(builder.selectCase()
+            .when(builder.equal(transactionRoot.get(Transaction_.ENTRY_POSITION),
+                EntryPosition.CREDIT), builder.neg(transactionRoot.get(Transaction_.amount)))
+            .when(builder.equal(transactionRoot.get(Transaction_.ENTRY_POSITION),
+                EntryPosition.DEBIT), transactionRoot.get(Transaction_.amount))
+            .otherwise(0).as(Double.class)))
+        .where(
+            builder.and(this.predicateBuilder(builder, transactionRoot, type, organizationRegionId)
+                .toArray(new Predicate[0])));
+
+    try {
+      return Optional
+          .ofNullable(this.entityManager.createQuery(transactionCriteriaQuery).getSingleResult())
+          .orElse(0d);
+    } catch (Exception e) {
+      return 0d;
+    }
+  }
+
+  private List<Predicate> predicateBuilder(CriteriaBuilder builder, Root<Transaction> root,
+      GeneralLedgerAccountType type, String organizationRegionId) throws ApplicationException {
+    List<Predicate> predicates = new ArrayList<>();
+    Join<Transaction, OrganizationRegion> organizationRegionJoin =
+        root.join(Transaction_.ORGANIZATION_REGION);
+    predicates.add(
+        builder.equal(organizationRegionJoin.get(OrganizationRegion_.id), organizationRegionId));
+    predicates.add(builder.equal(root.get(Transaction_.generalLedgerAccountType), type));
+    return predicates;
+  }
 }
