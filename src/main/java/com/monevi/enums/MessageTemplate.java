@@ -7,11 +7,12 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum MessageTemplate {
 
-  RESET_PASSWORD("Reset Your Password", "reset-password-template.html"),
-  APPROVED_ACCOUNT("Your Account Has Been Approved", "approved-account-template.html"),
-  SUBMITTED_REPORT("Review Request: %s's %s %s Report ", "submitted-report-template.html"),
-  APPROVED_REPORT( "%s %s Report Has Been Accepted", "approved-report-template.html"),
-  DECLINED_REPORT("%s %s Report Has Been Reviewed", "declined-report-template.html");
+  ACCOUNT_VERIFICATION("Verifikasi Akun Anda", "supervisor-account-verification-template.html"),
+  RESET_PASSWORD("Permintaan Pengaturan Ulang Password", "reset-password-template.html"),
+  APPROVED_ACCOUNT("Akun Anda Telah Diverifikasi", "approved-account-template.html"),
+  SUBMITTED_REPORT("Permintaan Review: Laporan Keuangan %s Bulan %s %s", "submitted-report-template.html"),
+  APPROVED_REPORT( "Laporan Keuangan Bulan %s %s Telah Disetujui", "approved-report-template.html"),
+  DECLINED_REPORT("Laporan Keuangan Bulan %s %s Telah Diperiksa", "declined-report-template.html");
 
   private final String subject;
   private final String templateFile;

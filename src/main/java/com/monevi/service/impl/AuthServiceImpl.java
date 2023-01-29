@@ -1,6 +1,5 @@
 package com.monevi.service.impl;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,6 +7,7 @@ import java.util.UUID;
 
 import com.monevi.configuration.PasswordEncoderConfiguration;
 import com.monevi.dto.request.ResetPasswordRequest;
+import com.monevi.enums.UserAccountRole;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +36,7 @@ public class AuthServiceImpl implements AuthService {
 
   private static final Long EXPIRY_TIME = 3600000L;
   private static final String URL_KEY = "url";
+  private static final String USER_NAME = "name";
   
   @Value("${monevi.redirect.reset-password.url}")
   private String resetPasswordBaseUrl;
@@ -81,7 +82,8 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public Boolean generateResetPasswordToken(String email) throws ApplicationException {
+  public Boolean generateResetPasswordToken(String email, MessageTemplate template)
+      throws ApplicationException {
     UserAccount user = this.userAccountRepository.findByEmailAndMarkForDeleteFalse(email)
         .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
             ErrorMessages.USER_ACCOUNT_NOT_FOUND));
@@ -90,7 +92,7 @@ public class AuthServiceImpl implements AuthService {
     user.setResetPasswordTokenExpiredDate(this.generateExpiryTime());
     this.userAccountRepository.save(user);
 
-    this.messageService.sendEmail(this.generateResetPasswordEmailRequest(user));
+    this.messageService.sendEmail(this.generateEmailRequest(user, template));
     return Boolean.TRUE;
   }
 
@@ -103,11 +105,14 @@ public class AuthServiceImpl implements AuthService {
     return new Timestamp(expiredDate);
   }
 
-  private SendEmailRequest generateResetPasswordEmailRequest(UserAccount userAccount) {
+  private SendEmailRequest generateEmailRequest(UserAccount userAccount, MessageTemplate template) {
+    String honorfics = UserAccountRole.SUPERVISOR.equals(userAccount.getRole()) ? "Bapak/Ibu " : "";
+    String name = StringUtils.split(userAccount.getFullName(), " ")[0];
     Map<String, String> variables = new HashMap<>();
+    variables.put(USER_NAME, honorfics + name);
     variables.put(URL_KEY, this.generateResetPasswordUrl(userAccount.getResetPasswordToken()));
     return SendEmailRequest.builder()
-        .messageTemplateId(MessageTemplate.RESET_PASSWORD)
+        .messageTemplateId(template)
         .recipient(userAccount.getEmail())
         .variables(variables).build();
   }

@@ -94,11 +94,9 @@ public class ReportHistoryCustomRepositoryImpl extends BaseCustomRepository
       predicates.add(builder.equal(organizationRegion.get(OrganizationRegion_.id),
           filter.getOrganizationRegionId()));
       predicates.add(builder.equal(report.get(Report_.termOfOffice), filter.getTermOfOffice()));
-      predicates.add(builder.notEqual(userAccount.get(UserAccount_.role), filter.getUserRole()));
     } else if (UserAccountRole.SUPERVISOR.equals(filter.getUserRole())) {
       Join<OrganizationRegion, Region> region = organizationRegion.join(OrganizationRegion_.REGION);
       predicates.add(builder.equal(region.get(Region_.id), filter.getRegionId()));
-      predicates.add(builder.notEqual(userAccount.get(UserAccount_.id), filter.getUserId()));
       predicates.add(
           builder.or(builder.equal(userAccount.get(UserAccount_.role), UserAccountRole.SUPERVISOR),
               builder.and(

@@ -1,7 +1,9 @@
 package com.monevi.enums;
 
 import com.monevi.constant.ErrorMessages;
+import lombok.Getter;
 
+@Getter
 public enum GeneralLedgerAccountType {
 
   CASH ("CASH", "KAS"),

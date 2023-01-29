@@ -62,12 +62,14 @@ public class ReportServiceImpl implements ReportService {
   @Value("${monevi.redirect.login.url}")
   private String loginUrl;
 
+  private static final String USER_NAME = "name";
   private static final String URL_KEY = "url";
   private static final String REPORT_MONTH_KEY = "reportMonth";
   private static final String REPORT_YEAR_KEY = "reportYear";
   private static final String ORGANIZATION_NAME_KEY = "organizationName";
   private static final String COMMENT_KEY = "comment";
   private static final String COMMENTED_BY_KEY = "commentedBy";
+  private static final String SUPERVISOR_KEY = "supervisorName";
 
   @Autowired
   private OrganizationRegionRepository organizationRegionRepository;
@@ -164,7 +166,7 @@ public class ReportServiceImpl implements ReportService {
     this.throwErrorOnInvalidReportHandlingByUser(report, userAccount);
     this.rejectReport(report, userAccount.getFullName(), request.getComment());
     this.reportHistoryService.createReportHistory(userAccount.getId(), report.getId());
-    this.sendEmailToTreasurer(report, MessageTemplate.DECLINED_REPORT);
+    this.sendEmailToTreasurer(report, MessageTemplate.DECLINED_REPORT, null, userAccount.getRole());
     return this.reportRepository.save(report);
   }
 
@@ -252,7 +254,7 @@ public class ReportServiceImpl implements ReportService {
     }
     else if (report.getStatus().equals(ReportStatus.APPROVED_BY_CHAIRMAN)) {
       report.setStatus(ReportStatus.APPROVED_BY_SUPERVISOR);
-      this.sendEmailToTreasurer(report, MessageTemplate.APPROVED_REPORT);
+      this.sendEmailToTreasurer(report, MessageTemplate.APPROVED_REPORT, user.getFullName(), null);
     }
     if (Objects.nonNull(report.getReportComment())) {
       report.getReportComment().setMarkForDelete(true);
@@ -263,7 +265,7 @@ public class ReportServiceImpl implements ReportService {
     for (ReportGeneralLedgerAccount data : report.getReportGeneralLedgerAccounts()) {
       if (data.getOpname() != data.getTotal()) {
         throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
-            String.format(ErrorMessages.TOTAL_AND_OPNAME_NOT_MATCH, data.getName()));
+            String.format(ErrorMessages.TOTAL_AND_OPNAME_NOT_MATCH, data.getName().getExcelValue()));
       }
     }
   }
@@ -284,8 +286,8 @@ public class ReportServiceImpl implements ReportService {
                 ErrorMessages.ORGANIZATION_DOES_NOT_EXIST));
     String reportMonth = String.valueOf(report.getPeriodDate().toLocalDateTime().getMonth());
     Map<String, String> variables = new HashMap<>();
-    variables.put(REPORT_MONTH_KEY,
-        reportMonth.charAt(0) + reportMonth.substring(1).toLowerCase());
+    variables.put(USER_NAME, StringUtils.split(recipient.getFullName(), " ")[0]);
+    variables.put(REPORT_MONTH_KEY, reportMonth);
     variables.put(REPORT_YEAR_KEY, String.valueOf(report.getPeriodDate().toLocalDateTime().getYear()));
     variables.put(ORGANIZATION_NAME_KEY, organizationName);
     variables.put(URL_KEY, loginUrl);
@@ -314,8 +316,8 @@ public class ReportServiceImpl implements ReportService {
             ErrorMessages.ORGANIZATION_DOES_NOT_EXIST));
     String reportMonth = String.valueOf(report.getPeriodDate().toLocalDateTime().getMonth());
     Map<String, String> variables = new HashMap<>();
-    variables.put(REPORT_MONTH_KEY,
-        reportMonth.charAt(0) + reportMonth.substring(1).toLowerCase());
+    variables.put(USER_NAME, "Bapak/Ibu");
+    variables.put(REPORT_MONTH_KEY, reportMonth);
     variables.put(REPORT_YEAR_KEY, String.valueOf(report.getPeriodDate().toLocalDateTime().getYear()));
     variables.put(ORGANIZATION_NAME_KEY, organizationName);
     variables.put(URL_KEY, loginUrl);
@@ -327,7 +329,8 @@ public class ReportServiceImpl implements ReportService {
     this.messageService.sendEmail(request);
   }
 
-  private void sendEmailToTreasurer(Report report, MessageTemplate template) throws ApplicationException {
+  private void sendEmailToTreasurer(Report report, MessageTemplate template, String approvedBy, UserAccountRole rejectedBy)
+      throws ApplicationException {
     UserAccount recipient = this.userAccountRepository
         .findAssignedUserByOrganizationRegionIdAndRoleAndMarkForDeleteFalse(null,
             report.getTermOfOffice(), report.getOrganizationRegion().getId(),
@@ -336,13 +339,16 @@ public class ReportServiceImpl implements ReportService {
             ErrorMessages.USER_ACCOUNT_NOT_FOUND));
     String reportMonth = String.valueOf(report.getPeriodDate().toLocalDateTime().getMonth());
     Map<String, String> variables = new HashMap<>();
-    variables.put(REPORT_MONTH_KEY,
-        reportMonth.charAt(0) + reportMonth.substring(1).toLowerCase());
+    variables.put(USER_NAME, StringUtils.split(recipient.getFullName(), " ")[0]);
+    variables.put(REPORT_MONTH_KEY, reportMonth);
     variables.put(REPORT_YEAR_KEY, String.valueOf(report.getPeriodDate().toLocalDateTime().getYear()));
 
-    if(MessageTemplate.DECLINED_REPORT.equals(template)) {
+    if (MessageTemplate.DECLINED_REPORT.equals(template)) {
+      String honorfic = UserAccountRole.SUPERVISOR.equals(rejectedBy) ? "Bapak/Ibu " : "";
       variables.put(COMMENT_KEY, report.getReportComment().getContent());
-      variables.put(COMMENTED_BY_KEY, report.getReportComment().getCommentedBy());
+      variables.put(COMMENTED_BY_KEY, honorfic + report.getReportComment().getCommentedBy());
+    } else {
+      variables.put(SUPERVISOR_KEY, StringUtils.split(approvedBy, " ")[0]);
     }
 
     SendEmailRequest request =
