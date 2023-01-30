@@ -46,6 +46,7 @@ public interface ErrorMessages {
   String PROGRAM_IS_LOCKED = "Program sudah dikunci dan tidak bisa diubah";
   String PROGRAM_HANDLING_IS_PROHIBITED = "Tidak bisa menambahkan program";
   String INVALID_START_DATE_END_DATE = "Tanggal selesai tidak boleh mendahului tanggal mulai";
-  String INVALID_DATE = "Tanggal tidak valid";
+  String INVALID_TRANSACTION_DATE = "Tanggal tidak boleh kurang dari hari ini";
+  String INVALID_PROGRAM_DATE = "Tanggal tidak boleh lebih dari hari ini";
   String FAILED_TO_SEND_EMAIL = "Gagal mengirim email";
 }
