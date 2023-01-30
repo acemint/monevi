@@ -21,7 +21,7 @@ public class CreateStudentRequest {
     // TODO: Create validation for student role (MINOR)
 
     @NotBlank
-    @Length(min = 10, max = 10, message = "nim must consists of 10 characters")
+    @Length(min = 10, max = 10, message = "NIM harus berjumlah 10 karakter")
     private String nim;
 
     @NotBlank
@@ -31,7 +31,7 @@ public class CreateStudentRequest {
     private String email;
 
     @NotBlank
-    @Length(min = 8, message = "minimum 8 characters")
+    @Length(min = 8, message = "Password minimal 8 karakter")
     private String password;
 
     @NotNull

@@ -77,7 +77,7 @@ public class ProgramServiceImpl implements ProgramService {
     Long dateToValidate = DateUtils.convertDateToLong(date);
     Long currentDate = new LocalDate().toDate().getTime();
     if (dateToValidate < currentDate) {
-      throw new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_DATE);
+      throw new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_PROGRAM_DATE);
     }
   }
 

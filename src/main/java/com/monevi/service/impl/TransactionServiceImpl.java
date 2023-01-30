@@ -90,7 +90,7 @@ public class TransactionServiceImpl implements TransactionService {
   private void validateTransactionDate(String transactionDate) throws ApplicationException {
     Long date = DateUtils.convertDateToLong(transactionDate);
     if (date > System.currentTimeMillis()) {
-      throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.INVALID_DATE);
+      throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.INVALID_TRANSACTION_DATE);
     }
   }
 
@@ -221,6 +221,8 @@ public class TransactionServiceImpl implements TransactionService {
         this.transactionRepository.findByIdAndMarkForDeleteFalse(transactionId)
             .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
                 ErrorMessages.TRANSACTION_NOT_FOUND));
+    this.checkMonthlyReport(transaction.getOrganizationRegion(),
+        DateUtils.convertTimestampToString(transaction.getTransactionDate()));
     this.walletService.recalculateWalletByRemovedTransaction(transaction);
     transaction.setMarkForDelete(true);
     this.transactionRepository.save(transaction);
