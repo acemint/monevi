@@ -1,7 +1,7 @@
 package com.monevi.dto.request;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -46,6 +46,7 @@ public class CreateTransactionRequest {
 
   private String description;
 
+  @NotNull(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private String proof;
   
 }
