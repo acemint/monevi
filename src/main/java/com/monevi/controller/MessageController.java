@@ -2,6 +2,7 @@ package com.monevi.controller;
 
 import javax.validation.Valid;
 
+import com.monevi.exception.ApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +25,7 @@ public class MessageController {
   @PostMapping(value = ApiPath.SEND_EMAIL, consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<SendMessageResponse> authenticateUser(
-      @Valid @RequestBody SendEmailRequest request) {
+      @Valid @RequestBody SendEmailRequest request) throws ApplicationException {
     SendMessageResponse response = this.messageService.sendEmail(request);
     return BaseResponse.<SendMessageResponse>builder().value(response).build();
   }

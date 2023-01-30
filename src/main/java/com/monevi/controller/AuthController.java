@@ -10,6 +10,7 @@ import com.monevi.dto.request.CreateStudentRequest;
 import com.monevi.dto.request.CreateSupervisorRequest;
 import com.monevi.dto.response.UserAccountResponse;
 import com.monevi.entity.UserAccount;
+import com.monevi.enums.MessageTemplate;
 import com.monevi.service.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -74,7 +75,8 @@ public class AuthController {
   @GetMapping(value = ApiPath.RESET_PASSWORD_REQUEST, produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<Boolean> generateResetPasswordRequest(@RequestParam @NotBlank String email)
       throws ApplicationException {
-    Boolean response = this.authService.generateResetPasswordToken(email);
+    Boolean response =
+        this.authService.generateResetPasswordToken(email, MessageTemplate.RESET_PASSWORD);
     return BaseResponse.<Boolean>builder().value(response).build();
   }
 

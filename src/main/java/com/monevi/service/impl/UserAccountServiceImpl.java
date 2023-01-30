@@ -10,7 +10,9 @@ import java.util.stream.Collectors;
 import com.monevi.dto.request.SendEmailRequest;
 import com.monevi.enums.MessageTemplate;
 import com.monevi.service.MessageService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,12 @@ import com.monevi.service.UserAccountService;
 
 @Service
 public class UserAccountServiceImpl implements UserAccountService {
+
+  @Value("${monevi.redirect.login.url}")
+  private String loginUrl;
+  
+  private static final String USER_NAME = "name";
+  private static final String URL_KEY = "url";
 
   @Autowired
   private PasswordEncoderConfiguration passwordEncoder;
@@ -77,14 +85,6 @@ public class UserAccountServiceImpl implements UserAccountService {
         .filter(or -> filterByRegionNameAndMarkForDeleteFalse(or, request.getRegionName()))
         .findFirst().orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST,
             ErrorMessages.ORGANIZATION_REGION_DOES_NOT_EXISTS));
-
-    Optional<UserAccount> studentWithRole = this.userAccountRepository
-        .findAssignedUserByOrganizationRegionIdAndRoleAndMarkForDeleteFalse(
-            request.getPeriodMonth(), request.getPeriodYear(), organizationRegion.getId(),
-            UserAccountRole.valueOf(request.getRole()));
-    if (studentWithRole.isPresent()) {
-      throw new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.ROLE_ALREADY_TAKEN);
-    }
     
     this.checkIsAssignedUserExists(request.getPeriodMonth(), request.getPeriodYear(),
         organizationRegion.getId(), UserAccountRole.valueOf(request.getRole()));
@@ -116,7 +116,8 @@ public class UserAccountServiceImpl implements UserAccountService {
         .findAssignedUserByOrganizationRegionIdAndRoleAndMarkForDeleteFalse(periodMonth, periodYear,
             organizationRegionId, role);
     if (studentWithRole.isPresent()) {
-      throw new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.ROLE_ALREADY_TAKEN);
+      throw new ApplicationException(HttpStatus.BAD_REQUEST,
+          String.format(ErrorMessages.ROLE_ALREADY_TAKEN, role.getName()));
     }
   }
 
@@ -143,7 +144,8 @@ public class UserAccountServiceImpl implements UserAccountService {
     newSupervisor.setPassword(this.passwordEncoder.encoder().encode(supervisor.getPassword()));
 
     this.userAccountRepository.save(newSupervisor);
-    this.authService.generateResetPasswordToken(supervisor.getEmail());
+    this.authService.generateResetPasswordToken(supervisor.getEmail(),
+        MessageTemplate.ACCOUNT_VERIFICATION);
     return newSupervisor;
   }
 
@@ -177,13 +179,16 @@ public class UserAccountServiceImpl implements UserAccountService {
     return userAccount;
   }
   
-  private void sendEmailToStudent(String studentEmail, String studentName) {
-//    Map<String, String> variables = new HashMap<>();
-//    variables.put("studentName", studentName);
-    SendEmailRequest request = SendEmailRequest.builder()
-        .messageTemplateId(MessageTemplate.APPROVED_ACCOUNT)
-//        .variables(variables)
-        .recipient(studentEmail).build();
+  private void sendEmailToStudent(String studentEmail, String studentName)
+      throws ApplicationException {
+    Map<String, String> variables = new HashMap<>();
+    variables.put(USER_NAME, StringUtils.split(studentName, " ")[0]);
+    variables.put(URL_KEY, loginUrl);
+    SendEmailRequest request =
+        SendEmailRequest.builder()
+            .messageTemplateId(MessageTemplate.APPROVED_ACCOUNT)
+            .variables(variables)
+            .recipient(studentEmail).build();
     this.messageService.sendEmail(request);
   }
 

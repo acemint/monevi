@@ -44,5 +44,7 @@ monevi:
       url: https://monevi.netlify.app/reset-password?token=%s
     login:
      url: https://monevi.netlify.app/login/
+  mail:
+    sender: no-reply@monevi.com
   cors:
     allowed-path: http://localhost:5173/
