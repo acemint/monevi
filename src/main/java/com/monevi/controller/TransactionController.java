@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,6 +58,7 @@ public class TransactionController {
   @Qualifier(TransactionToTransactionResponseConverter.TRANSACTION_TO_TRANSACTION_RESPONSE_BEAN_NAME + Converter.SUFFIX_BEAN_NAME)
   private Converter<Transaction, TransactionResponse> transactionToTransactionResponseConverter;
 
+  @PreAuthorize("hasRole('TREASURER')")
   @PostMapping(value = ApiPath.CREATE_NEW, consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public MultipleBaseResponse<TransactionResponse> createNewTransaction(
@@ -75,6 +77,7 @@ public class TransactionController {
         .build();
   }
 
+  @PreAuthorize("hasRole('TREASURER')")
   @PutMapping(value = ApiPath.EDIT)
   public BaseResponse<TransactionResponse> updateTransaction(
       @RequestParam @NotBlank String transactionId,
@@ -86,6 +89,7 @@ public class TransactionController {
         .value(this.transactionToTransactionResponseConverter.convert(newTransaction)).build();
   }
 
+  @PreAuthorize("hasRole('TREASURER')")
   @DeleteMapping(value = ApiPath.DELETE)
   public BaseResponse<Boolean> deleteTransaction(@RequestParam @NotBlank String transactionId)
       throws ApplicationException {

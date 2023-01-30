@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,6 +46,7 @@ public class OrganizationController {
   @Autowired
   private Converter<Organization, OrganizationRegionWithProgramResponse> organizationOrganizationRegionWithProgramResponseConverter;
 
+  @PreAuthorize("hasRole('SUPERVISOR')")
   @PostMapping(path = ApiPath.CREATE_NEW, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<OrganizationResponse> publishNewOrganizationData(
       @Valid @RequestBody OrganizationCreateNewRequest organizationRequest) throws ApplicationException {

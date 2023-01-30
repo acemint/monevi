@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -85,6 +86,7 @@ public class ReportController {
         .build();
   }
 
+  @PreAuthorize("hasRole('TREASURER')")
   @PostMapping(value = ApiPath.SUBMIT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<ReportResponse> submitReport(
       @Valid @RequestBody SubmitReportRequest request) throws ApplicationException {
@@ -94,6 +96,7 @@ public class ReportController {
         .build();
   }
 
+  @PreAuthorize("hasAnyRole('CHAIRMAN', 'SUPERVISOR')")
   @PostMapping(value = ApiPath.REJECT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<ReportResponse> reject(
       @Valid @RequestBody ReportRejectRequest request) throws ApplicationException {
@@ -103,6 +106,7 @@ public class ReportController {
         .build();
   }
 
+  @PreAuthorize("hasAnyRole('TREASURER', 'CHAIRMAN', 'SUPERVISOR')")
   @PostMapping(value = ApiPath.APPROVE, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<ReportResponse> approve(
       @Valid @RequestBody ReportApproveRequest request) throws ApplicationException {
