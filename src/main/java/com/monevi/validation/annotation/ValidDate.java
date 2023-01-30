@@ -22,7 +22,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface ValidDate {
 
     // TODO: check how is this annotation able to be processed for RequestParameter
-    String message() default "invalid date";
+    String message() default "Format tanggal tidak sesuai";
 
     Class<?>[] groups() default {};
 

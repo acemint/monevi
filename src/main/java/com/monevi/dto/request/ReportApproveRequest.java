@@ -1,6 +1,7 @@
 package com.monevi.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.monevi.constant.ErrorMessages;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,10 +16,10 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public class ReportApproveRequest {
 
-  @NotBlank
+  @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private String reportId;
 
-  @NotBlank
+  @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private String userId;
 
 }

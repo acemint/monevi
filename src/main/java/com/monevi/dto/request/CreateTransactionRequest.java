@@ -1,17 +1,20 @@
 package com.monevi.dto.request;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.monevi.constant.ErrorMessages;
 import com.monevi.enums.EntryPosition;
 import com.monevi.enums.GeneralLedgerAccountType;
 import com.monevi.enums.TransactionType;
 import com.monevi.validation.annotation.ValidDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Positive;
 
 @Data
 @Builder
@@ -20,16 +23,16 @@ import javax.validation.constraints.Positive;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateTransactionRequest {
 
-  @NotBlank
+  @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private String organizationRegionId;
 
-  @NotBlank
+  @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private String name;
 
   @ValidDate
   private String transactionDate;
 
-  @Positive
+  @Positive(message = ErrorMessages.MUST_BE_POSITIVE)
   private double amount;
 
   // TODO: create validation to make sure that only DEBIT/CREDIT can be inputted
@@ -41,7 +44,6 @@ public class CreateTransactionRequest {
   // TODO: create validation to make sure that only enum of GeneralLedgerAccountType can be inputted
   private GeneralLedgerAccountType generalLedgerAccountType;
 
-  @NotBlank
   private String description;
 
   private String proof;

@@ -48,4 +48,7 @@ public interface ErrorMessages {
   String INVALID_START_DATE_END_DATE = "Tanggal selesai tidak boleh mendahului tanggal mulai";
   String INVALID_DATE = "Tanggal tidak valid";
   String FAILED_TO_SEND_EMAIL = "Gagal mengirim email";
+  String MUST_NOT_BE_BLANK = "Data tidak boleh kosong";
+  String MUST_BE_POSITIVE = "Nominal transaksi tidak boleh kurang dari sama dengan 0";
+  String MUST_BE_POSITIVE_OR_ZERO = "Nominal transaksi tidak boleh kurang dari 0";
 }

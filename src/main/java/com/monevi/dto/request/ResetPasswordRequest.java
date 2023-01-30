@@ -1,5 +1,6 @@
 package com.monevi.dto.request;
 
+import com.monevi.constant.ErrorMessages;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,10 +16,10 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class ResetPasswordRequest {
 
-  @NotBlank
+  @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
   @Length(min = 8, message = "minimum 8 characters")
   private String newPassword;
 
-  @NotBlank
+  @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private String confirmationPassword;
 }

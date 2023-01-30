@@ -11,6 +11,10 @@ spring:
     smtpStartTlsEnable: true
     mailDebug: true
     templatePath: templates/email/
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 2MB
   cache:
     jcache:
       config: classpath:ehcache.xml

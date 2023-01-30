@@ -1,6 +1,7 @@
 package com.monevi.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.monevi.constant.ErrorMessages;
 import com.monevi.validation.annotation.ValidEmail;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,16 +18,16 @@ import javax.validation.constraints.NotBlank;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateSupervisorRequest {
 
-    @NotBlank
+    @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
     private String fullName;
 
     @ValidEmail
     private String email;
 
-    @NotBlank
+    @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
     @Length(min = 8, message = "minimum 8 characters")
     private String password;
 
-    @NotBlank
+    @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
     private String regionName;
 }

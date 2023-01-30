@@ -20,7 +20,7 @@ import com.monevi.validation.validator.EmailValidator;
 @Constraint(validatedBy = EmailValidator.class)
 @Documented
 public @interface ValidEmail {
-  String message() default "invalid email";
+  String message() default "Format email tidak sesuai";
 
   Class<?>[] groups() default {};
 
