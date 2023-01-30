@@ -1,8 +1,10 @@
 package com.monevi.service.impl;
 
-import com.monevi.entity.UserAccount;
-import com.monevi.enums.UserAccountRole;
-import com.monevi.repository.UserAccountRepository;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -13,10 +15,13 @@ import com.monevi.dto.request.CreateProgramRequest;
 import com.monevi.dto.request.UpdateProgramRequest;
 import com.monevi.entity.OrganizationRegion;
 import com.monevi.entity.Program;
+import com.monevi.entity.UserAccount;
+import com.monevi.enums.UserAccountRole;
 import com.monevi.exception.ApplicationException;
 import com.monevi.model.GetProgramFilter;
 import com.monevi.repository.OrganizationRegionRepository;
 import com.monevi.repository.ProgramRepository;
+import com.monevi.repository.UserAccountRepository;
 import com.monevi.service.ProgramService;
 import com.monevi.util.DateUtils;
 
@@ -48,6 +53,8 @@ public class ProgramServiceImpl implements ProgramService {
           ErrorMessages.USER_AND_ORGANIZATION_REGION_NOT_MATCH);
     }
 
+    this.validateDate(request.getStartDate());
+    this.validateDate(request.getEndDate());
     if (this.validateStartDateAndEndDate(request.getStartDate(), request.getEndDate())) {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
           ErrorMessages.INVALID_START_DATE_END_DATE);
@@ -64,6 +71,14 @@ public class ProgramServiceImpl implements ProgramService {
         .build();
     program.setOrganizationRegion(organizationRegion);
     return this.programRepository.save(program);
+  }
+
+  private void validateDate(String date) throws ApplicationException {
+    Long dateToValidate = DateUtils.convertDateToLong(date);
+    Long currentDate = new LocalDate().toDate().getTime();
+    if (dateToValidate < currentDate) {
+      throw new ApplicationException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_DATE);
+    }
   }
 
   private Boolean validateStartDateAndEndDate(String startDate, String endDate)
@@ -92,6 +107,9 @@ public class ProgramServiceImpl implements ProgramService {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
           ErrorMessages.PROGRAM_IS_LOCKED);
     }
+
+    this.validateDate(request.getStartDate());
+    this.validateDate(request.getEndDate());
     if (this.validateStartDateAndEndDate(request.getStartDate(), request.getEndDate())) {
       throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR,
           ErrorMessages.INVALID_START_DATE_END_DATE);
