@@ -54,8 +54,8 @@ public class ReportController {
   public MultipleBaseResponse<ReportResponse> getReports(
       @RequestParam(required = false) String regionId,
       @RequestParam(required = false) String organizationRegionId,
-      @RequestParam(required = false) @ValidDate String startDate,
-      @RequestParam(required = false) @ValidDate String endDate,
+      @RequestParam(required = false) String startDate,
+      @RequestParam(required = false) String endDate,
       @RequestParam(required = false) ReportStatus reportStatus,
       @RequestParam(defaultValue = "0", required = false) int page,
       @RequestParam(defaultValue = "1000", required = false) int size,
