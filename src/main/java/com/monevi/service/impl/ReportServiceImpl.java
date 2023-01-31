@@ -546,13 +546,9 @@ public class ReportServiceImpl implements ReportService {
 
       ReportSummary.GeneralLedgerData generalLedgerData = reportSummary
           .getGeneralLedgerAccountTypeData().get(generalLedgerAccountType);
-      ReportGeneralLedgerAccount lastMonthReportGeneralLedgerAccount = lastMonthReport.getReportGeneralLedgerAccounts()
-          .stream().filter(r -> r.getName().equals(generalLedgerAccountType)).findFirst()
-          .orElse(ReportGeneralLedgerAccount.builder().opname(Double.valueOf(0)).build());
       ReportGeneralLedgerAccount currentMonthReportGeneralLedgerAccount = currentMonthReport.getReportGeneralLedgerAccounts()
           .stream().filter(r -> r.getName().equals(generalLedgerAccountType)).findFirst()
           .orElse(ReportGeneralLedgerAccount.builder().opname(Double.valueOf(0)).build());
-      generalLedgerData.setPreviousMonthBalance(lastMonthReportGeneralLedgerAccount.getTotal());
       generalLedgerData.setOpnameAmount(currentMonthReportGeneralLedgerAccount.getOpname());
 
       ReportSummary.TransactionTypeData transactionTypeData = generalLedgerData
@@ -561,6 +557,16 @@ public class ReportServiceImpl implements ReportService {
       ReportSummary.EntryPositionData entryPositionData = transactionTypeData
           .getEntryPositionData().get(entryPosition);
       entryPositionData.setAmount(amount.doubleValue());
+    }
+    
+    for (GeneralLedgerAccountType type : GeneralLedgerAccountType.values()) {
+      ReportSummary.GeneralLedgerData generalLedgerData =
+          reportSummary.getGeneralLedgerAccountTypeData().get(type);
+      ReportGeneralLedgerAccount lastMonthReportGeneralLedgerAccount =
+          lastMonthReport.getReportGeneralLedgerAccounts().stream()
+              .filter(r -> r.getName().equals(type)).findFirst()
+              .orElse(ReportGeneralLedgerAccount.builder().opname(Double.valueOf(0)).build());
+      generalLedgerData.setPreviousMonthBalance(lastMonthReportGeneralLedgerAccount.getTotal());
     }
     return reportSummary;
   }
