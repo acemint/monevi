@@ -1,6 +1,7 @@
 package com.monevi.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.monevi.constant.ErrorMessages;
 import com.monevi.validation.annotation.ValidDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,16 +19,16 @@ import javax.validation.constraints.PositiveOrZero;
 @AllArgsConstructor
 public class CreateProgramRequest {
 
-  @NotBlank
+  @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private String organizationRegionId;
 
-  @NotBlank
+  @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private String programName;
 
-  @Positive
+  @Positive(message = ErrorMessages.MUST_BE_POSITIVE)
   private double budget;
 
-  @PositiveOrZero
+  @PositiveOrZero(message = ErrorMessages.MUST_BE_POSITIVE_OR_ZERO)
   private double subsidy;
 
   @ValidDate
@@ -36,7 +37,7 @@ public class CreateProgramRequest {
   @ValidDate
   private String endDate;
 
-  @NotBlank
+  @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private String userId;
 
 }

@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import com.monevi.constant.ErrorMessages;
 import com.monevi.validation.annotation.ValidDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,14 +20,14 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UpdateProgramRequest {
 
-  @NotBlank
+  @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private String name;
 
-  @NotNull
+  @NotNull(message = ErrorMessages.MUST_NOT_BE_BLANK)
   @Min(value = 0)
   private Double subsidy;
 
-  @NotNull
+  @NotNull(message = ErrorMessages.MUST_NOT_BE_BLANK)
   @Min(value = 1)
   private Double budget;
 

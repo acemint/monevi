@@ -1,9 +1,11 @@
 package com.monevi.dto.request;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.monevi.constant.ErrorMessages;
 import com.monevi.enums.EntryPosition;
 import com.monevi.enums.GeneralLedgerAccountType;
 import com.monevi.enums.TransactionType;
@@ -21,13 +23,13 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UpdateTransactionRequest {
 
-  @NotBlank
+  @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private String name;
 
   @ValidDate
   private String transactionDate;
 
-  @Positive
+  @Positive(message = ErrorMessages.MUST_BE_POSITIVE)
   private double amount;
 
   private EntryPosition entryPosition;
@@ -36,7 +38,6 @@ public class UpdateTransactionRequest {
 
   private GeneralLedgerAccountType generalLedgerAccountType;
 
-  @NotBlank
   private String description;
 
   private String proof;

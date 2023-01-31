@@ -1,6 +1,7 @@
 package com.monevi.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.monevi.constant.ErrorMessages;
 import com.monevi.enums.GeneralLedgerAccountType;
 import com.monevi.validation.annotation.ValidDate;
 import lombok.AllArgsConstructor;
@@ -19,13 +20,13 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SubmitReportRequest {
 
-  @NotBlank
+  @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private String organizationRegionId;
 
   @ValidDate
   private String date;
 
-  @NotBlank
+  @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private String userId;
 
   private Map<GeneralLedgerAccountType, Double> opnameData;

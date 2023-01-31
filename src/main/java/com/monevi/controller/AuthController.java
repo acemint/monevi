@@ -15,6 +15,7 @@ import com.monevi.service.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,6 +34,7 @@ import com.monevi.service.AuthService;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping(ApiPath.BASE + ApiPath.AUTH)
+@Validated
 public class AuthController {
 
   @Autowired
@@ -57,7 +59,7 @@ public class AuthController {
   @PostMapping(value = ApiPath.REGISTER + ApiPath.SUPERVISOR,
       consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<UserAccountResponse> createSupervisor(
-      @Valid @RequestBody CreateSupervisorRequest request) throws ApplicationException {
+      @RequestBody @Valid CreateSupervisorRequest request) throws ApplicationException {
     UserAccount userAccount = this.userAccountService.register(request);
     return BaseResponse.<UserAccountResponse>builder()
         .value(this.userAccountToUserAccountResponse.convert(userAccount)).build();
@@ -66,7 +68,7 @@ public class AuthController {
   @PostMapping(value = ApiPath.LOGIN, consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<UserLoginResponse> authenticateUser(
-      @Valid @RequestBody UserLoginRequest loginRequest) {
+      @RequestBody @Valid UserLoginRequest loginRequest) {
     UserLoginResponse response = this.authService.authenticateUser(loginRequest);
     return BaseResponse.<UserLoginResponse>builder()
        .value(response).build();
@@ -82,7 +84,7 @@ public class AuthController {
 
   @PostMapping(value = ApiPath.RESET_PASSWORD, produces = MediaType.APPLICATION_JSON_VALUE)
   public BaseResponse<Boolean> resetPassword(@RequestParam @NotBlank String token,
-      @Valid @RequestBody ResetPasswordRequest request) throws ApplicationException {
+      @RequestBody @Valid ResetPasswordRequest request) throws ApplicationException {
     Boolean response = this.authService.resetPassword(token, request);
     return BaseResponse.<Boolean>builder().value(response).build();
   }
