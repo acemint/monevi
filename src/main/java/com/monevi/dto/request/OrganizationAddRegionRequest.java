@@ -1,6 +1,7 @@
 package com.monevi.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.monevi.constant.ErrorMessages;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +18,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class OrganizationAddRegionRequest implements Serializable {
 
-  @NotNull
+  @NotNull(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private String name;
 
   private Set<String> regionNames;

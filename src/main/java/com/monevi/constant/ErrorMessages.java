@@ -49,4 +49,7 @@ public interface ErrorMessages {
   String INVALID_TRANSACTION_DATE = "Tanggal tidak boleh kurang dari hari ini";
   String INVALID_PROGRAM_DATE = "Tanggal tidak boleh lebih dari hari ini";
   String FAILED_TO_SEND_EMAIL = "Gagal mengirim email";
+  String MUST_NOT_BE_BLANK = "Data tidak boleh kosong";
+  String MUST_BE_POSITIVE = "Nominal transaksi tidak boleh kurang dari sama dengan 0";
+  String MUST_BE_POSITIVE_OR_ZERO = "Nominal transaksi tidak boleh kurang dari 0";
 }

@@ -2,6 +2,7 @@ package com.monevi.dto.request;
 
 import javax.validation.constraints.NotBlank;
 
+import com.monevi.constant.ErrorMessages;
 import com.monevi.validation.annotation.ValidEmail;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,10 +16,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserLoginRequest {
 
-  @NotBlank
+  @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
   @ValidEmail
   private String username;
 
-  @NotBlank
+  @NotBlank(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private String password;
 }

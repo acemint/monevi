@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,6 +46,7 @@ import com.monevi.util.TransactionUrlUtils;
 
 @RestController
 @RequestMapping(ApiPath.BASE + ApiPath.TRANSACTION)
+@Validated
 public class TransactionController {
 
   @Autowired
@@ -60,7 +62,7 @@ public class TransactionController {
   @PostMapping(value = ApiPath.CREATE_NEW, consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public MultipleBaseResponse<TransactionResponse> createNewTransaction(
-      @Valid @RequestBody List<CreateTransactionRequest> createTransactionRequests)
+      @RequestBody List<@Valid CreateTransactionRequest> createTransactionRequests)
       throws ApplicationException {
     List<TransactionResponse> newTransactions =
         this.transactionService.createTransactions(createTransactionRequests).stream()
@@ -78,7 +80,7 @@ public class TransactionController {
   @PutMapping(value = ApiPath.EDIT)
   public BaseResponse<TransactionResponse> updateTransaction(
       @RequestParam @NotBlank String transactionId,
-      @Valid @RequestBody UpdateTransactionRequest updateTransactionRequest)
+      @RequestBody @Valid UpdateTransactionRequest updateTransactionRequest)
       throws ApplicationException {
     Transaction newTransaction =
         this.transactionService.updateTransaction(transactionId, updateTransactionRequest);

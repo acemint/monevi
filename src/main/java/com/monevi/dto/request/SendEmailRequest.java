@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import com.monevi.constant.ErrorMessages;
 import com.monevi.enums.MessageTemplate;
 import com.monevi.validation.annotation.ValidEmail;
 
@@ -18,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SendEmailRequest {
 
-  @NotNull
+  @NotNull(message = ErrorMessages.MUST_NOT_BE_BLANK)
   private MessageTemplate messageTemplateId;
 
   @ValidEmail

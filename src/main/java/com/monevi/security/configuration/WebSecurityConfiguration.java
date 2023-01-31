@@ -83,7 +83,7 @@ public class WebSecurityConfiguration {
             "/api/monevi/program/**",
             "/api/monevi/organization/**",
             "/api/monevi/wallet/**")
-        .authenticated();
+        .permitAll();
     http.authenticationProvider(authenticationProvider());
     http.addFilterBefore(authenticationJwtTokenFilter(),
         UsernamePasswordAuthenticationFilter.class);
